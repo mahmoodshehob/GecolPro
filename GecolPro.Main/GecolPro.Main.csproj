@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-GecolPro.Main-470ed307-692c-4e7b-8c61-fb8671f71b2a</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ini-parser" Version="2.5.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.20" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.20" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.20" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.20" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.20" />
+    <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary.DCBSystem\ClassLibrary.DCBSystem.csproj" />
+    <ProjectReference Include="..\ClassLibrary.GecolSystem\ClassLibrary.GecolSystem.csproj" />
+    <ProjectReference Include="..\ClassLibrary.Models\ClassLibrary.Models.csproj" />
+    <ProjectReference Include="..\ClassLibrary.Services\ClassLibrary.Services.csproj" />
+  </ItemGroup>
+
+</Project>
