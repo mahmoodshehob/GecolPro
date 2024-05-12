@@ -17,7 +17,7 @@ namespace ClassLibrary.DCBSystem
 
         private static DirectDebitUnitRsp directDebitUnitRsp = new DirectDebitUnitRsp();
 
-        private static string FaultString = "";
+        //private static string FaultString = "";
 
         private enum SOAPAction
         {

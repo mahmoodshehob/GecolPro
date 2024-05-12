@@ -8,14 +8,13 @@ using System.Threading.Tasks;
 
 namespace ClassLibrary.DCBSystem
 {
-    public class SoapServiceClient
+    public class SoapServiceClient 
     {
-        private readonly HttpClient _client;
+        private readonly HttpClient _client = new HttpClient();
         private readonly AuthHeader authHeader = new AuthHeader();
 
         public SoapServiceClient()
-        {
-            _client = new HttpClient();
+        {   
             _client.Timeout = TimeSpan.FromMilliseconds(5000);
         }
 
