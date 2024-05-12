@@ -18,6 +18,9 @@ namespace GecolPro.Main.Controllers
         //api/KannelGw/PostMessage/v1
         public async Task<IActionResult> PostMessage([FromBody] MessageData messageData)
         {
+
+
+           
             var result = await smsActions.SubmitSms(null, messageData.Receiver,messageData.Message);
 
             if (result.StatusCode == "200")

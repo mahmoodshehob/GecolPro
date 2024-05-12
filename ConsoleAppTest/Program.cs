@@ -1,12 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
+using ClassLibrary.DCBSystem_Update.Models;
 
 
-using ClassLibrary.GecolSystem_Update;
-using ClassLibrary.GecolSystem_Update.Models;
+var a = new AuthHeader();
 
-IGecolServices services = new GecolServices();
+Console.WriteLine(a.Username);
+Console.WriteLine(a.Password);
 
-var login = services.LoginReqOp();
 
-Console.ReadLine();
 Console.ReadLine();
