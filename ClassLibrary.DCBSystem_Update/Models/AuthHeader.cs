@@ -12,11 +12,11 @@ namespace ClassLibrary.DCBSystem_Update.Models
 
             Username = defaultValues!.Username;
             Password = defaultValues.Password;
-            Url = new Uri(defaultValues.Url);
+            Url = new Uri(defaultValues.Url!);
         }
 
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
         public Uri Url { get; set; }
     }
 }

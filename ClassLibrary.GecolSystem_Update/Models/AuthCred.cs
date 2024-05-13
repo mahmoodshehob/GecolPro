@@ -1,4 +1,6 @@
-﻿namespace ClassLibrary.GecolSystem_Update.Models
+﻿using Newtonsoft.Json;
+
+namespace ClassLibrary.GecolSystem_Update.Models
 {
     public class AuthCred
     {
@@ -7,11 +9,13 @@
         public string Url { get; set; }
 
 
-        public AuthCred(string username = "AG0502", string password = "1234567891012", string url = "http://160.19.103.138:40808/xmlvend/xmlvend.wsdl")
+        public AuthCred()
         {
-            Username = username;
-            Password = password;
-            Url = url;
+            var json = File.ReadAllText("defaultValues.json");
+            var defaultValues = JsonConvert.DeserializeObject<DefaultValues>(json);
+            Username = defaultValues.Username!;
+            Password = defaultValues.Password!;
+            Url = defaultValues.Url!;
         }
     }
 }
