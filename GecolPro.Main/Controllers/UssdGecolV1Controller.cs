@@ -4,11 +4,9 @@ using System.Text;
 using System.Xml.Serialization;
 using GecolPro.Main.UssdService;
 //using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using System;
-using GecolPro.Main.Models.Cache;
-using GecolPro.Main.Process.Redis;
+
 using GecolPro.Main.ServiceProcess;
-using ClassLibrary.Services.Logger;
+using ClassLibrary.Services;
 using static ClassLibrary.Models.UssdModels.MultiRequestUSSD;
 using static ClassLibrary.Models.UssdModels.MultiResponseUSSD;
 
@@ -45,7 +43,7 @@ namespace GecolPro.Main.Controllers
 
                 MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
 
-                Logger logger = new Logger();
+                Loggers logger = new Loggers();
                 await logger.LogInfoAsync("This is an informational message.");
 
                 MultiResponse multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest , "En");

@@ -1,6 +1,4 @@
-﻿using GecolPro.Main.Models.Cache;
-using GecolPro.Main.Process.Redis;
-using GecolPro.Main.UssdService;
+﻿
 
 using static ClassLibrary.Models.UssdModels.MultiRequestUSSD;
 using static ClassLibrary.Models.UssdModels.MultiResponseUSSD;
@@ -9,12 +7,12 @@ using ClassLibrary.Models.GecolModels;
 
 using ClassLibrary.DCBSystem;
 
-using ClassLibrary.Services.SmsGetaway;
-
-using ClassLibrary.Services.Logger;
+using ClassLibrary.Services;
 using System.Globalization;
 using ClassLibrary.GecolSystem;
 using System;
+using Microsoft.VisualBasic;
+using Newtonsoft.Json;
 
 namespace GecolPro.Main.ServiceProcess
 {
@@ -22,9 +20,7 @@ namespace GecolPro.Main.ServiceProcess
     {
         private static Random random = new Random();
 
-        private static SmsActions smsActions = new SmsActions();
-
-        private static ClassLibrary.Services.Logger.Logger LoggerG = new Logger();
+        private static Loggers LoggerG = new Loggers();
 
 
         private enum RespActions
@@ -99,8 +95,8 @@ namespace GecolPro.Main.ServiceProcess
                     // Create Ussd and Message contents
                     try
                     {
-                        //Menu = await MenuReader(subProService, Lang);
-                        Menu = await ProcessChargeForToken(subProService, Lang);
+                        Menu = await MenuReader(subProService, Lang);
+                        //Menu = await ProcessChargeForToken(subProService, Lang);
 
 
                         if (!string.IsNullOrEmpty(Menu.MessageCont))
@@ -263,11 +259,27 @@ namespace GecolPro.Main.ServiceProcess
             }
         }
 
-        private static async void SendGecolMessage(string? sender, string receiver, string message)
+        public static async void SendGecolMessage(string? sender, string receiver, string message)
         {
             try
             {
-                var messageResponse = await smsActions.SubmitSms(sender, receiver, message);
+
+                var client = new HttpClient();
+                var request = new HttpRequestMessage(HttpMethod.Post, "http://172.16.31.17:8086/api/Messages");
+
+                var jsonObject = new
+                {
+                    Sender = "2188997772",
+                    Receiver = receiver,
+                    Massage = message
+                };
+
+
+                var content = new StringContent(JsonConvert.SerializeObject(jsonObject), null, "application/json");
+                request.Content = content;
+                var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+                var messageResponse = await response.Content.ReadAsStringAsync();
             }
             catch (Exception ex)
             {

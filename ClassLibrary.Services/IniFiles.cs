@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.Metrics;
 
-namespace ClassLibrary.Services.IniFiles
+namespace ClassLibrary.Services
 {
     public class IniFiles
     {
@@ -26,11 +26,11 @@ namespace ClassLibrary.Services.IniFiles
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); //@"C:\Configrations";
-                baseDirectory =  Path.Combine(desktop, "Configrations");
+                baseDirectory = Path.Combine(desktop, "Configrations");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                baseDirectory = "/home/gecolpro/Configrations";
+                baseDirectory = $"/home/{Environment.UserName}/Configrations";
             }
             else
             {
@@ -88,7 +88,7 @@ namespace ClassLibrary.Services.IniFiles
                     // Add sections GECOL_Section
 
                     data.Sections.AddSection("GECOL_Section");
-                  
+
                     data["GECOL_Section"].AddKey("Protocol", "http");
                     data["GECOL_Section"].AddKey("IpAddress", "160.19.103.138");
                     data["GECOL_Section"].AddKey("Port", "40808");

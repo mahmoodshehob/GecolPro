@@ -43,8 +43,8 @@ namespace GecolPro.Main.Controllers
         public IActionResult systemOp()
         {
             string text = RuntimeInformation.IsOSPlatform(OSPlatform.Windows).ToString();
-            
-            return Content(text);
+            string username = Environment.UserName;
+            return Content(username);
         }
 
 

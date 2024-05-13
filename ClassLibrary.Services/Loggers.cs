@@ -3,13 +3,13 @@ using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
 
 
-namespace ClassLibrary.Services.Logger
+namespace ClassLibrary.Services
 {
-    public class Logger
+    public class Loggers
     {
         private string baseDirectory;
 
-        public Logger()
+        public Loggers()
         {
             // Check operating system
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

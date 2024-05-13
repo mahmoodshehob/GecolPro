@@ -185,15 +185,15 @@ namespace ClassLibrary.GecolSystem_Update
         Task<string?> ToCreditVendCRsp(string xmlSoapResponse);
         Task<FaultModel.xmlvendFaultRespFault> ToFaultRsp(string xmlSoapResponse);
         Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse);
-
     }
 
 
     public interface ICreateXml
-    {
+    {  
+        string CreateXmlLoginRequest();
         string CreateXmlCustomerRequest(string meterNumber);
         string CreateXmlCreditVendRequest(string meterNumber, string uniqueNumber, int purchaseValue);
-        string CreateXmlLoginRequest();
+      
     }
 
 }

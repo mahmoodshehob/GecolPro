@@ -1,15 +1,10 @@
 using GecolPro.Main.Data;
-using GecolPro.Main.Process;
-using GecolPro.Main.Process.Redis;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-CreateFiles.CreateIniConfigration();
 
 //try
 //{
