@@ -1,11 +1,20 @@
 ﻿
-using ClassLibrary.DCBSystem_Update.Models;
+using ClassLibrary.GecolSystem_Update;
+using ClassLibrary.GecolSystem_Update.Models;
 
 
-var a = new AuthHeader();
+var a = new CommonParameters();
 
 Console.WriteLine(a.Username);
 Console.WriteLine(a.Password);
+Console.WriteLine(a.Url);
+Console.WriteLine(a.EANDeviceID);
+Console.WriteLine(a.GenericDeviceID);
+Console.WriteLine(a.UniqueNumber);
+Console.WriteLine(a.DateTimeReq);
+
+
+
 
 
 Console.ReadLine();
