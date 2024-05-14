@@ -1,7 +1,10 @@
 ﻿
 using ClassLibrary.GecolSystem_Update;
 using ClassLibrary.GecolSystem_Update.Models;
+using ClassLibrary.Services;
 
+
+Loggers loggers = new Loggers();
 
 var a = new CommonParameters();
 
@@ -13,7 +16,7 @@ Console.WriteLine(a.GenericDeviceID);
 Console.WriteLine(a.UniqueNumber);
 Console.WriteLine(a.DateTimeReq);
 
-
+//loggers.LogInfoAsync();
 
 
 

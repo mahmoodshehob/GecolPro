@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ClassLibrary.DCBSystem\ClassLibrary.DCBSystem.csproj" />
     <ProjectReference Include="..\ClassLibrary.GecolSystem\ClassLibrary.GecolSystem.csproj" />
-    <ProjectReference Include="..\ClassLibrary.Models\ClassLibrary.Models.csproj" />
     <ProjectReference Include="..\ClassLibrary.Services\ClassLibrary.Services.csproj" />
   </ItemGroup>
 

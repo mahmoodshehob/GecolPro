@@ -1,35 +1,42 @@
 ﻿using GecolPro.Main.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using GecolPro.Main.UssdService;
-//using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Xml.Serialization;
 
 using GecolPro.Main.ServiceProcess;
-using ClassLibrary.Services;
-using static GecolPro.Main.Models.MultiRequestUSSD;
 using GecolPro.Main.Models;
+
+
+using ClassLibrary.Services;
+
+
+
 
 namespace GecolPro.Main.Controllers
 {
     [ApiController]
     //[Route("api/{Controller}")]
-    public class UssdGecolV1Controller : ControllerBase
+    public class UssdGecolV2Controller : ControllerBase
     {
-        private static MultiRequest multiRequestRE = new MultiRequest();
-        private static readonly string contentType = "text/xml";
-        //private ServiceProcess.SendMessage sendMessage = new ServiceProcess.SendMessage();
+        private ServiceProcess.IConvertReq ConvertReqToObject;
+        private ServiceProcess.ICreateXmlResp ConvertRsqToXml;
+        private ServiceProcess.ICreateXmlResp createXmlResp;
 
+        private Loggers logger = new Loggers();
 
+        private MultiRequestUSSD.MultiRequest multiRequest = new MultiRequestUSSD.MultiRequest();
 
-        private readonly ApplicationDbContext _context;
+        private readonly string contentType = "text/xml";
 
-        public UssdGecolV1Controller(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        //private readonly ApplicationDbContext _context;
+
+        //public UssdGecolV2Controller(ApplicationDbContext context)
+        //{
+        //    _context = context;
+        //}
         [HttpPost]
         [Consumes("text/xml")]
-        [Route("api/{Controller}/creditVendReq/v1/En")]
+        [Route("api/{Controller}/creditVendReq/v2/En")]
         public async Task<ContentResult> PostEn()
         {
             using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
@@ -38,21 +45,18 @@ namespace GecolPro.Main.Controllers
 
                 string xmlContent = await reader.ReadToEndAsync();
 
-                MultiRequestUSSD.MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
+                multiRequest = await ConvertReqToObject.ConverterFaster(xmlContent);
 
-                Loggers logger = new Loggers();
                 await logger.LogInfoAsync("This is an informational message.");
-                MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest , "En");
+
+                MultiResponseUSSD multiResponse = await UssdProcessV2.ServiceProcessing(multiRequest , "En");
 
                 response = new ContentResult
                 {
                     ContentType = contentType,
-                    Content = Responses.Resp(multiResponse),
+                    Content = createXmlResp.Resp(multiResponse),
                     StatusCode = 200
                 };
-
-              
-
                 return response;
             }
 
@@ -61,7 +65,7 @@ namespace GecolPro.Main.Controllers
 
         [HttpPost]
         [Consumes("text/xml")]
-        [Route("api/{Controller}/creditVendReq/v1/Ar")]
+        [Route("api/{Controller}/creditVendReq/v2/Ar")]
         public async Task<ContentResult> PostAr()
         {
             using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
@@ -70,19 +74,21 @@ namespace GecolPro.Main.Controllers
 
                 string xmlContent = await reader.ReadToEndAsync();
 
-                MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
+                multiRequest = await ConvertReqToObject.ConverterFaster(xmlContent);
 
-                MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest, "Ar");
+                await logger.LogInfoAsync("This is an informational message.");
+
+                MultiResponseUSSD multiResponse = await UssdProcessV2.ServiceProcessing(multiRequest, "Ar");
 
                 response = new ContentResult
                 {
                     ContentType = contentType,
-                    Content = Responses.Resp(multiResponse),
+                    Content = createXmlResp.Resp(multiResponse),
                     StatusCode = 200
                 };
-
                 return response;
             }
+
         }
     }
 }

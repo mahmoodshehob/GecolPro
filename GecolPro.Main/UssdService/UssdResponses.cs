@@ -1,10 +1,10 @@
-﻿using ClassLibrary.Models.UssdModels;
+﻿using GecolPro.Main.Models;
 
 namespace GecolPro.Main.UssdService
 {
     public class Responses
     {
-        public static string Resp(MultiResponseUSSD.MultiResponse multiResponse)
+        public static string Resp(MultiResponseUSSD multiResponse)
         {
             return
  @"<?xml version=""1.0"" encoding=""UTF-8""?>

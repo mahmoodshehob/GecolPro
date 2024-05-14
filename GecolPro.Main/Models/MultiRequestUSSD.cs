@@ -6,87 +6,87 @@ using System.Xml.Serialization;
 
 namespace GecolPro.Main.Models
 {
-    
-    //public class MultiRequestUSSD
-    //{
 
-    //    public class MultiRequestSerXml
-    //    {
+    public class MultiRequestUSSD
+    {
 
-    //        [XmlRoot(ElementName = "value")]
-    //        public class Value
-    //        {
+        public class MultiRequestSerXml
+        {
 
-    //            [XmlElement(ElementName = "string")]
-    //            public string String { get; set; }
+            [XmlRoot(ElementName = "value")]
+            public class Value
+            {
 
-    //            [XmlElement(ElementName = "dateTime.iso8601")]
-    //            public string DateTimeIso8601 { get; set; }
-    //        }
+                [XmlElement(ElementName = "string")]
+                public string String { get; set; }
 
-    //        [XmlRoot(ElementName = "member")]
-    //        public class Member
-    //        {
+                [XmlElement(ElementName = "dateTime.iso8601")]
+                public string DateTimeIso8601 { get; set; }
+            }
 
-    //            [XmlElement(ElementName = "name")]
-    //            public string Name { get; set; }
+            [XmlRoot(ElementName = "member")]
+            public class Member
+            {
 
-    //            [XmlElement(ElementName = "value")]
-    //            public Value Value { get; set; }
-    //        }
+                [XmlElement(ElementName = "name")]
+                public string Name { get; set; }
 
-    //        [XmlRoot(ElementName = "struct")]
-    //        public class Struct
-    //        {
+                [XmlElement(ElementName = "value")]
+                public Value Value { get; set; }
+            }
 
-    //            [XmlElement(ElementName = "member")]
-    //            public List<Member> Member { get; set; }
-    //        }
+            [XmlRoot(ElementName = "struct")]
+            public class Struct
+            {
 
-    //        [XmlRoot(ElementName = "values")]
-    //        public class Values
-    //        {
+                [XmlElement(ElementName = "member")]
+                public List<Member> Member { get; set; }
+            }
 
-    //            [XmlElement(ElementName = "struct")]
-    //            public Struct Struct { get; set; }
-    //        }
+            [XmlRoot(ElementName = "values")]
+            public class Values
+            {
 
-    //        [XmlRoot(ElementName = "param")]
-    //        public class Param
-    //        {
+                [XmlElement(ElementName = "struct")]
+                public Struct Struct { get; set; }
+            }
 
-    //            [XmlElement(ElementName = "value")]
-    //            public Values Values { get; set; }
-    //        }
+            [XmlRoot(ElementName = "param")]
+            public class Param
+            {
 
-    //        [XmlRoot(ElementName = "params")]
-    //        public class Params
-    //        {
+                [XmlElement(ElementName = "value")]
+                public Values Values { get; set; }
+            }
 
-    //            [XmlElement(ElementName = "param")]
-    //            public Param Param { get; set; }
-    //        }
+            [XmlRoot(ElementName = "params")]
+            public class Params
+            {
 
-    //        [XmlRoot(ElementName = "methodCall")]
-    //        public class MethodCall
-    //        {
+                [XmlElement(ElementName = "param")]
+                public Param Param { get; set; }
+            }
 
-    //            [XmlElement(ElementName = "methodName")]
-    //            public string MethodName { get; set; }
+            [XmlRoot(ElementName = "methodCall")]
+            public class MethodCall
+            {
 
-    //            [XmlElement(ElementName = "params")]
-    //            public Params Params { get; set; }
-    //        }
-    //    }
+                [XmlElement(ElementName = "methodName")]
+                public string MethodName { get; set; }
 
-    //    public class MultiRequest
-    //    {
-    //        public string TransactionId { get; set; }
-    //        public string TransactionTime { get; set; }
-    //        public string MSISDN { get; set; }
-    //        public string USSDServiceCode { get; set; }
-    //        public string USSDRequestString { get; set; }
-    //        public string Response { get; set; }
-    //    }
-    //}
+                [XmlElement(ElementName = "params")]
+                public Params Params { get; set; }
+            }
+        }
+
+        public class MultiRequest
+        {
+            public string TransactionId { get; set; }
+            public string TransactionTime { get; set; }
+            public string MSISDN { get; set; }
+            public string USSDServiceCode { get; set; }
+            public string USSDRequestString { get; set; }
+            public string Response { get; set; }
+        }
+    }
 }

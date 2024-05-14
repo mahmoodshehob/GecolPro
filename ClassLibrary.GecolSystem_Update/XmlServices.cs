@@ -6,6 +6,27 @@ namespace ClassLibrary.GecolSystem_Update
 {
     internal class XmlServices : ICreateResponse,ICreateXml
     {
+
+
+        public async Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse)
+        {
+            LoginRspXml.LoginRsp loginRsp = new();
+            XmlSerializer serializer = new(typeof(LoginRspXml.Envelope));
+
+            using StringReader reader = new(xmlSoapResponse);
+            await Task.Run(() =>
+            {
+                var envelope = (LoginRspXml.Envelope)serializer.Deserialize(reader);
+
+                loginRsp = envelope!.Body.user;
+
+                return loginRsp;
+
+            }).ConfigureAwait(false);
+
+            return loginRsp;
+        }
+
         public async Task<string?> ToCreditVendCRsp(string xmlSoapResponse) => await Task.Run(() =>
         {
             XmlDocument doc = new();
@@ -69,25 +90,6 @@ namespace ClassLibrary.GecolSystem_Update
                     Desc = ex.Message
                 };
             }
-        }
-
-        public async Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse)
-        {
-            LoginRspXml.LoginRsp loginRsp = new();
-            XmlSerializer serializer = new(typeof(LoginRspXml.Envelope));
-
-            using StringReader reader = new(xmlSoapResponse);
-            await Task.Run(() =>
-            {
-                var envelope = (LoginRspXml.Envelope)serializer.Deserialize(reader);
-
-                loginRsp = envelope!.Body.user;
-
-                return loginRsp;
-
-            }).ConfigureAwait(false);
-
-            return loginRsp;
         }
 
         public string CreateXmlCustomerRequest(string meterNumber)
@@ -187,14 +189,11 @@ namespace ClassLibrary.GecolSystem_Update
         Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse);
     }
 
-
     public interface ICreateXml
     {  
         string CreateXmlLoginRequest();
         string CreateXmlCustomerRequest(string meterNumber);
-        string CreateXmlCreditVendRequest(string meterNumber, string uniqueNumber, int purchaseValue);
-      
+        string CreateXmlCreditVendRequest(string meterNumber, string uniqueNumber, int purchaseValue); 
     }
-
 }
 

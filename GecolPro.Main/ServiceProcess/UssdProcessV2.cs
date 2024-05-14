@@ -1,19 +1,24 @@
-﻿using System.Globalization;
+﻿
+
+using static GecolPro.Main.Models.MultiRequestUSSD;
+using static GecolPro.Main.Models.MultiResponseUSSD;
+
+//using ClassLibrary.Models.GecolModels;
+using GecolPro.Main.Models;
+
+
+using ClassLibrary.DCBSystem;
+
+using ClassLibrary.Services;
+using System.Globalization;
+using ClassLibrary.GecolSystem;
 using System;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
-//Models
-using GecolPro.Main.Models;
-using static GecolPro.Main.Models.MultiRequestUSSD;
-// Class Library
-using ClassLibrary.DCBSystem;
-using ClassLibrary.GecolSystem;
-using ClassLibrary.Services;
-
 
 namespace GecolPro.Main.ServiceProcess
 {
-    public class UssdProcessV1
+    public class UssdProcessV2
     {
         private static Random random = new Random();
 
@@ -305,46 +310,6 @@ namespace GecolPro.Main.ServiceProcess
             //}
 
         }
-
-
-
-
-
-
-        //public static async void OrderGecolToken()
-        //{
-        //    var Soapcli = new ClassLibrary.GecolSystem.SoapServiceClient();
-        //    var SoapRsp = await Soapcli.SendSoapRequest(xmlresp, "");
-        //    var RespActions = ClassLibrary.GecolSystem.GecolConvertRsp.ConvCreditVendCRsp.Converte(SoapRsp.Responce);
-        //    string tkn = RespActions.Result.ToString();
-
-
-
-        //}
-
-
-
-        //        private static string xmlresp = @"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>
-        //<soapenv:Body>
-        //<ns2:creditVendReq xmlns:ns2='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='ns2:CreditVendReq'>
-        //<clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='0000000000001'> </clientID>
-        //<terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='0000000000001'> </terminalID>
-        //<msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='20230701050523' uniqueNumber='000009'> </msgID>
-        //<authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
-        //<opName>AG0502</opName>
-        //<password>1234567891012</password>
-        //</authCred>
-        //<resource xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='Electricity'> </resource>
-        //<idMethod xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='VendIDMethod'>
-        //<meterIdentifier xsi:type='MeterNumber' msno='0268999900262'/>
-        //</idMethod>
-        //<ns2:purchaseValue xsi:type='ns2:PurchaseValueCurrency'>
-        //<ns2:amt value='20' symbol='LYD'/>
-        //</ns2:purchaseValue>
-        //</ns2:creditVendReq>
-        //</soapenv:Body>
-        //</soapenv:Envelope>";
-
 
     }
 }

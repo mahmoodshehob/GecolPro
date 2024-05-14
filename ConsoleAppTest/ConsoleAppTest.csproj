@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ClassLibrary.DCBSystem_Update\ClassLibrary.DCBSystem_Update.csproj" />
     <ProjectReference Include="..\ClassLibrary.GecolSystem_Update\ClassLibrary.GecolSystem_Update.csproj" />
+    <ProjectReference Include="..\ClassLibrary.Services\ClassLibrary.Services.csproj" />
   </ItemGroup>
 
 </Project>

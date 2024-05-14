@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
-using ClassLibrary.Models.GecolModels;
-using GecolPro.Main.Models.Cache;
-using static ClassLibrary.Models.UssdModels.MultiResponseUSSD;
+using GecolPro.Main.Models;
 
 namespace GecolPro.Main.ServiceProcess
 {
