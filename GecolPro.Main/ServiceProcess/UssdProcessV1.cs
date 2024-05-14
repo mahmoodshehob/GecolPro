@@ -19,6 +19,7 @@ namespace GecolPro.Main.ServiceProcess
 
         private static Loggers LoggerG = new Loggers();
 
+        private static MsgContent msgContentResult = new MsgContent();
 
         private enum RespActions
         {
@@ -32,110 +33,11 @@ namespace GecolPro.Main.ServiceProcess
             False
         }
 
-        public static async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
-        {
-
-            await LoggerG.LogInfoAsync("UssdRequest|");
-
-            (string UssdCont, string? MessageCont) Menu;
-
-
-            string[] Para = multiRequest.USSDRequestString.Split('#');
-
-            //
-            //check if the amount value if int or not
-            //
-            int amount = 0;
-            if (int.TryParse(Para[1], out int result))
-            {
-                amount = result;
-            }
-
-
-            string uniqueNumber = random.Next(1, 999999).ToString("D6");
-
-
-
-
-            SubProService subProService = new SubProService()
-            {
-                ConversationID = multiRequest.TransactionTime.ToString(),
-
-                MSISDN = multiRequest.MSISDN,
-
-                DateTimeReq = DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss").Replace("T",""),
-
-                UniqueNumber = uniqueNumber,
-
-                MeterNumber = Para[0].ToString(),
-
-                Amount = amount
-
-            };
-
-
-            if (DateTime.TryParseExact(subProService.ConversationID, "M/d/yyyy h:mm:ss tt",
-                                   CultureInfo.InvariantCulture,
-                                   DateTimeStyles.None,
-                                   out DateTime parsedDate))
-            {
-                // Format the DateTime object into the desired format
-                subProService.ConversationID = parsedDate.ToString("yyyyMMddHHmmss");
-            }
-
-
-
-            if (await CheckServiceExist())
-            {
-                if (await CheckMeterExist(subProService.MeterNumber))
-                {
-                    // Create Ussd and Message contents
-                    try
-                    {
-                        Menu = await MenuReader(subProService, Lang);
-                        //Menu = await ProcessChargeForToken(subProService, Lang);
-
-
-                        if (!string.IsNullOrEmpty(Menu.MessageCont))
-                            SendGecolMessage(null, subProService.MSISDN, Menu.MessageCont);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Menu.UssdCont = ex.Message;
-                        Menu.MessageCont = ex.Message;
-                    }
-                }
-                else
-                {
-                    Menu.UssdCont = await ServiceProcess.Menus.MeterNotExist(subProService.MeterNumber, Lang);
-                }
-            }
-            else
-            {
-                Menu.UssdCont = await ServiceProcess.Menus.UnderMaintenance_Gecol(Lang);
-            }
-
-            // Generate USSD Response
-
-            var multiResponse = new MultiResponseUSSD()
-            {
-                TransactionId = multiRequest.TransactionId,
-                TransactionTime = DateTime.Now.ToString("yyyyMMddTHH:mm:ss"),
-                MSISDN = multiRequest.MSISDN,
-                USSDServiceCode = "0",
-                USSDResponseString = Menu.UssdCont,
-                Action = RespActions.end.ToString(),
-            };
-
-            return multiResponse;
-        }
-
-        private static async Task<(string UssdCont, string? MessageCont)> MenuReader(SubProService subProService, string Lang)
+        private static async Task<MsgContent> MenuReader(SubProService subProService, string Lang)
         {
             var subProServiceResp = await DcbOperation.QryUserBasicBalOp(subProService.MSISDN);
 
-            if (subProServiceResp.State)
+            if (subProServiceResp.Status)
             {
 
                 var BalanceValue = subProServiceResp.Response;
@@ -147,44 +49,22 @@ namespace GecolPro.Main.ServiceProcess
                 outputs.Add(subProService.MSISDN);
                 outputs.Add(BalanceValue);
 
-                var Result = await Menus.CheckAsync(outputs, Lang);
-                return (Result.UssdCont, Result.MessageCont);
+                msgContentResult = await Menus.CheckAsync(outputs, Lang);
+                return (msgContentResult);
 
             }
             else
             {
+                msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
 
-                return (await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang), null);
+                return (msgContentResult);
 
             }
         }
 
-        // the logic here use two condtions ,
         //
-        // 1. check meter in database if exist  return with true
+        // Chech if Gecol System Reachable or Not :
         //
-        // 2. if not in DB check by API if exist add to DB and return with true
-        //
-        // 3. if not exist reply with false
-        //
-
-        private static async Task<Boolean> CheckMeterExist(string MeterNumber)
-        {
-            // Query in DB
-
-
-            //if ()
-            //{ }
-            //else if ()
-            //{ }
-            //else 
-            //{ }
-            if ((await ClassLibrary.GecolSystem.GecolOperation.ConfirmCustomerOp(MeterNumber)).Status)
-            {
-                return true;
-            }
-            return false;
-        }
 
         private static async Task<Boolean> CheckServiceExist()
         {
@@ -197,78 +77,208 @@ namespace GecolPro.Main.ServiceProcess
             return false;
         }
 
-        public static async void ChargeDcbToGecol()
+        //
+        // Chech if Meter Exist or not :
+        //
+        // 1. check first in DataBase.
+        //
+        // 2. if not exist in DB check in Gecol by API.
+        //
+        // 3. reply with not exist if not right meter. 
+        //
+
+        private static async Task<Boolean> CheckMeterExist(string MeterNumber)
         {
+            // Query in DB
 
-            string Id = DateTime.Now.ToString("yyyyMMddHHmmss");
-            string msisdn = "218921809678";
-            int amount = 1;
+            //if ()
+            //{ }
+            //else if
+      
+            if ((await ClassLibrary.GecolSystem.GecolOperation.ConfirmCustomerOp(MeterNumber)).Status)
+            {
+                return true;
+            }
 
+            //else 
+            //{ }
 
-            var resp = await DcbOperation.DirectDebitUnitOp(Id, msisdn, amount);
+            return false;
         }
 
-        private static async Task<(string UssdCont, string? MessageCont)> ProcessChargeForToken(SubProService subProService, string Lang)
-        {
-            await LoggerG.LogInfoAsync("ReqToBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+        //
+        // Charge balance from billing :
+        //
+        // 1. if charging Success reply with true.
+        //
+        // 2. if charging Failed reply with false.
+        //
 
+        private static async Task<TokenOrError> ProcessChargeForToken(SubProService subProService, string Lang)
+        {
+
+            TokenOrError tokenOrError;
+
+            await LoggerG.LogInfoAsync("ReqToBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
             var subProServiceResp = await DcbOperation.DirectDebitUnitOp(subProService.ConversationID, subProService.MSISDN, subProService.Amount);
 
-            //(string Response, string StatusCode, Boolean State) subProServiceResp = subProServiceResp = ("OK", "OK", true);
-
-
-            await LoggerG.LogInfoAsync("RsqToBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.State + "|" + subProServiceResp.Response);
+            await LoggerG.LogInfoAsync("RsqFromBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
 
 
 
-            if (subProServiceResp.State)
+
+
+            //if (subProServiceResp.State)
+            //{
+            //    var GecolToken = await ProcessTokenFromGecol(subProService);
+
+            //    if (GecolToken.Status)
+            //    {
+
+            //        List<string> outputs = new List<string>();
+            //        outputs.Add(subProService.MeterNumber);
+            //        outputs.Add(subProService.Amount.ToString());
+            //        outputs.Add(GecolToken.TokenOrError);
+            //        outputs.Add(subProService.UniqueNumber);
+
+            //        //msgContentResult = await Menus.CheckAsync(outputs, Lang);
+            //        //return (msgContentResult);
+
+            //        return (await Menus.CheckAsync(outputs, Lang));
+
+            //    }
+            //    else
+            //    {
+            //        //msgContentResult = await Menus.UnderMaintenance_Gecol(Lang);
+            //        //return (msgContentResult);
+
+            //        return (await Menus.UnderMaintenance_Gecol(Lang));
+
+            //    }
+
+            //}
+            //else
+            //{
+            //    //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+            //    //return (msgContentResult);
+
+            //    return (await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang));
+
+            //}
+
+
+            if (subProServiceResp.Status)
             {
-                var GecolToken = await ProcessTokenFromGecol(subProService);
-
-                if (GecolToken.Status)
+                tokenOrError = new TokenOrError()
                 {
+                    TknOrErr= subProServiceResp.Response,
+                    Status = true
 
-                    List<string> outputs = new List<string>();
-                    outputs.Add(subProService.MeterNumber);
-                    outputs.Add(subProService.Amount.ToString());
-                    outputs.Add(GecolToken.TokenOrError);
-                    outputs.Add(subProService.UniqueNumber);
+                };
 
-                    var Result = await Menus.CheckAsync(outputs, Lang);
-
-                    return (Result.UssdCont, Result.MessageCont);
-
-                }
-                else
-                {
-
-                    return (await Menus.UnderMaintenance_Gecol(Lang), null);
-
-                }
-
+                return (tokenOrError);
             }
             else
             {
+                msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+                //return (msgContentResult);
 
-                return (await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang), null);
+                tokenOrError = new TokenOrError()
+                {
+                    TknOrErr = msgContentResult.UssdCont,
+                    Status = false
+
+                };
+
+                return (tokenOrError);
 
             }
         }
 
+
+
+        private static async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService,string Lang)
+        {
+            TokenOrError tokenOrError ;
+
+            await LoggerG.LogInfoAsync("ReqToGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+
+            var subProServiceResp = await GecolOperation.CreditVendOp(subProService.MeterNumber, subProService.UniqueNumber, subProService.Amount);
+
+            await LoggerG.LogInfoAsync("RsqFromGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response + "|" + subProService.UniqueNumber);
+
+
+
+            //if (subProServiceResp.Status)
+            //{
+            //    return (subProServiceResp.Response, subProServiceResp.Status);
+            //}
+            //else
+            //{
+            //    return (subProServiceResp.Response, subProServiceResp.Status);
+            //}
+
+
+            if (subProServiceResp.Status)
+            {
+                tokenOrError = new TokenOrError()
+                {
+                    TknOrErr = subProServiceResp.Response,
+                    Status = true
+
+                };
+
+                return (tokenOrError);
+            }
+            else
+            {
+                msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+                //return (msgContentResult);
+
+                tokenOrError = new TokenOrError()
+                {
+                    TknOrErr = msgContentResult.UssdCont,
+                    Status = false
+
+                };
+
+                return (tokenOrError);
+
+            }
+
+        }
+
+        //private static async void ChargeDcbToGecol()
+        //{
+
+        //    string Id = DateTime.Now.ToString("yyyyMMddHHmmss");
+        //    string msisdn = "218921809678";
+        //    int amount = 1;
+
+
+        //    var resp = await DcbOperation.DirectDebitUnitOp(Id, msisdn, amount);
+        //}
+
         public static async void SendGecolMessage(string? sender, string receiver, string message)
         {
+
+
+
+
+
+
             try
             {
 
                 var client = new HttpClient();
                 var request = new HttpRequestMessage(HttpMethod.Post, "http://172.16.31.17:8086/api/Messages");
 
-                var jsonObject = new
+                SmsMessage jsonObject = new SmsMessage()
                 {
                     Sender = "2188997772",
                     Receiver = receiver,
-                    Massage = message
+                    Message = message
                 };
 
 
@@ -284,32 +294,139 @@ namespace GecolPro.Main.ServiceProcess
             }
         }
 
-        public static async Task<(string TokenOrError,Boolean Status)> ProcessTokenFromGecol(SubProService subProService)
+        // Service start here
+
+        // the logic here use two condtions ,
+        //
+        // 1. check meter in database if exist  return with true
+        //
+        // 2. if not in DB check by API if exist add to DB and return with true
+        //
+        // 3. if not exist reply with false
+        //
+
+        public static async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
         {
-            await LoggerG.LogInfoAsync("ReqToGecol|"+subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount );
+            TokenOrError TokenOrder;
+            string sessionId = DateTime.Now.ToString("yyyyMMddHHmmss");
 
-            var subProServiceResp = await GecolOperation.CreditVendOp(subProService.MeterNumber, subProService.UniqueNumber, subProService.Amount);
+            if (DateTime.TryParseExact(multiRequest.TransactionTime, "M/d/yyyy h:mm:ss tt",
+                                   CultureInfo.InvariantCulture,
+                                   DateTimeStyles.None,
+                                   out DateTime parsedDate))
+            {
+                // Format the DateTime object into the desired format
+                sessionId = parsedDate.ToString("yyyyMMddHHmmss");
+            }
 
-            await LoggerG.LogInfoAsync("RsqToGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
-            
-            return (subProServiceResp.Response, subProServiceResp.Status);
+            await LoggerG.LogInfoAsync($"UssdRequest|Start|Session_Id : {sessionId}");
+
+            string[] Para = multiRequest.USSDRequestString.Split('#');
+
+            //
+            //check if the amount value if int or not
+            //
+            int amount = 0;
+            if (int.TryParse(Para[1], out int result))
+            {
+                amount = result;
+            }
+
+            string uniqueNumber = random.Next(1, 999999).ToString("D6");
+
+            SubProService subProService = new SubProService()
+            {
+                ConversationID = sessionId,
+
+                MSISDN = multiRequest.MSISDN,
+
+                DateTimeReq = DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss"),
+
+                UniqueNumber = uniqueNumber,
+
+                MeterNumber = Para[0].ToString(),
+
+                Amount = amount
+
+            };
 
 
-            //if (subProServiceResp.Status)
-            //{
-            //    return (subProServiceResp.Response, subProServiceResp.Status);
-            //}
-            //else
-            //{
-            //    return (subProServiceResp.Response, subProServiceResp.Status);
-            //}
 
+
+            if (await CheckServiceExist())
+            {
+                if (await CheckMeterExist(subProService.MeterNumber))
+                {
+                    // Create Ussd and Message contents
+                    try
+                    {
+                        string gecolToken;
+
+                        TokenOrder = await ProcessTokenFromGecol(subProService, Lang);
+
+                        gecolToken = TokenOrder.TknOrErr;
+
+                        if (TokenOrder.Status)
+                        {
+
+                            TokenOrder = await ProcessChargeForToken(subProService, Lang);
+
+                            List<string> outputs = new List<string>();
+                            outputs.Add(subProService.MeterNumber);
+                            outputs.Add(subProService.Amount.ToString());
+                            outputs.Add(gecolToken);
+                            outputs.Add(subProService.UniqueNumber);
+
+                            msgContentResult = await Menus.CheckAsync(outputs, Lang);
+
+                            if (!string.IsNullOrEmpty(msgContentResult.MessageCont))
+                            {
+                                SendGecolMessage(null, subProService.MSISDN, msgContentResult.MessageCont);
+                            }
+
+
+                        }
+                        else
+                        {
+                            msgContentResult = await Menus.UnderMaintenance_Gecol(TokenOrder.TknOrErr, Lang);
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        msgContentResult.UssdCont = ex.Message;
+                        msgContentResult.MessageCont = ex.Message;
+                    }
+                }
+                else
+                {
+                    msgContentResult = await ServiceProcess.Menus.MeterNotExist(default, Lang);
+                }
+            }
+            else
+            {
+                msgContentResult= await ServiceProcess.Menus.UnderMaintenance_Gecol(default, Lang);
+            }
+
+            // Generate USSD Response
+
+            await LoggerG.LogInfoAsync($"UssdRequest|End|Session_Id : {sessionId}");
+
+            var multiResponse = new MultiResponseUSSD()
+            {
+                TransactionId = multiRequest.TransactionId,
+                TransactionTime = DateTime.Now.ToString("yyyyMMddTHH:mm:ss"),
+                MSISDN = multiRequest.MSISDN,
+                USSDServiceCode = "0",
+                USSDResponseString = msgContentResult.UssdCont,
+                Action = RespActions.end.ToString(),
+            };
+
+            return multiResponse;
         }
 
-
-
-
-
+   
 
         //public static async void OrderGecolToken()
         //{

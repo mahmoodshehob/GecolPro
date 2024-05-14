@@ -1,4 +1,6 @@
 ﻿using ClassLibrary.DCBSystem.Models;
+using ClassLibrary.Models.GecolModels;
+using ClassLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,8 @@ namespace ClassLibrary.DCBSystem
 
         private static DirectDebitUnitRsp directDebitUnitRsp = new DirectDebitUnitRsp();
 
+        private static Loggers LoggerG = new Loggers();
+
         //private static string FaultString = "";
 
         private enum SOAPAction
@@ -27,7 +31,7 @@ namespace ClassLibrary.DCBSystem
         }
 
 
-        public async static Task<(string Response, string StatusCode, Boolean State)> QryUserBasicBalOp(string Msisdn)
+        public async static Task<(string Response, string StatusCode, Boolean Status)> QryUserBasicBalOp(string Msisdn)
         {
             QryUserBasicBalSoap qryUserBasicBalSoap = new QryUserBasicBalSoap()
             {
@@ -68,7 +72,7 @@ namespace ClassLibrary.DCBSystem
 
 
 
-        public async static Task<(string Response, string StatusCode, Boolean State)> DirectDebitUnitOp(string ConversationID, string Msisdn , int Amount)
+        public async static Task<(string Response, string StatusCode, Boolean Status)> DirectDebitUnitOp(string ConversationID, string Msisdn , int Amount)
         {
 
             DirectDebitUnitReqSoap directDebitUnitReq =new DirectDebitUnitReqSoap()
@@ -119,6 +123,9 @@ namespace ClassLibrary.DCBSystem
             try
             {
                 FaultModel faultModel = await DcbConvertRsp.ConvFaultRsp.Converte(FailedXmlRespons);
+
+                await LoggerG.LogErrorAsync($"FaultCode : {faultModel.FaultCode} |FaultString : {faultModel.FaultString}");
+
 
                 return faultModel.FaultCode;
             }

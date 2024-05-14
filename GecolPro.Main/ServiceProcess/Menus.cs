@@ -9,7 +9,9 @@ namespace GecolPro.Main.ServiceProcess
 {
     public class Menus
     {
-        public static async Task<(string UssdCont, string MessageCont)> CheckAsync(List<string> Arg, string Lang)
+        private static MsgContent msgContent = new MsgContent();
+
+        public static async Task<MsgContent> CheckAsync(List<string> Arg, string Lang)
         {
             string ussdCont;
 
@@ -18,9 +20,9 @@ namespace GecolPro.Main.ServiceProcess
             switch (Lang)
             {
                 case "En":
-                    ussdCont = string.Format("The Meter: {0}\nCharged Amount: {1} LYD\n the Token : {2}\nSupportKey : {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+                    msgContent.UssdCont = string.Format("The Meter: {0}\nCharged Amount: {1} LYD\n the Token : {2}\nSupportKey : {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
 
-                    messageCont = string.Format("The Meter: {0}, Charged by  {1} LYD \n the Token :  {2} \n tKey :  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+                    msgContent.MessageCont = string.Format("The Meter: {0}, Charged by  {1} LYD \n the Token :  {2} \n tKey :  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
 
                     break;
 
@@ -32,10 +34,10 @@ namespace GecolPro.Main.ServiceProcess
 
                     break;
             }
-            return (ussdCont, messageCont);
+            return (msgContent);
         }
 
-        public static async Task<string> MeterNotExist(string Arg ,string Lang)
+        public static async Task<MsgContent> MeterNotExist(string Arg ,string Lang)
         {
             string ussdCont;
 
@@ -44,90 +46,92 @@ namespace GecolPro.Main.ServiceProcess
             switch (Lang)
             {
                 case "En":
-                    ussdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
+                    msgContent.UssdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
 
                     break;
 
                 default:
 
-                    ussdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
+                    msgContent.UssdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
 
                     break;
             }
             //return (ussdCont, messageCont);
-            return ussdCont;
+            return msgContent;
         }
 
-        public static async Task<string> UnderMaintenance_Gecol(string Lang)
+        public static async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
         {
             string ussdCont;
 
             switch (Lang)
             {
                 case "En":
-                    ussdCont = string.Format("The service under maintenance.");
+                    msgContent.UssdCont = string.Format("The service under maintenance.");
 
                     break;
 
                 default:
 
-                    ussdCont = string.Format("الخدمة تحت الصيانة");
+                    msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
 
                     break;
             }
             //return (ussdCont, messageCont);
-            return ussdCont;
+            return msgContent;
         }
 
-        public static async Task<string> UnderMaintenance_Billing(string FaultCode, string Lang)
+        public static async Task<MsgContent> UnderMaintenance_Billing(string FaultCode, string Lang)
         {
-            string ussdCont;
 
-            switch (FaultCode)
+
+            switch (Lang)
             {
-                case "ns1:S-WS-00045":
+                case "En":
 
-                    switch (Lang)
+                    switch (FaultCode)
                     {
-                        case "En":
-                            ussdCont = string.Format("The Billing system under maintenance.");
+                        case "ns1:S-WS-00045":
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+
+                            break;
+
+                        case "S-ACT-00112":
+                            msgContent.UssdCont = string.Format("Not sufficient balance.");
 
                             break;
 
                         default:
 
-                            ussdCont = string.Format("نظام الفوترة تحت الصيانة");
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
 
                             break;
                     }
-
                     break;
-
+                
                 default:
-
-                    switch (Lang)
+                    switch (FaultCode)
                     {
-                        case "En":
-                            ussdCont = string.Format("The Billing system under maintenance.");
+                        case "ns1:S-WS-00045":
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+
+                            break;
+
+                        case "S-ACT-00112":
+                            msgContent.UssdCont = string.Format("رصيدك غير كافي.");
 
                             break;
 
                         default:
 
-                            ussdCont = string.Format("نظام الفوترة تحت الصيانة");
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
 
                             break;
                     }
-
                     break;
             }
 
-
-
-
-          
-            //return (ussdCont, messageCont);
-            return ussdCont;
+            return msgContent;
         }
     }
 }

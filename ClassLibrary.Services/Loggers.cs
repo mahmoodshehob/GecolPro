@@ -48,10 +48,10 @@ namespace ClassLibrary.Services
 
         private async Task WriteLogAsync(string message, string category)
         {
-            string filePath = Path.Combine(baseDirectory, category, "info_" + $"{DateTime.UtcNow:yyyyMMdd}.log");
+            string filePath = Path.Combine(baseDirectory, category, $"{category.ToLower()}_{DateTime.UtcNow:yyyyMMdd}.log");
             using (StreamWriter writer = new StreamWriter(filePath, true))
             {
-                await writer.WriteLineAsync($"{DateTime.UtcNow:HH:mm:ss} - {message}");
+                await writer.WriteLineAsync($"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} - {message}");
             }
         }
 
