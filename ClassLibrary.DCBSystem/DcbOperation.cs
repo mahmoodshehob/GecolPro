@@ -27,7 +27,7 @@ namespace ClassLibrary.DCBSystem
         }
 
 
-        public async static Task<(string Response, string StatusCode, Boolean State)> QryUserBasicBalOp(string Msisdn)
+        public async static Task<(string Response, string StatusCode, Boolean Status)> QryUserBasicBalOp(string Msisdn)
         {
             QryUserBasicBalSoap qryUserBasicBalSoap = new QryUserBasicBalSoap()
             {
@@ -68,7 +68,7 @@ namespace ClassLibrary.DCBSystem
 
 
 
-        public async static Task<(string Response, string StatusCode, Boolean State)> DirectDebitUnitOp(string ConversationID, string Msisdn , int Amount)
+        public async static Task<(string Response, string StatusCode, Boolean Status)> DirectDebitUnitOp(string ConversationID, string Msisdn , int Amount)
         {
 
             DirectDebitUnitReqSoap directDebitUnitReq =new DirectDebitUnitReqSoap()
