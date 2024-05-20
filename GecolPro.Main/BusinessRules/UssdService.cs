@@ -5,7 +5,7 @@ using GecolPro.Main.Models;
 using static GecolPro.Main.Models.MultiRequestUSSD.MultiRequestSerXml;
 
 
-namespace GecolPro.Main.ServiceProcess
+namespace GecolPro.Main.BusinessRules
 {
     internal  class UssdService : IConvertReq,  ICreateXmlResp
     {

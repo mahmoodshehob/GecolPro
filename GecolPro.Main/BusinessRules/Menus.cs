@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using GecolPro.Main.Models;
 
-namespace GecolPro.Main.ServiceProcess
+namespace GecolPro.Main.BusinessRules
 {
     public class Menus
     {
@@ -62,22 +62,84 @@ namespace GecolPro.Main.ServiceProcess
 
         public static async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
         {
-            string ussdCont;
-
             switch (Lang)
             {
                 case "En":
-                    msgContent.UssdCont = string.Format("The service under maintenance.");
 
+                    switch (FaultCode)
+                    {
+ 
+
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+                       
+                        case "caseFree3":
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+
+                        case "caseFree4":
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+
+                        case "VD.01010018":
+                            msgContent.UssdCont = string.Format("Customer does not exist or unbound meter");
+
+                            break;
+
+                        default:
+
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+                    }
                     break;
 
                 default:
+                    switch (FaultCode)
+                    {
 
-                    msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
 
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+                        case "caseFree3":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+
+                        case "caseFree4":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+
+                        case "VD.01010018":
+                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح او غير موجود.");
+
+                            break;
+
+                        default:
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+                    }
                     break;
+
             }
-            //return (ussdCont, messageCont);
+
             return msgContent;
         }
 
@@ -88,9 +150,9 @@ namespace GecolPro.Main.ServiceProcess
             switch (Lang)
             {
                 case "En":
-
                     switch (FaultCode)
                     {
+
                         case "ns1:S-WS-00045":
                             msgContent.UssdCont = string.Format("The Billing system under maintenance.");
 
@@ -98,6 +160,16 @@ namespace GecolPro.Main.ServiceProcess
 
                         case "S-ACT-00112":
                             msgContent.UssdCont = string.Format("Not sufficient balance.");
+
+                            break;
+
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
 
                             break;
 
@@ -119,6 +191,18 @@ namespace GecolPro.Main.ServiceProcess
 
                         case "S-ACT-00112":
                             msgContent.UssdCont = string.Format("رصيدك غير كافي.");
+
+                            break;
+
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+
+
 
                             break;
 

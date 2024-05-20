@@ -2,16 +2,21 @@
 using System;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+
 //Models
+
 using GecolPro.Main.Models;
 using static GecolPro.Main.Models.MultiRequestUSSD;
+
 // Class Library
 using ClassLibrary.DCBSystem;
 using ClassLibrary.GecolSystem;
 using ClassLibrary.Services;
+using Menus = GecolPro.Main.BusinessRules.Menus;
 
 
-namespace GecolPro.Main.ServiceProcess
+
+namespace GecolPro.Main.BusinessRules
 {
     public class UssdProcessV1
     {
@@ -68,15 +73,15 @@ namespace GecolPro.Main.ServiceProcess
 
         private static async Task<Boolean> CheckServiceExist()
         {
-            //var Resp = await ClassLibrary.GecolSystem.GecolOperation.LoginReqOp();
-
-            if ((await ClassLibrary.GecolSystem.GecolOperation.LoginReqOp()).Status)
+            if ((await GecolOperation.LoginReqOp()).Status)
             {
                 return true;
             }
             return false;
         }
 
+
+        /* API to check if Tirmenated Meter in Gecol Avaiable or not also check if Meter Working:
         //
         // Chech if Meter Exist or not :
         //
@@ -86,6 +91,7 @@ namespace GecolPro.Main.ServiceProcess
         //
         // 3. reply with not exist if not right meter. 
         //
+        */
 
         private static async Task<Boolean> CheckMeterExist(string MeterNumber)
         {
@@ -116,19 +122,15 @@ namespace GecolPro.Main.ServiceProcess
 
         private static async Task<TokenOrError> ProcessChargeForToken(SubProService subProService, string Lang)
         {
-
             TokenOrError tokenOrError;
 
-            await LoggerG.LogInfoAsync("ReqToBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+            await LoggerG.LogInfoAsync("LynaGclsys|==>|ReqToBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
             var subProServiceResp = await DcbOperation.DirectDebitUnitOp(subProService.ConversationID, subProService.MSISDN, subProService.Amount);
 
-            await LoggerG.LogInfoAsync("RsqFromBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
+            await LoggerG.LogInfoAsync("LynaGclsys|<==|RsqFromBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
 
-
-
-
-
+            /*
             //if (subProServiceResp.State)
             //{
             //    var GecolToken = await ProcessTokenFromGecol(subProService);
@@ -166,23 +168,34 @@ namespace GecolPro.Main.ServiceProcess
             //    return (await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang));
 
             //}
-
+            */
 
             if (subProServiceResp.Status)
             {
+
+                /*here ConncetionString to saveing in DB in success case : 
+
+                                  
+                 
+                 */
+
                 tokenOrError = new TokenOrError()
                 {
                     TknOrErr= subProServiceResp.Response,
                     Status = true
-
                 };
 
                 return (tokenOrError);
             }
             else
             {
+                /*here ConncetionString to saveing in DB in Failed case :
+
+                                 
+                
+                 */
+
                 msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
-                //return (msgContentResult);
 
                 tokenOrError = new TokenOrError()
                 {
@@ -196,20 +209,18 @@ namespace GecolPro.Main.ServiceProcess
             }
         }
 
-
-
         private static async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService,string Lang)
         {
             TokenOrError tokenOrError ;
 
-            await LoggerG.LogInfoAsync("ReqToGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+            await LoggerG.LogInfoAsync("LynaGclsys|==>|ReqToGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
             var subProServiceResp = await GecolOperation.CreditVendOp(subProService.MeterNumber, subProService.UniqueNumber, subProService.Amount);
 
-            await LoggerG.LogInfoAsync("RsqFromGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response + "|" + subProService.UniqueNumber);
+            await LoggerG.LogInfoAsync("LynaGclsys|<==|RsqFromGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response + "|" + subProService.UniqueNumber);
 
 
-
+            /*
             //if (subProServiceResp.Status)
             //{
             //    return (subProServiceResp.Response, subProServiceResp.Status);
@@ -218,10 +229,14 @@ namespace GecolPro.Main.ServiceProcess
             //{
             //    return (subProServiceResp.Response, subProServiceResp.Status);
             //}
+            */
 
 
             if (subProServiceResp.Status)
             {
+                /*here ConncetionString to saveing in DB in success case : 
+                */
+
                 tokenOrError = new TokenOrError()
                 {
                     TknOrErr = subProServiceResp.Response,
@@ -233,6 +248,9 @@ namespace GecolPro.Main.ServiceProcess
             }
             else
             {
+                /*here ConncetionString to saveing in DB in Failed case :
+                */
+
                 msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
                 //return (msgContentResult);
 
@@ -293,34 +311,14 @@ namespace GecolPro.Main.ServiceProcess
 
             }
         }
-
-        // Service start here
-
-        // the logic here use two condtions ,
-        //
-        // 1. check meter in database if exist  return with true
-        //
-        // 2. if not in DB check by API if exist add to DB and return with true
-        //
-        // 3. if not exist reply with false
+                            
         //
 
-        public static async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
+        /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
+       */
+
+        private static SubProService CreateSubProService(MultiRequest multiRequest , string sessionId)
         {
-            TokenOrError TokenOrder;
-            string sessionId = DateTime.Now.ToString("yyyyMMddHHmmss");
-
-            if (DateTime.TryParseExact(multiRequest.TransactionTime, "M/d/yyyy h:mm:ss tt",
-                                   CultureInfo.InvariantCulture,
-                                   DateTimeStyles.None,
-                                   out DateTime parsedDate))
-            {
-                // Format the DateTime object into the desired format
-                sessionId = parsedDate.ToString("yyyyMMddHHmmss");
-            }
-
-            await LoggerG.LogInfoAsync($"UssdRequest|Start|Session_Id : {sessionId}");
-
             string[] Para = multiRequest.USSDRequestString.Split('#');
 
             //
@@ -350,26 +348,97 @@ namespace GecolPro.Main.ServiceProcess
 
             };
 
+            return subProService;
+        }
+
+        //
 
 
+        public static async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
+        {
+            /* Service start here
+
+             the logic here use two condtions ,
+            
+             - Generate Sesstion ID : for Subscriber Request
+            
+             - Check Meter DBs : Check Meter in database if exist  return with true
+            
+             - Check Meter API : if not in DB check by API if exist add to DB and return with true
+            
+             - if not exist reply with false
+            */
+
+        TokenOrError TokenOrder;
+
+            //
+            //
+            //
+
+            /* Generate Sesstion ID :
+             
+            */
+
+            string sessionId = DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            if (DateTime.TryParseExact(multiRequest.TransactionTime, "M/d/yyyy h:mm:ss tt",CultureInfo.InvariantCulture,DateTimeStyles.None,out DateTime parsedDate))
+            {
+                // Format the DateTime object into the desired format
+                 sessionId = parsedDate.ToString("yyyyMMddHHmmss");
+            }
+
+            //
+            //
+            //
+
+            /* Logger for start Sesstion :
+             */
+
+            await LoggerG.LogInfoAsync($"UssdRequest|Start|Session_Id : {sessionId}");
+
+            //
+            //
+            //
+
+            /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
+            */
+
+            SubProService subProService =  CreateSubProService(multiRequest, sessionId);
+
+            //
+            //
+            //
+
+            /* API to check if Gecol API Service Avaiable or not also check if our account Working:
+             */
 
             if (await CheckServiceExist())
             {
+                //
+                //
+
+                /* API to check if Tirmenated Meter in Gecol Avaiable or not also check if Meter Working:
+                */
+
                 if (await CheckMeterExist(subProService.MeterNumber))
                 {
-                    // Create Ussd and Message contents
+                    //
+                    //
+
+                    /* Create Ussd and SMS Contents:*/
+
                     try
                     {
-                        string gecolToken;
-
-                        TokenOrder = await ProcessTokenFromGecol(subProService, Lang);
-
-                        gecolToken = TokenOrder.TknOrErr;
+                        TokenOrder = await ProcessChargeForToken(subProService, Lang);
 
                         if (TokenOrder.Status)
                         {
 
-                            TokenOrder = await ProcessChargeForToken(subProService, Lang);
+                            TokenOrder = await ProcessTokenFromGecol(subProService, Lang);
+
+                            string gecolToken = TokenOrder.TknOrErr;
+
+
 
                             List<string> outputs = new List<string>();
                             outputs.Add(subProService.MeterNumber);
@@ -401,12 +470,12 @@ namespace GecolPro.Main.ServiceProcess
                 }
                 else
                 {
-                    msgContentResult = await ServiceProcess.Menus.MeterNotExist(default, Lang);
+                    msgContentResult = await Menus.MeterNotExist(default, Lang);
                 }
             }
             else
             {
-                msgContentResult= await ServiceProcess.Menus.UnderMaintenance_Gecol(default, Lang);
+                msgContentResult= await Menus.UnderMaintenance_Gecol(default, Lang);
             }
 
             // Generate USSD Response
@@ -425,44 +494,6 @@ namespace GecolPro.Main.ServiceProcess
 
             return multiResponse;
         }
-
-   
-
-        //public static async void OrderGecolToken()
-        //{
-        //    var Soapcli = new ClassLibrary.GecolSystem.SoapServiceClient();
-        //    var SoapRsp = await Soapcli.SendSoapRequest(xmlresp, "");
-        //    var RespActions = ClassLibrary.GecolSystem.GecolConvertRsp.ConvCreditVendCRsp.Converte(SoapRsp.Responce);
-        //    string tkn = RespActions.Result.ToString();
-
-
-
-        //}
-
-
-
-        //        private static string xmlresp = @"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>
-        //<soapenv:Body>
-        //<ns2:creditVendReq xmlns:ns2='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='ns2:CreditVendReq'>
-        //<clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='0000000000001'> </clientID>
-        //<terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='0000000000001'> </terminalID>
-        //<msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='20230701050523' uniqueNumber='000009'> </msgID>
-        //<authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
-        //<opName>AG0502</opName>
-        //<password>1234567891012</password>
-        //</authCred>
-        //<resource xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='Electricity'> </resource>
-        //<idMethod xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='VendIDMethod'>
-        //<meterIdentifier xsi:type='MeterNumber' msno='0268999900262'/>
-        //</idMethod>
-        //<ns2:purchaseValue xsi:type='ns2:PurchaseValueCurrency'>
-        //<ns2:amt value='20' symbol='LYD'/>
-        //</ns2:purchaseValue>
-        //</ns2:creditVendReq>
-        //</soapenv:Body>
-        //</soapenv:Envelope>";
-
-
     }
 }
 

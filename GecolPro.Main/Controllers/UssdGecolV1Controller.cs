@@ -4,7 +4,7 @@ using System.Text;
 using GecolPro.Main.UssdService;
 //using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-using GecolPro.Main.ServiceProcess;
+using GecolPro.Main.BusinessRules;
 using ClassLibrary.Services;
 using static GecolPro.Main.Models.MultiRequestUSSD;
 using GecolPro.Main.Models;
@@ -27,6 +27,7 @@ namespace GecolPro.Main.Controllers
         {
             _context = context;
         }
+        
         [HttpPost]
         [Consumes("text/xml")]
         [Route("api/{Controller}/creditVendReq/v1/En")]
@@ -40,9 +41,9 @@ namespace GecolPro.Main.Controllers
 
                 MultiRequestUSSD.MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
 
-                Loggers logger = new Loggers();
-                await logger.LogInfoAsync("This is an informational message.");
+               
                 MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest , "En");
+
 
                 response = new ContentResult
                 {
@@ -57,7 +58,6 @@ namespace GecolPro.Main.Controllers
             }
 
         }
-
 
         [HttpPost]
         [Consumes("text/xml")]
@@ -84,6 +84,7 @@ namespace GecolPro.Main.Controllers
                 return response;
             }
         }
+
     }
 }
 
