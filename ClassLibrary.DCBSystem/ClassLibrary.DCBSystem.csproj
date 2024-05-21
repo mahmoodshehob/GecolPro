@@ -11,4 +11,10 @@
     <ProjectReference Include="..\ClassLibrary.Services\ClassLibrary.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="defaultValues_DCB.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

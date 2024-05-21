@@ -19,7 +19,7 @@ namespace ClassLibrary.GecolSystem
         public SoapServiceClient()
         {
             _client = new HttpClient();
-            _client.Timeout = TimeSpan.FromMilliseconds(1000);
+            _client.Timeout = TimeSpan.FromMilliseconds(10000);
 
             authCred = new AuthCred();
             //logger = new Logger();

@@ -12,6 +12,7 @@ namespace ClassLibrary.GecolSystem.GecolCreateXml
         public static string CreateSoapBody()
         {
 
+
             string xmlSoap = @"<s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/'>
 <s:Body xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
 <loginReq xmlns='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema'>
@@ -25,7 +26,10 @@ namespace ClassLibrary.GecolSystem.GecolCreateXml
 </loginReq>
 </s:Body>
 </s:Envelope>";
-            return xmlSoap.Replace("'","\"");
+
+            return xmlSoap.Replace("'", "\"");
+            
+
         }
     }
 }

@@ -1,38 +1,26 @@
-﻿using ClassLibrary.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using Newtonsoft.Json;
 
 
 namespace ClassLibrary.DCBSystem.Models
 {
     public class AuthHeader
     {
-    
-        private string _username = "SMSC_NS_DCB";
-        private string _password = "S3IS9C8D_HI6P4S5";
-        private string _url = "http://192.168.120.25:8223/ocswebservices/services/WebServicesSoapLibya";
-
-
-        public string Username
+        public AuthHeader()
         {
-            get { return _username; }
-            set { _username = value; }
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFilePath = Path.Combine(baseDirectory, "defaultValues_DCB.json");
+            var json = File.ReadAllText(jsonFilePath);
+            
+            var defaultValues = JsonConvert.DeserializeObject<DefaultValues>(json);
+
+            Username = defaultValues!.Username;
+            Password = defaultValues.Password;
+            Url = defaultValues.Url!;
+
         }
 
-        public string Password
-        {
-            get { return _password; }
-            set { _password = value; }
-        }
-
-        public string Url
-        {
-            get { return _url; }
-            set { _url = value; }
-        }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string Url { get; set; }
     }
 }

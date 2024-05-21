@@ -1,30 +1,29 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+
 
 namespace ClassLibrary.GecolSystem.Models
 {
     public class AuthCred
     {
-        private string _username = "AG0502";
-        private string _password = "1234567891012";
-        private string _url = "http://160.19.103.138:40808/xmlvend/xmlvend.wsdl";
-
-
-        public string Username
+        public AuthCred()
         {
-            get { return _username; }
-            set { _username = value; }
+
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFilePath = Path.Combine(baseDirectory, "defaultValues_Gecol.json");
+            var json = File.ReadAllText(jsonFilePath);
+            var defaultValues = JsonConvert.DeserializeObject<DefaultValues>(json);
+
+            Username = defaultValues!.Username;
+            Password = defaultValues.Password;
+            Url = defaultValues.Url!;
+            EANDeviceID = defaultValues.EanDeviceId!;
+            GenericDeviceID = defaultValues.GenericDeviceId!;
         }
 
-        public string Password
-        {
-            get { return _password; }
-            set { _password = value; }
-        }
-
-        public string Url
-        {
-            get { return _url; }
-            set { _url = value; }
-        }
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public string Url { get; set; }
+        public string EANDeviceID { get; set; }
+        public string GenericDeviceID { get; set; }
     }
 }

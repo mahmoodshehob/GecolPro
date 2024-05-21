@@ -16,6 +16,14 @@ Console.WriteLine(a.GenericDeviceID);
 Console.WriteLine(a.UniqueNumber);
 Console.WriteLine(a.DateTimeReq);
 
+
+
+var jjjjj = new ClassLibrary.GecolSystem.Models.AuthCred();
+var kkkkk = new ClassLibrary.GecolSystem.Models.CommonParameters();
+
+
+
+
 //loggers.LogInfoAsync();
 
 

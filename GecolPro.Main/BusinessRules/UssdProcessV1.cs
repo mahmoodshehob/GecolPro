@@ -26,6 +26,8 @@ namespace GecolPro.Main.BusinessRules
 
         private static MsgContent msgContentResult = new MsgContent();
 
+        private static SubProService subProService = new SubProService();
+
         private enum RespActions
         {
             request,
@@ -73,10 +75,17 @@ namespace GecolPro.Main.BusinessRules
 
         private static async Task<Boolean> CheckServiceExist()
         {
+            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolCheck|" + subProService.ConversationID + "|Check Service Connectivity");
+
             if ((await GecolOperation.LoginReqOp()).Status)
             {
+                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolCheck|" + subProService.ConversationID + "|Service Connected");
+                
                 return true;
             }
+
+            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolCheck|" + subProService.ConversationID + "|Service Not Connected");
+            
             return false;
         }
 
@@ -95,19 +104,25 @@ namespace GecolPro.Main.BusinessRules
 
         private static async Task<Boolean> CheckMeterExist(string MeterNumber)
         {
+            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolMeter|" + subProService.ConversationID + "|Check The Meter");
+
             // Query in DB
 
             //if ()
             //{ }
             //else if
-      
+
             if ((await ClassLibrary.GecolSystem.GecolOperation.ConfirmCustomerOp(MeterNumber)).Status)
             {
+                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolMeter|" + subProService.ConversationID + "|The Meter Number Connected");
+
                 return true;
             }
 
             //else 
             //{ }
+
+            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolMeter|" + subProService.ConversationID + "|The Meter Number Not Exist or has Issue");
 
             return false;
         }
@@ -124,11 +139,11 @@ namespace GecolPro.Main.BusinessRules
         {
             TokenOrError tokenOrError;
 
-            await LoggerG.LogInfoAsync("LynaGclsys|==>|ReqToBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_BillingSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
             var subProServiceResp = await DcbOperation.DirectDebitUnitOp(subProService.ConversationID, subProService.MSISDN, subProService.Amount);
 
-            await LoggerG.LogInfoAsync("LynaGclsys|<==|RsqFromBilling|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
+            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsq_BillingSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
 
             /*
             //if (subProServiceResp.State)
@@ -174,9 +189,6 @@ namespace GecolPro.Main.BusinessRules
             {
 
                 /*here ConncetionString to saveing in DB in success case : 
-
-                                  
-                 
                  */
 
                 tokenOrError = new TokenOrError()
@@ -213,11 +225,11 @@ namespace GecolPro.Main.BusinessRules
         {
             TokenOrError tokenOrError ;
 
-            await LoggerG.LogInfoAsync("LynaGclsys|==>|ReqToGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
             var subProServiceResp = await GecolOperation.CreditVendOp(subProService.MeterNumber, subProService.UniqueNumber, subProService.Amount);
 
-            await LoggerG.LogInfoAsync("LynaGclsys|<==|RsqFromGecol|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response + "|" + subProService.UniqueNumber);
+            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsq_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response + "|" + subProService.UniqueNumber);
 
 
             /*
@@ -394,7 +406,7 @@ namespace GecolPro.Main.BusinessRules
             /* Logger for start Sesstion :
              */
 
-            await LoggerG.LogInfoAsync($"UssdRequest|Start|Session_Id : {sessionId}");
+            await LoggerG.LogInfoAsync($"UssdRequest|Start|Session_Id |{sessionId}");
 
             //
             //
@@ -403,7 +415,10 @@ namespace GecolPro.Main.BusinessRules
             /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
             */
 
-            SubProService subProService =  CreateSubProService(multiRequest, sessionId);
+            //SubProService subProService =  CreateSubProService(multiRequest, sessionId);
+            subProService = CreateSubProService(multiRequest, sessionId);
+
+
 
             //
             //
@@ -480,7 +495,7 @@ namespace GecolPro.Main.BusinessRules
 
             // Generate USSD Response
 
-            await LoggerG.LogInfoAsync($"UssdRequest|End|Session_Id : {sessionId}");
+            await LoggerG.LogInfoAsync($"UssdRequest|Close|Session_Id |{sessionId}");
 
             var multiResponse = new MultiResponseUSSD()
             {
