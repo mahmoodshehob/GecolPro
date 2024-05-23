@@ -1,13 +1,6 @@
 ﻿using ClassLibrary.DCBSystem.Models;
-using ClassLibrary.Models.GecolModels;
 using ClassLibrary.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace ClassLibrary.DCBSystem
 {
@@ -42,11 +35,11 @@ namespace ClassLibrary.DCBSystem
                  
             string Body = DcbCreateXml.QryUserBalCreateXml.CreateSoapBody(qryUserBasicBalSoap);
 
-            (string Responce, string StatusCode, Boolean state) SoapRsp = await soapServiceClient.SendSoapRequest(Body, SOAPAction.QryUserBasicBal.ToString());
+            (string Responce, string StatusCode, Boolean Status) SoapRsp = await soapServiceClient.SendSoapRequest(Body, SOAPAction.QryUserBasicBal.ToString());
 
 
 
-            if (SoapRsp.state == true)
+            if (SoapRsp.Status == true)
             {
                 qryUserBasicBalRsp = await DcbConvertRsp.ConvQryUserBasicRsp.Converte(SoapRsp.Responce);
       
@@ -86,16 +79,16 @@ namespace ClassLibrary.DCBSystem
             
             string Body = DcbCreateXml.DirectDebitUnitCreateXml.CreateSoapBody(directDebitUnitReq);
 
-            (string Responce, string StatusCode, Boolean state) SoapRsp = await soapServiceClient.SendSoapRequest(Body, SOAPAction.DirectDebitUnit.ToString());
+            (string Responce, string StatusCode, Boolean Status) SoapRsp = await soapServiceClient.SendSoapRequest(Body, SOAPAction.DirectDebitUnit.ToString());
 
 
 
 
-            if (SoapRsp.state == true)
+            if (SoapRsp.Status == true)
             {
                 directDebitUnitRsp = await DcbConvertRsp.ConvDirectDebitUnitCRsp.Converte(SoapRsp.Responce);
 
-                return  (directDebitUnitRsp.TransactionID, SoapRsp.StatusCode, SoapRsp.state);
+                return  (directDebitUnitRsp.TransactionID, SoapRsp.StatusCode, SoapRsp.Status);
             }
             else
             {
@@ -112,7 +105,7 @@ namespace ClassLibrary.DCBSystem
                      FaultCode = "timeout";
 
                 }
-                return (FaultCode, SoapRsp.StatusCode, SoapRsp.state);
+                return (FaultCode, SoapRsp.StatusCode, SoapRsp.Status);
             }
         }
 

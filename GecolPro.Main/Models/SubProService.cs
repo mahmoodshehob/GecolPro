@@ -10,6 +10,15 @@ namespace  GecolPro.Main.Models
 {
     public class SubProService
     {
+        public SubProService() 
+        {
+            Random random = new Random();
+            UniqueNumber = random.Next(1, 999999).ToString("D6");
+
+        }
+        private Random random = new Random();
+
+
         [Required]
         public string ConversationID { get; set; }
         

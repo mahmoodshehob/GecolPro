@@ -1,12 +1,13 @@
 ﻿using System.Globalization;
-using System;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 
 //Models
 
-using GecolPro.Main.Models;
-using static GecolPro.Main.Models.MultiRequestUSSD;
+//using GecolPro.Main.Models;
+//using static GecolPro.Main.Models.MultiRequestUSSD;
+using ClassLibrary.Models.Models;
+using static ClassLibrary.Models.Models.MultiRequestUSSD;
+
 
 // Class Library
 using ClassLibrary.DCBSystem;
@@ -21,24 +22,25 @@ namespace GecolPro.Main.BusinessRules
     public class UssdProcessV1
     {
         private static Random random = new Random();
-
         private static Loggers LoggerG = new Loggers();
-
         private static MsgContent msgContentResult = new MsgContent();
-
         private static SubProService subProService = new SubProService();
-
         private enum RespActions
         {
             request,
             end
         }
-
         private enum Respresponse
         {
             True,
             False
         }
+
+
+
+        /*Provide USSD and SMS Message Reply :
+
+*/
 
         private static async Task<MsgContent> MenuReader(SubProService subProService, string Lang)
         {
@@ -56,7 +58,7 @@ namespace GecolPro.Main.BusinessRules
                 outputs.Add(subProService.MSISDN);
                 outputs.Add(BalanceValue);
 
-                msgContentResult = await Menus.CheckAsync(outputs, Lang);
+                msgContentResult = await Menus.SuccessResponseAsync(outputs, Lang);
                 return (msgContentResult);
 
             }
@@ -69,9 +71,41 @@ namespace GecolPro.Main.BusinessRules
             }
         }
 
-        //
-        // Chech if Gecol System Reachable or Not :
-        //
+
+
+
+        /*Chech if Msisdn Blocked or Not :
+         */
+
+        private static async Task<Boolean> BlackListMsisdn(string Msisdn)
+        {
+            try
+            {
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string jsonFilePath = Path.Combine(baseDirectory, "BlackListMsisdn.json");
+                var json = File.ReadAllText(jsonFilePath);
+
+                string[]? BlackList = JsonConvert.DeserializeObject<string[]>(json);
+
+                if (!string.IsNullOrEmpty(BlackList.ToString()))
+                {
+                    if (BlackList.Any(x => x.StartsWith(Msisdn)))
+                    {
+                        await LoggerG.LogInfoAsync("LynaGclsys|xxx|Msisdn_Blocked|" + subProService.ConversationID + "|Service Connected");
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch { return false; }
+        }
+
+
+
+
+        /*Chech if Gecol System Reachable or Not :
+         
+        */
 
         private static async Task<Boolean> CheckServiceExist()
         {
@@ -90,7 +124,9 @@ namespace GecolPro.Main.BusinessRules
         }
 
 
-        /* API to check if Tirmenated Meter in Gecol Avaiable or not also check if Meter Working:
+
+
+        /* API to check if Tirmenated Meter in Gecol Avaiable or not also check if Meter Working :
         //
         // Chech if Meter Exist or not :
         //
@@ -127,15 +163,18 @@ namespace GecolPro.Main.BusinessRules
             return false;
         }
 
-        //
-        // Charge balance from billing :
-        //
-        // 1. if charging Success reply with true.
-        //
-        // 2. if charging Failed reply with false.
-        //
 
-        private static async Task<TokenOrError> ProcessChargeForToken(SubProService subProService, string Lang)
+
+
+        /* Charge balance from Billing :
+        * 
+        * 1. if charging Success reply with true.
+        *
+        * 2. if charging Failed reply with false.
+        *
+         */
+
+        private static async Task<TokenOrError> ProcessChargeByDCB(SubProService subProService)
         {
             TokenOrError tokenOrError;
 
@@ -145,45 +184,6 @@ namespace GecolPro.Main.BusinessRules
 
             await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsq_BillingSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
 
-            /*
-            //if (subProServiceResp.State)
-            //{
-            //    var GecolToken = await ProcessTokenFromGecol(subProService);
-
-            //    if (GecolToken.Status)
-            //    {
-
-            //        List<string> outputs = new List<string>();
-            //        outputs.Add(subProService.MeterNumber);
-            //        outputs.Add(subProService.Amount.ToString());
-            //        outputs.Add(GecolToken.TokenOrError);
-            //        outputs.Add(subProService.UniqueNumber);
-
-            //        //msgContentResult = await Menus.CheckAsync(outputs, Lang);
-            //        //return (msgContentResult);
-
-            //        return (await Menus.CheckAsync(outputs, Lang));
-
-            //    }
-            //    else
-            //    {
-            //        //msgContentResult = await Menus.UnderMaintenance_Gecol(Lang);
-            //        //return (msgContentResult);
-
-            //        return (await Menus.UnderMaintenance_Gecol(Lang));
-
-            //    }
-
-            //}
-            //else
-            //{
-            //    //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
-            //    //return (msgContentResult);
-
-            //    return (await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang));
-
-            //}
-            */
 
             if (subProServiceResp.Status)
             {
@@ -207,11 +207,11 @@ namespace GecolPro.Main.BusinessRules
                 
                  */
 
-                msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+                //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
 
                 tokenOrError = new TokenOrError()
                 {
-                    TknOrErr = msgContentResult.UssdCont,
+                    TknOrErr = subProServiceResp.Response,
                     Status = false
 
                 };
@@ -221,7 +221,18 @@ namespace GecolPro.Main.BusinessRules
             }
         }
 
-        private static async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService,string Lang)
+
+
+
+        /* Order Token From GECOL :
+* 
+* 1. if token Success reply with true.
+*
+* 2. if token Failed reply with false.
+*
+ */
+
+        private static async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService)
         {
             TokenOrError tokenOrError ;
 
@@ -263,12 +274,11 @@ namespace GecolPro.Main.BusinessRules
                 /*here ConncetionString to saveing in DB in Failed case :
                 */
 
-                msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
-                //return (msgContentResult);
+                //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode);
 
                 tokenOrError = new TokenOrError()
                 {
-                    TknOrErr = msgContentResult.UssdCont,
+                    TknOrErr = subProServiceResp.Response,
                     Status = false
 
                 };
@@ -279,16 +289,11 @@ namespace GecolPro.Main.BusinessRules
 
         }
 
-        //private static async void ChargeDcbToGecol()
-        //{
-
-        //    string Id = DateTime.Now.ToString("yyyyMMddHHmmss");
-        //    string msisdn = "218921809678";
-        //    int amount = 1;
 
 
-        //    var resp = await DcbOperation.DirectDebitUnitOp(Id, msisdn, amount);
-        //}
+
+        /* Send SMS API to SMPP Client  :
+        */
 
         public static async void SendGecolMessage(string? sender, string receiver, string message)
         {
@@ -324,7 +329,8 @@ namespace GecolPro.Main.BusinessRules
             }
         }
                             
-        //
+
+
 
         /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
        */
@@ -342,8 +348,6 @@ namespace GecolPro.Main.BusinessRules
                 amount = result;
             }
 
-            string uniqueNumber = random.Next(1, 999999).ToString("D6");
-
             SubProService subProService = new SubProService()
             {
                 ConversationID = sessionId,
@@ -352,22 +356,24 @@ namespace GecolPro.Main.BusinessRules
 
                 DateTimeReq = DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss"),
 
-                UniqueNumber = uniqueNumber,
-
                 MeterNumber = Para[0].ToString(),
 
                 Amount = amount
-
             };
 
             return subProService;
         }
 
-        //
 
+        
+        
+        /* Main Class (Service Start here)
+         */
 
         public static async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
         {
+            TokenOrError TokenOrder;
+
             /* Service start here
 
              the logic here use two condtions ,
@@ -381,11 +387,7 @@ namespace GecolPro.Main.BusinessRules
              - if not exist reply with false
             */
 
-        TokenOrError TokenOrder;
 
-            //
-            //
-            //
 
             /* Generate Sesstion ID :
              
@@ -399,30 +401,47 @@ namespace GecolPro.Main.BusinessRules
                  sessionId = parsedDate.ToString("yyyyMMddHHmmss");
             }
 
-            //
-            //
-            //
+
+
 
             /* Logger for start Sesstion :
              */
 
             await LoggerG.LogInfoAsync($"UssdRequest|Start|Session_Id |{sessionId}");
 
-            //
-            //
-            //
+
+
+
 
             /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
             */
 
-            //SubProService subProService =  CreateSubProService(multiRequest, sessionId);
             subProService = CreateSubProService(multiRequest, sessionId);
 
 
 
-            //
-            //
-            //
+
+            /* Check BlackList :
+ */
+
+            if (await BlackListMsisdn(multiRequest.MSISDN))
+            {
+                msgContentResult = await Menus.BlockedResponseAsync(Lang);
+
+                return new MultiResponseUSSD()
+                {
+                    TransactionId = multiRequest.TransactionId,
+                    TransactionTime = DateTime.Now.ToString("yyyyMMddTHH:mm:ss"),
+                    MSISDN = multiRequest.MSISDN,
+                    USSDServiceCode = "0",
+                    USSDResponseString = msgContentResult.UssdCont,
+                    Action = RespActions.end.ToString(),
+                    ResponseCode = 9988
+                };
+            }
+            
+
+
 
             /* API to check if Gecol API Service Avaiable or not also check if our account Working:
              */
@@ -444,35 +463,42 @@ namespace GecolPro.Main.BusinessRules
 
                     try
                     {
-                        TokenOrder = await ProcessChargeForToken(subProService, Lang);
+                        TokenOrder = await ProcessChargeByDCB(subProService);
 
                         if (TokenOrder.Status)
                         {
 
-                            TokenOrder = await ProcessTokenFromGecol(subProService, Lang);
+                            TokenOrder = await ProcessTokenFromGecol(subProService);
 
                             string gecolToken = TokenOrder.TknOrErr;
 
 
-
-                            List<string> outputs = new List<string>();
-                            outputs.Add(subProService.MeterNumber);
-                            outputs.Add(subProService.Amount.ToString());
-                            outputs.Add(gecolToken);
-                            outputs.Add(subProService.UniqueNumber);
-
-                            msgContentResult = await Menus.CheckAsync(outputs, Lang);
-
-                            if (!string.IsNullOrEmpty(msgContentResult.MessageCont))
+                            if (TokenOrder.Status)
                             {
-                                SendGecolMessage(null, subProService.MSISDN, msgContentResult.MessageCont);
+                                List<string> outputs = new List<string>();
+                                outputs.Add(subProService.MeterNumber);
+                                outputs.Add(subProService.Amount.ToString());
+                                outputs.Add(gecolToken);
+                                outputs.Add(subProService.UniqueNumber);
+
+                                msgContentResult = await Menus.SuccessResponseAsync(outputs, Lang);
+
+                                if (!string.IsNullOrEmpty(msgContentResult.MessageCont))
+                                {
+                                    SendGecolMessage(null, subProService.MSISDN, msgContentResult.MessageCont);
+
+                                }
+                                else
+                                {
+                                    msgContentResult = await Menus.UnderMaintenance_Billing(TokenOrder.TknOrErr, Lang);
+                                }
                             }
 
 
                         }
                         else
                         {
-                            msgContentResult = await Menus.UnderMaintenance_Gecol(TokenOrder.TknOrErr, Lang);
+                            msgContentResult = await Menus.UnderMaintenance_Billing(TokenOrder.TknOrErr, Lang);
                         }
 
 
@@ -485,7 +511,7 @@ namespace GecolPro.Main.BusinessRules
                 }
                 else
                 {
-                    msgContentResult = await Menus.MeterNotExist(default, Lang);
+                    msgContentResult = await Menus.UnderMaintenance_Gecol("VD.01010018", Lang);
                 }
             }
             else

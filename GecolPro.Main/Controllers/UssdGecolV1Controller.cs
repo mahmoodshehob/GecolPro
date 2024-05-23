@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using GecolPro.Main.UssdService;
+
 //using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 using GecolPro.Main.BusinessRules;
-using ClassLibrary.Services;
-using static GecolPro.Main.Models.MultiRequestUSSD;
-using GecolPro.Main.Models;
+using static ClassLibrary.Models.Models.MultiRequestUSSD;
+using ClassLibrary.Models.Models;
+using Newtonsoft.Json;
 
 namespace GecolPro.Main.Controllers
 {
@@ -45,14 +46,23 @@ namespace GecolPro.Main.Controllers
                 MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest , "En");
 
 
+                if (multiResponse.ResponseCode == 0 || multiResponse == null)
+                {
+                    response = new ContentResult
+                    {
+                        ContentType = contentType,
+                        Content = Responses.Resp(multiResponse),
+                        StatusCode = 200
+                    };
+                }
+
                 response = new ContentResult
                 {
                     ContentType = contentType,
-                    Content = Responses.Resp(multiResponse),
-                    StatusCode = 200
+                    Content = Responses.Fault_Response(multiResponse),
+                    StatusCode = 400
                 };
 
-              
 
                 return response;
             }
@@ -74,17 +84,56 @@ namespace GecolPro.Main.Controllers
 
                 MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest, "Ar");
 
+                if (multiResponse.ResponseCode == 0 || multiResponse == null)
+                {
+                    response = new ContentResult
+                    {
+                        ContentType = contentType,
+                        Content = Responses.Resp(multiResponse),
+                        StatusCode = 200
+                    };
+                }
+
                 response = new ContentResult
                 {
                     ContentType = contentType,
-                    Content = Responses.Resp(multiResponse),
-                    StatusCode = 200
+                    Content = Responses.Fault_Response(multiResponse),
+                    StatusCode = 400
                 };
+
 
                 return response;
             }
         }
 
+
+
+
+        [HttpGet]
+        [Consumes("text/xml")]
+        [Route("api/{Controller}/syncblacklist/v1/En")]
+        public async Task<ContentResult> SyncBlackList()
+        {
+            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
+            {
+                ContentResult response = new ContentResult();
+
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string jsonFilePath = Path.Combine(baseDirectory, "BlackListMsisdn.json");
+                
+                if (!Directory.Exists(jsonFilePath))
+                {
+                    Directory.CreateDirectory(jsonFilePath);
+                }
+
+                //write not read
+                var json = System.IO.File.ReadAllText(jsonFilePath);
+
+                string[]? BlackList = JsonConvert.DeserializeObject<string[]>(json);
+                return response;
+            }
+
+        }
     }
 }
 

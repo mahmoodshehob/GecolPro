@@ -1,5 +1,7 @@
 ﻿
 using ClassLibrary.GecolSystem_Update.Models;
+using ClassLibrary.Models.Models;
+
 using System.Text;
 
 namespace ClassLibrary.GecolSystem_Update

@@ -20,7 +20,7 @@ namespace ClassLibrary.Services
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                baseDirectory = "/home/gecolpro/logs";
+                baseDirectory = $"/home/{Environment.UserName}/logs";
             }
             else
             {

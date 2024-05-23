@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Xml.Serialization;
 
-namespace ClassLibrary.Models.UssdModels
+namespace ClassLibrary.Models.Models
 {
 
     public class MultiRequestUSSD

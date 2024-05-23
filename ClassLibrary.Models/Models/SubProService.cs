@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ClassLibrary.Models.UssdModels;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace ClassLibrary.Models.GecolModels
+
+namespace  ClassLibrary.Models.Models
 {
     public class SubProService
     {
+        public SubProService() 
+        {
+            Random random = new Random();
+            UniqueNumber = random.Next(1, 999999).ToString("D6");
+
+        }
+        private Random random = new Random();
 
 
         [Required]

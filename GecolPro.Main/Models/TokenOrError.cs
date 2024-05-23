@@ -1,15 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿//using System.ComponentModel.DataAnnotations;
 
-namespace GecolPro.Main.Models
-{
-    public class TokenOrError
-    {
+//namespace GecolPro.Main.Models
+//{
+//    public class TokenOrError
+//    {
 
-        [Required]
-        public string? TknOrErr{ get; set; }
+//        [Required]
+//        public string? TknOrErr{ get; set; }
 
-        [Required]
-        public Boolean Status { get; set; }
+//        [Required]
+//        public Boolean Status { get; set; }
 
-    }
-}
+//    }
+//}

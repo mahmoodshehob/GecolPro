@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using GecolPro.Main.Models;
+﻿using ClassLibrary.Models.Models;
 
 namespace GecolPro.Main.BusinessRules
 {
@@ -11,12 +6,8 @@ namespace GecolPro.Main.BusinessRules
     {
         private static MsgContent msgContent = new MsgContent();
 
-        public static async Task<MsgContent> CheckAsync(List<string> Arg, string Lang)
+        public static async Task<MsgContent> SuccessResponseAsync(List<string> Arg, string Lang)
         {
-            string ussdCont;
-
-            string messageCont;
-
             switch (Lang)
             {
                 case "En":
@@ -28,37 +19,76 @@ namespace GecolPro.Main.BusinessRules
 
                 default:
 
-                    ussdCont = string.Format("رقم العداد {0}\nالقيمة المشحونة {1}  دينار\nكرت {2}\n رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]); ;
-                           
-                    messageCont = string.Format("تم شحن العداد {0} بي {1} دينار \n  كرت الشحن  {2} \n   رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+                    msgContent.UssdCont = string.Format("رقم العداد {0}\nالقيمة المشحونة {1}  دينار\nكرت {2}\n رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]); ;
+
+                    msgContent.MessageCont = string.Format("تم شحن العداد {0} بي {1} دينار \n  كرت الشحن  {2} \n   رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
 
                     break;
             }
             return (msgContent);
         }
 
-        public static async Task<MsgContent> MeterNotExist(string Arg ,string Lang)
-        {
-            string ussdCont;
 
-            //string messageCont = null;
+        public static async Task<MsgContent> BlockedResponseAsync(string Lang)
+        {
 
             switch (Lang)
             {
                 case "En":
-                    msgContent.UssdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
+                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
 
                     break;
 
                 default:
 
-                    msgContent.UssdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
+                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
 
                     break;
             }
-            //return (ussdCont, messageCont);
-            return msgContent;
+            return (msgContent);
         }
+
+        public static async Task<MsgContent> BlockedResponseAsync(string FaultCode, string Lang)
+        {
+
+            switch (Lang)
+            {
+                case "En":
+                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
+
+                    break;
+
+                default:
+
+                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
+
+                    break;
+            }
+            return (msgContent);
+        }
+
+        //public static async Task<MsgContent> MeterNotExist(string Arg ,string Lang)
+        //{
+        //    string ussdCont;
+
+        //    //string messageCont = null;
+
+        //    switch (Lang)
+        //    {
+        //        case "En":
+        //            msgContent.UssdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
+
+        //            break;
+
+        //        default:
+
+        //            msgContent.UssdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
+
+        //            break;
+        //    }
+        //    //return (ussdCont, messageCont);
+        //    return msgContent;
+        //}
 
         public static async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
         {
@@ -85,8 +115,8 @@ namespace GecolPro.Main.BusinessRules
 
                             break;
 
-                        case "caseFree4":
-                            msgContent.UssdCont = string.Format("The service under maintenance.");
+                        case "timeout":
+                            msgContent.UssdCont = string.Format("The service timeouted.");
 
                             break;
 
@@ -121,8 +151,8 @@ namespace GecolPro.Main.BusinessRules
 
                             break;
 
-                        case "caseFree4":
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+                        case "timeout":
+                            msgContent.UssdCont = string.Format("مهلة الاتصال انتهت");
 
                             break;
 

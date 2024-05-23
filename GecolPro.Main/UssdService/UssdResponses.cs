@@ -1,4 +1,4 @@
-﻿using GecolPro.Main.Models;
+﻿using ClassLibrary.Models.Models;
 
 namespace GecolPro.Main.UssdService
 {
@@ -43,10 +43,9 @@ namespace GecolPro.Main.UssdService
 </methodResponse>";
         }
 
-        public static string Fault_Response( string FaultString, int FaultCode = 4001)
+        public static string Fault_Response(MultiResponseUSSD multiResponse)
         {
             return
-
 @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <methodResponse>
 <fault>
@@ -55,13 +54,13 @@ namespace GecolPro.Main.UssdService
  <member>
  <name>faultCode</name>
  <value>
- <int>"+FaultCode+@"</int>
+ <int>"+ multiResponse .ResponseCode+ @"</int>
  </value>
  </member>
  <member>
  <name>faultString</name>
  <value>
-<string>" + FaultString + @"</string>
+<string>" + multiResponse.USSDResponseString + @"</string>
  </value>
  </member>
  </struct>

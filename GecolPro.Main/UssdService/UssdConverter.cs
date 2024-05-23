@@ -1,12 +1,12 @@
-﻿using GecolPro.Main.Models;
+﻿using ClassLibrary.Models.Models;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-using static GecolPro.Main.Models.MultiRequestUSSD.MultiRequestSerXml;
-using static GecolPro.Main.Models.MultiRequestUSSD.MultiRequest;
+using static ClassLibrary.Models.Models.MultiRequestUSSD.MultiRequestSerXml;
+using static ClassLibrary.Models.Models.MultiRequestUSSD.MultiRequest;
 
 
 namespace GecolPro.Main.UssdService

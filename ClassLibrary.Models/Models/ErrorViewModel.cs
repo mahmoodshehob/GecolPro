@@ -1,4 +1,4 @@
-namespace GecolPro.Main.Models
+namespace ClassLibrary.Models.Models
 {
     public class ErrorViewModel
     {
