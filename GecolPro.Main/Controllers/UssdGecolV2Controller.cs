@@ -106,34 +106,6 @@ namespace GecolPro.Main.Controllers
             }
         }
 
-
-
-
-        [HttpGet]
-        [Consumes("text/xml")]
-        [Route("api/{Controller}/syncblacklist/V2/En")]
-        public async Task<ContentResult> SyncBlackList()
-        {
-            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
-            {
-                ContentResult response = new ContentResult();
-
-                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                string jsonFilePath = Path.Combine(baseDirectory, "BlackListMsisdn.json");
-                
-                if (!Directory.Exists(jsonFilePath))
-                {
-                    Directory.CreateDirectory(jsonFilePath);
-                }
-
-                //write not read
-                var json = System.IO.File.ReadAllText(jsonFilePath);
-
-                string[]? BlackList = JsonConvert.DeserializeObject<string[]>(json);
-                return response;
-            }
-
-        }
     }
 }
 

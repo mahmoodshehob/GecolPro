@@ -1,4 +1,5 @@
-﻿using GecolPro.Main.Models;
+﻿//using GecolPro.Main.Models;
+using ClassLibrary.Models.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -40,9 +41,13 @@ namespace GecolPro.Main.Controllers
 
         public IActionResult systemOp()
         {
-            string text = RuntimeInformation.IsOSPlatform(OSPlatform.Windows).ToString();
+
+            string OS = Environment.OSVersion.ToString();
+
             string username = Environment.UserName;
-            return Content(username);
+            string Message = $"The OS Version : {OS}\nThe User is : {username}";
+
+            return Content(Message);
         }
 
 

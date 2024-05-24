@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using ClassLibrary.Services;
-using System.Net.Mail;
-using GecolPro.Main.Models;
+using ClassLibrary.Models.Models;
 
 namespace GecolPro.Main.Controllers
 {
@@ -18,14 +15,6 @@ namespace GecolPro.Main.Controllers
             BusinessRules.UssdProcessV1.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message);
 
             return StatusCode(200);
-            //if (result.StatusCode == "200")
-            //{
-            //    return StatusCode(200, result.Responce);
-            //}
-            //else
-            //{
-            //    return StatusCode(500, result.Responce);
-            //}
         }
     }
 }

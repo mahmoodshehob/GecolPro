@@ -163,7 +163,7 @@ namespace ClassLibrary.GecolSystem_Update
         {
             var client = new HttpClient
             {
-                Timeout = TimeSpan.FromMilliseconds(1000)
+                Timeout = TimeSpan.FromMilliseconds(5000)
             };
             var authCred = new AuthCred();
             var statusCode = "";

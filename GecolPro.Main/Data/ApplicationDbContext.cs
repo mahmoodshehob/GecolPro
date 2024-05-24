@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using ClassLibrary.Models.GecolModels;
-using ClassLibrary.Models.DcbModels;
-using ClassLibrary.Models.UssdModels;
+
 
 namespace GecolPro.Main.Data
 {

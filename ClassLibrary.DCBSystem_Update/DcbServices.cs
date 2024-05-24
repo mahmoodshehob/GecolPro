@@ -4,7 +4,7 @@ using ClassLibrary.Models.Models;
 
 namespace ClassLibrary.DCBSystem_Update
 {
-    public class DcbServices
+    public class DcbServices : IDcbServices
     {
 
         private readonly XmlServices.ICreateResponse _createResponse = new XmlServices();

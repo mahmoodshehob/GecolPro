@@ -44,30 +44,42 @@ namespace GecolPro.Main.BusinessRules
 
         private static async Task<MsgContent> MenuReader(SubProService subProService, string Lang)
         {
-            var subProServiceResp = await DcbOperation.QryUserBasicBalOp(subProService.MSISDN);
-
-            if (subProServiceResp.Status)
+            try
             {
+                var subProServiceResp = await DcbOperation.QryUserBasicBalOp(subProService.MSISDN);
 
-                var BalanceValue = subProServiceResp.Response;
+                if (subProServiceResp.Status)
+                {
 
-                List<string> outputs = new List<string>();
+                    var BalanceValue = subProServiceResp.Response;
 
-                outputs.Add(subProService.MeterNumber);
-                outputs.Add(subProService.Amount.ToString());
-                outputs.Add(subProService.MSISDN);
-                outputs.Add(BalanceValue);
+                    List<string> outputs = new List<string>();
 
-                msgContentResult = await Menus.SuccessResponseAsync(outputs, Lang);
-                return (msgContentResult);
+                    outputs.Add(subProService.MeterNumber);
+                    outputs.Add(subProService.Amount.ToString());
+                    outputs.Add(subProService.MSISDN);
+                    outputs.Add(BalanceValue);
 
+                    msgContentResult = await Menus.SuccessResponseAsync(outputs, Lang);
+                    return (msgContentResult);
+
+                }
+                else
+                {
+                    msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+
+                    return (msgContentResult);
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+                await ExceptionLogs(ex);
 
-                return (msgContentResult);
-
+                return new MsgContent()
+                {
+                    UssdCont = "Error performing request Unknown Error"
+                };
             }
         }
 
@@ -97,7 +109,11 @@ namespace GecolPro.Main.BusinessRules
                 }
                 return false;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                await ExceptionLogs(ex);
+                return false;
+            }
         }
 
 
@@ -109,17 +125,23 @@ namespace GecolPro.Main.BusinessRules
 
         private static async Task<Boolean> CheckServiceExist()
         {
-            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolCheck|" + subProService.ConversationID + "|Check Service Connectivity");
-
-            if ((await GecolOperation.LoginReqOp()).Status)
+            try
             {
-                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolCheck|" + subProService.ConversationID + "|Service Connected");
-                
-                return true;
-            }
+                await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolCheck|" + subProService.ConversationID + "|Check Service Connectivity");
 
-            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolCheck|" + subProService.ConversationID + "|Service Not Connected");
-            
+                if ((await GecolOperation.LoginReqOp()).Status)
+                {
+                    await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolCheck|" + subProService.ConversationID + "|Service Connected");
+
+                    return true;
+                }
+
+                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolCheck|" + subProService.ConversationID + "|Service Not Connected");
+            }
+            catch (Exception ex)
+            {
+                await ExceptionLogs(ex);
+            }
             return false;
         }
 
@@ -140,26 +162,32 @@ namespace GecolPro.Main.BusinessRules
 
         private static async Task<Boolean> CheckMeterExist(string MeterNumber)
         {
-            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolMeter|" + subProService.ConversationID + "|Check The Meter");
-
-            // Query in DB
-
-            //if ()
-            //{ }
-            //else if
-
-            if ((await ClassLibrary.GecolSystem.GecolOperation.ConfirmCustomerOp(MeterNumber)).Status)
+            try
             {
-                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolMeter|" + subProService.ConversationID + "|The Meter Number Connected");
+                await LoggerG.LogInfoAsync($"LynaGclsys|==>|Req_GecolMeter|{subProService.ConversationID}|Check The Meter  |{subProService.MeterNumber}");
 
-                return true;
+                // Query in DB
+
+                //if ()
+                //{ }
+                //else if
+
+                if ((await ClassLibrary.GecolSystem.GecolOperation.ConfirmCustomerOp(MeterNumber)).Status)
+                {
+                    await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolMeter|" + subProService.ConversationID + "|The Meter Number Connected");
+
+                    return true;
+                }
+
+                //else 
+                //{ }
+
+                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolMeter|" + subProService.ConversationID + "|The Meter Number Not Exist or has Issue");
             }
-
-            //else 
-            //{ }
-
-            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsp_GecolMeter|" + subProService.ConversationID + "|The Meter Number Not Exist or has Issue");
-
+            catch (Exception ex)
+            {
+                await ExceptionLogs(ex);
+            }
             return false;
         }
 
@@ -178,46 +206,61 @@ namespace GecolPro.Main.BusinessRules
         {
             TokenOrError tokenOrError;
 
-            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_BillingSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
-
-            var subProServiceResp = await DcbOperation.DirectDebitUnitOp(subProService.ConversationID, subProService.MSISDN, subProService.Amount);
-
-            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsq_BillingSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
-
-
-            if (subProServiceResp.Status)
+            try
             {
 
-                /*here ConncetionString to saveing in DB in success case : 
-                 */
+                await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_BillingSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
-                tokenOrError = new TokenOrError()
+                var subProServiceResp = await DcbOperation.DirectDebitUnitOp(subProService.ConversationID, subProService.MSISDN, subProService.Amount);
+
+                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsq_BillingSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response);
+
+
+                if (subProServiceResp.Status)
                 {
-                    TknOrErr= subProServiceResp.Response,
-                    Status = true
-                };
 
-                return (tokenOrError);
+                    /*here ConncetionString to saveing in DB in success case : 
+                     */
+
+                    tokenOrError = new TokenOrError()
+                    {
+                        TknOrErr = subProServiceResp.Response,
+                        Status = true
+                    };
+
+                    return (tokenOrError);
+                }
+                else
+                {
+                    /*here ConncetionString to saveing in DB in Failed case :
+
+
+
+                     */
+
+                    //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+
+                    tokenOrError = new TokenOrError()
+                    {
+                        TknOrErr = subProServiceResp.Response,
+                        Status = false
+
+                    };
+
+                    return (tokenOrError);
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                /*here ConncetionString to saveing in DB in Failed case :
+                await ExceptionLogs(ex);
 
-                                 
-                
-                 */
-
-                //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
-
-                tokenOrError = new TokenOrError()
+                return new TokenOrError()
                 {
-                    TknOrErr = subProServiceResp.Response,
+                    TknOrErr = ex.Message,
                     Status = false
 
                 };
-
-                return (tokenOrError);
-
             }
         }
 
@@ -234,60 +277,74 @@ namespace GecolPro.Main.BusinessRules
 
         private static async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService)
         {
-            TokenOrError tokenOrError ;
+            TokenOrError tokenOrError;
 
-            await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
-
-            var subProServiceResp = await GecolOperation.CreditVendOp(subProService.MeterNumber, subProService.UniqueNumber, subProService.Amount);
-
-            await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsq_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response + "|" + subProService.UniqueNumber);
-
-
-            /*
-            //if (subProServiceResp.Status)
-            //{
-            //    return (subProServiceResp.Response, subProServiceResp.Status);
-            //}
-            //else
-            //{
-            //    return (subProServiceResp.Response, subProServiceResp.Status);
-            //}
-            */
-
-
-            if (subProServiceResp.Status)
+            try
             {
-                /*here ConncetionString to saveing in DB in success case : 
+                await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+
+                var subProServiceResp = await GecolOperation.CreditVendOp(subProService.MeterNumber, subProService.UniqueNumber, subProService.Amount);
+
+                await LoggerG.LogInfoAsync("LynaGclsys|<==|Rsq_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount + "|" + subProServiceResp.Status + "|" + subProServiceResp.Response + "|" + subProService.UniqueNumber);
+
+
+                /*
+                //if (subProServiceResp.Status)
+                //{
+                //    return (subProServiceResp.Response, subProServiceResp.Status);
+                //}
+                //else
+                //{
+                //    return (subProServiceResp.Response, subProServiceResp.Status);
+                //}
                 */
 
-                tokenOrError = new TokenOrError()
+
+                if (subProServiceResp.Status)
                 {
-                    TknOrErr = subProServiceResp.Response,
-                    Status = true
+                    /*here ConncetionString to saveing in DB in success case : 
+                    */
 
-                };
+                    tokenOrError = new TokenOrError()
+                    {
+                        TknOrErr = subProServiceResp.Response,
+                        Status = true
 
-                return (tokenOrError);
+                    };
+
+                    return (tokenOrError);
+                }
+                else
+                {
+                    /*here ConncetionString to saveing in DB in Failed case :
+                    */
+
+                    //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode);
+
+                    tokenOrError = new TokenOrError()
+                    {
+                        TknOrErr = subProServiceResp.Response,
+                        Status = false
+
+                    };
+
+                    return (tokenOrError);
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                /*here ConncetionString to saveing in DB in Failed case :
-                */
+                await ExceptionLogs(ex);
 
-                //msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode);
-
-                tokenOrError = new TokenOrError()
+                return new TokenOrError()
                 {
-                    TknOrErr = subProServiceResp.Response,
+                    TknOrErr = ex.Message,
                     Status = false
 
                 };
-
-                return (tokenOrError);
-
             }
-
         }
+
 
 
 
@@ -297,12 +354,6 @@ namespace GecolPro.Main.BusinessRules
 
         public static async void SendGecolMessage(string? sender, string receiver, string message)
         {
-
-
-
-
-
-
             try
             {
 
@@ -320,22 +371,28 @@ namespace GecolPro.Main.BusinessRules
                 var content = new StringContent(JsonConvert.SerializeObject(jsonObject), null, "application/json");
                 request.Content = content;
                 var response = await client.SendAsync(request);
+
+                await LoggerG.LogInfoAsync($"LynaGclsys|==>|Req_SMSCSystem|Submet|To|{subProService.MSISDN}");
+
                 response.EnsureSuccessStatusCode();
                 var messageResponse = await response.Content.ReadAsStringAsync();
+
+                await LoggerG.LogInfoAsync($"LynaGclsys|<==|Rsp_SMSCSystem|Respon|{messageResponse}");
+
             }
             catch (Exception ex)
             {
+                await ExceptionLogs(ex);
+
 
             }
         }
-                            
-
 
 
         /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
        */
 
-        private static SubProService CreateSubProService(MultiRequest multiRequest , string sessionId)
+        private static SubProService CreateSubProService(MultiRequest multiRequest, string sessionId)
         {
             string[] Para = multiRequest.USSDRequestString.Split('#');
 
@@ -365,8 +422,24 @@ namespace GecolPro.Main.BusinessRules
         }
 
 
-        
-        
+
+
+        /*Chech Exception Logs :
+        */
+
+        private static async Task ExceptionLogs(Exception ex)
+        {
+            await LoggerG.LogDebugAsync(
+                  $"excp" +
+                  $"\n{subProService.ConversationID}|{ex.Message}" +
+                  $"\n{subProService.ConversationID}|{ex.InnerException}" +
+                  $"\n{subProService.ConversationID}|{ex.StackTrace.ToString()}"
+                  );
+        }
+
+
+
+
         /* Main Class (Service Start here)
          */
 
@@ -377,28 +450,28 @@ namespace GecolPro.Main.BusinessRules
             /* Service start here
 
              the logic here use two condtions ,
-            
+
              - Generate Sesstion ID : for Subscriber Request
-            
+
              - Check Meter DBs : Check Meter in database if exist  return with true
-            
+
              - Check Meter API : if not in DB check by API if exist add to DB and return with true
-            
+
              - if not exist reply with false
             */
 
 
 
             /* Generate Sesstion ID :
-             
+
             */
 
             string sessionId = DateTime.Now.ToString("yyyyMMddHHmmss");
 
-            if (DateTime.TryParseExact(multiRequest.TransactionTime, "M/d/yyyy h:mm:ss tt",CultureInfo.InvariantCulture,DateTimeStyles.None,out DateTime parsedDate))
+            if (DateTime.TryParseExact(multiRequest.TransactionTime, "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
             {
                 // Format the DateTime object into the desired format
-                 sessionId = parsedDate.ToString("yyyyMMddHHmmss");
+                sessionId = parsedDate.ToString("yyyyMMddHHmmss");
             }
 
 
@@ -407,7 +480,7 @@ namespace GecolPro.Main.BusinessRules
             /* Logger for start Sesstion :
              */
 
-            await LoggerG.LogInfoAsync($"UssdRequest|Start|Session_Id |{sessionId}");
+            await LoggerG.LogInfoAsync($"UssdSystem|==>|Req_LynaGclsys|Start|Session_Id |{sessionId}");
 
 
 
@@ -439,7 +512,7 @@ namespace GecolPro.Main.BusinessRules
                     ResponseCode = 9988
                 };
             }
-            
+
 
 
 
@@ -516,12 +589,12 @@ namespace GecolPro.Main.BusinessRules
             }
             else
             {
-                msgContentResult= await Menus.UnderMaintenance_Gecol(default, Lang);
+                msgContentResult = await Menus.UnderMaintenance_Gecol(default, Lang);
             }
 
             // Generate USSD Response
 
-            await LoggerG.LogInfoAsync($"UssdRequest|Close|Session_Id |{sessionId}");
+            await LoggerG.LogInfoAsync($"UssdSystem|<==|Rsp_LynaGclsys|Close|Session_Id |{sessionId}");
 
             var multiResponse = new MultiResponseUSSD()
             {
@@ -535,8 +608,9 @@ namespace GecolPro.Main.BusinessRules
 
             return multiResponse;
         }
+
     }
-}
+} 
 
 
 

@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="defaultValues.json" />
+    <None Remove="defaultValuesxxx.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="defaultValues.json">
+    <Content Include="defaultValuesxxx.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

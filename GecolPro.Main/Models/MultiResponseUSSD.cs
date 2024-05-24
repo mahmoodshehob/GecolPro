@@ -4,8 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Xml.Serialization;
 
-namespace GecolPro.Main.Models
-{
+namespace GecolPro.Main.Models 
+{ 
     public class MultiResponseUSSD
     {
         public string? TransactionId { get; set; }

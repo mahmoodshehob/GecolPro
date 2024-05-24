@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Xml.Serialization;
-using GecolPro.Main.Models;
-using static GecolPro.Main.Models.MultiRequestUSSD.MultiRequestSerXml;
+using  ClassLibrary.Models.Models;
+using static ClassLibrary.Models.Models.MultiRequestUSSD.MultiRequestSerXml;
 
 
 namespace GecolPro.Main.BusinessRules

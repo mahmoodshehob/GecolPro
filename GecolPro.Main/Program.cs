@@ -6,16 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//try
-//{
-//   RedisUSSD.TestRedis();
-//}
-//catch (Exception ex)
-//{
-//    string message = ex.Message;
-//}
 
-// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("VM129Connection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
