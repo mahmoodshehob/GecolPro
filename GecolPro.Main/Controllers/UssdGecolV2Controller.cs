@@ -40,29 +40,9 @@ namespace GecolPro.Main.Controllers
 
                 string xmlContent = await reader.ReadToEndAsync();
 
-                MultiRequestUSSD.MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
+                MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
 
-               
-                MultiResponseUSSD multiResponse = await UssdProcessV2.ServiceProcessing(multiRequest , "En");
-
-
-                if (multiResponse.ResponseCode == 0 || multiResponse == null)
-                {
-                    response = new ContentResult
-                    {
-                        ContentType = contentType,
-                        Content = Responses.Resp(multiResponse),
-                        StatusCode = 200
-                    };
-                }
-
-                response = new ContentResult
-                {
-                    ContentType = contentType,
-                    Content = Responses.Fault_Response(multiResponse),
-                    StatusCode = 400
-                };
-
+                response = await GetResponse(xmlContent, "En");
 
                 return response;
             }
@@ -82,26 +62,47 @@ namespace GecolPro.Main.Controllers
 
                 MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
 
-                MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest, "Ar");
+                response = await GetResponse(xmlContent, "Ar");
 
-                if (multiResponse.ResponseCode == 0 || multiResponse == null)
+
+
+                return response;
+            }
+        }
+
+
+
+
+        private async Task<ContentResult> GetResponse(string xmlContent, string lang)
+        {
+
+            ContentResult response = new ContentResult();
+
+            MultiRequestUSSD.MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
+
+
+            MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest, lang);
+
+
+            if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
+            {
+                response = new ContentResult
                 {
-                    response = new ContentResult
-                    {
-                        ContentType = contentType,
-                        Content = Responses.Resp(multiResponse),
-                        StatusCode = 200
-                    };
-                }
+                    ContentType = contentType,
+                    Content = Responses.Resp(multiResponse),
+                    StatusCode = 200
+                };
+                return response;
 
+            }
+            else
+            {
                 response = new ContentResult
                 {
                     ContentType = contentType,
                     Content = Responses.Fault_Response(multiResponse),
                     StatusCode = 400
                 };
-
-
                 return response;
             }
         }

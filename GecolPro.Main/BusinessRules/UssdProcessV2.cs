@@ -294,11 +294,17 @@ namespace GecolPro.Main.BusinessRules
         private static async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService)
         {
             TokenOrError tokenOrError;
+            int maxRetries = 3;
+            int attempt = 0;
 
 
             try
             {
-                await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
+                while (attempt < maxRetries)
+                {
+                    attempt++;
+
+                    await LoggerG.LogInfoAsync("LynaGclsys|==>|Req_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
                 var subProServiceResp = await GecolServices.CreditVendOp(subProService.MeterNumber, subProService.UniqueNumber, subProService.Amount);
 
@@ -345,9 +351,15 @@ namespace GecolPro.Main.BusinessRules
 
                     };
 
-                    return (tokenOrError);
+                        await LoggerG.LogInfoAsync("LynaGclsys|xxx|Failed+attempt|" + attempt + " for Req_GecolVnSys|" + subProService.ConversationID + "|" + subProService.MSISDN + "|" + subProService.Amount);
 
+                    }
                 }
+                return tokenOrError = new TokenOrError()
+                {
+                    TknOrErr = "atmpsfailed",
+                    Status = false
+                };
             }
             catch (Exception ex)
             {
@@ -372,28 +384,30 @@ namespace GecolPro.Main.BusinessRules
             try
             {
 
-                var client = new HttpClient();
-                var request = new HttpRequestMessage(HttpMethod.Post, "http://172.16.31.17:8086/api/Messages");
-
-                SmsMessage jsonObject = new SmsMessage()
+                if (!string.IsNullOrEmpty(message))
                 {
-                    Sender = "2188997772",
-                    Receiver = receiver,
-                    Message = message
-                };
+                    var client = new HttpClient();
+                    var request = new HttpRequestMessage(HttpMethod.Post, "http://172.16.31.17:8086/api/Messages");
+
+                    SmsMessage jsonObject = new SmsMessage()
+                    {
+                        Sender = "2188997772",
+                        Receiver = receiver,
+                        Message = message
+                    };
 
 
-                var content = new StringContent(JsonConvert.SerializeObject(jsonObject), null, "application/json");
-                request.Content = content;
-                var response = await client.SendAsync(request);
+                    var content = new StringContent(JsonConvert.SerializeObject(jsonObject), null, "application/json");
+                    request.Content = content;
+                    var response = await client.SendAsync(request);
 
-                await LoggerG.LogInfoAsync($"LynaGclsys|==>|Req_SMSCSystem|Submet|To|{subProService.MSISDN}");
+                    await LoggerG.LogInfoAsync($"LynaGclsys|==>|Req_SMSCSystem|Submet|To|{subProService.MSISDN}");
 
-                response.EnsureSuccessStatusCode();
-                var messageResponse = await response.Content.ReadAsStringAsync();
+                    response.EnsureSuccessStatusCode();
+                    var messageResponse = await response.Content.ReadAsStringAsync();
 
-                await LoggerG.LogInfoAsync($"LynaGclsys|<==|Rsp_SMSCSystem|Respon|{messageResponse}");
-
+                    await LoggerG.LogInfoAsync($"LynaGclsys|<==|Rsp_SMSCSystem|Respon|{messageResponse}");
+                }
             }
             catch (Exception ex)
             {
@@ -583,6 +597,8 @@ namespace GecolPro.Main.BusinessRules
                                 else
                                 {
                                     msgContentResult = await Menus.UnderMaintenance_Billing(TokenOrder.TknOrErr, Lang);
+                                    SendGecolMessage(null, subProService.MSISDN, msgContentResult.MessageCont);
+
                                 }
                             }
 
