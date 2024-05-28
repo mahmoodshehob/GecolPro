@@ -157,11 +157,11 @@ namespace ClassLibrary.DCBSystem_Update
                 };
                 request.Headers.Add("SOAPAction", soapAction);
 
-                var response = await client.SendAsync(request);
-
-
                 string TransID = DateTime.Now.ToString("ffff");
                 await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {Body}");
+
+                var response = await client.SendAsync(request);
+
                 await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
 
 

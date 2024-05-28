@@ -32,11 +32,12 @@ namespace ClassLibrary.DCBSystem
                 };
                 request.Headers.Add("SOAPAction", SOAPAction);
 
-                HttpResponseMessage response = await _client.SendAsync(request);
-
 
                 string TransID = DateTime.Now.ToString("ffff");
                 await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {Body}");
+
+                HttpResponseMessage response = await _client.SendAsync(request);
+
                 await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
 
 
