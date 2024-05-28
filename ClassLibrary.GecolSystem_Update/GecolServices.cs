@@ -1,7 +1,8 @@
 ﻿
 using ClassLibrary.GecolSystem_Update.Models;
-using ClassLibrary.Models.Models;
+using ClassLibrary.Services;
 
+using ClassLibrary.Models.Models;
 using System.Text;
 
 namespace ClassLibrary.GecolSystem_Update
@@ -11,6 +12,7 @@ namespace ClassLibrary.GecolSystem_Update
         //private readonly SoapServiceClient _soapServiceClient = new();
         private readonly ICreateResponse _createResponse = new XmlServices();
         private readonly ICreateXml _createXml = new XmlServices();
+        private static Loggers LoggerG = new Loggers();
 
 
         private enum SoapActionEnum
@@ -176,6 +178,12 @@ namespace ClassLibrary.GecolSystem_Update
                 };
 
                 var response = await client.SendAsync(request);
+
+
+                string TransID = DateTime.Now.ToString("ffff");
+                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {body}");
+                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
+
 
 
                 statusCode = response.StatusCode.ToString();

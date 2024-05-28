@@ -1,4 +1,5 @@
 ﻿using ClassLibrary.DCBSystem.Models;
+using ClassLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace ClassLibrary.DCBSystem
     {
         private readonly HttpClient _client = new HttpClient();
         private readonly AuthHeader authHeader = new AuthHeader();
+
+        private static Loggers LoggerG = new Loggers();
 
         public SoapServiceClient()
         {   
@@ -30,6 +33,12 @@ namespace ClassLibrary.DCBSystem
                 request.Headers.Add("SOAPAction", SOAPAction);
 
                 HttpResponseMessage response = await _client.SendAsync(request);
+
+
+                string TransID = DateTime.Now.ToString("ffff");
+                await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {Body}");
+                await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
+
 
                 if (response.IsSuccessStatusCode)
                 {

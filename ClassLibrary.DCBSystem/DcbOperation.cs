@@ -1,4 +1,5 @@
 ﻿using ClassLibrary.DCBSystem.Models;
+using ClassLibrary.Models.Models;
 using ClassLibrary.Services;
 
 
@@ -79,7 +80,14 @@ namespace ClassLibrary.DCBSystem
             
             string Body = DcbCreateXml.DirectDebitUnitCreateXml.CreateSoapBody(directDebitUnitReq);
 
+
+
+
             (string Responce, string StatusCode, Boolean Status) SoapRsp = await soapServiceClient.SendSoapRequest(Body, SOAPAction.DirectDebitUnit.ToString());
+
+
+
+
 
 
 

@@ -9,7 +9,7 @@ namespace ClassLibrary.GecolSystem
     {
         private readonly HttpClient _client;
         private readonly AuthCred authCred;
-        //private Logger logger;
+        private static Loggers LoggerG = new Loggers();
         //private static IniFiles readIniFile = new IniFiles();
         //private static Dictionary<string, string> dictionary = readIniFile.Read("GECOL_Section");
 
@@ -43,6 +43,10 @@ namespace ClassLibrary.GecolSystem
                 };
 
                 HttpResponseMessage response = await _client.SendAsync(request);
+
+                string TransID = DateTime.Now.ToString("ffff");
+                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {Body}");
+                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
 
 
                 statusCode = response.StatusCode.ToString();

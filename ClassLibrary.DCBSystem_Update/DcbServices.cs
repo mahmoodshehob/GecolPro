@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using ClassLibrary.DCBSystem_Update.Models;
 using ClassLibrary.Models.Models;
+using ClassLibrary.Services;
 
 namespace ClassLibrary.DCBSystem_Update
 {
@@ -10,7 +11,7 @@ namespace ClassLibrary.DCBSystem_Update
         private readonly XmlServices.ICreateResponse _createResponse = new XmlServices();
         private readonly XmlServices.ICreateXml _createXml = new XmlServices();
 
-
+        private static Loggers LoggerG = new Loggers();
 
         //private static QryUserBasicBalRsp qryUserBasicBalRsp = new QryUserBasicBalRsp();
 
@@ -140,7 +141,7 @@ namespace ClassLibrary.DCBSystem_Update
             }
         }
 
-        private static async Task<DcbSystemResponse> SendSoapRequest(string body, string soapAction)
+        private static async Task<DcbSystemResponse> SendSoapRequest(string Body, string soapAction)
         {
             try
             {
@@ -152,11 +153,17 @@ namespace ClassLibrary.DCBSystem_Update
 
                 var request = new HttpRequestMessage(HttpMethod.Post, authHeader.Url)
                 {
-                    Content = new StringContent(body, Encoding.UTF8, "text/xml")
+                    Content = new StringContent(Body, Encoding.UTF8, "text/xml")
                 };
                 request.Headers.Add("SOAPAction", soapAction);
 
                 var response = await client.SendAsync(request);
+
+
+                string TransID = DateTime.Now.ToString("ffff");
+                await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {Body}");
+                await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
+
 
                 if (response.IsSuccessStatusCode)
                 {

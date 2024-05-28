@@ -36,6 +36,7 @@ namespace ClassLibrary.Services
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "Debug"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "UssdTrans"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "DcbTrans"));
+            CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "GecolTrans"));
         }
 
         private void CreateDirectoryIfNotExists(string path)
@@ -77,6 +78,10 @@ namespace ClassLibrary.Services
         public async Task LogDcbTransAsync(string message)
         {
             await WriteLogAsync(message, "DcbTrans");
+        }
+        public async Task LogGecolTransAsync(string message)
+        {
+            await WriteLogAsync(message, "GecolTrans");
         }
     }
 }
