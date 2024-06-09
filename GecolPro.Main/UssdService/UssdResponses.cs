@@ -1,12 +1,38 @@
 ﻿using ClassLibrary.Models.Models;
+using System.Text;
+using System.Xml;
 
 namespace GecolPro.Main.UssdService
 {
     public class Responses
     {
+
+        private static string OrganizeXmlString(string xml)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+
+            StringBuilder stringBuilder = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "    " // Use four spaces for indentation
+            };
+
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, settings))
+            {
+                xmlDoc.WriteTo(writer);
+            }
+
+            string afterOrganizeXml = stringBuilder.ToString();
+
+            return stringBuilder.ToString();
+        }
+
+
         public static string Resp(MultiResponseUSSD multiResponse)
         {
-            return
+            return OrganizeXmlString(
  @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <methodResponse>
 <params>
@@ -16,7 +42,7 @@ namespace GecolPro.Main.UssdService
 <member>
 <name>TransactionId</name>
 <value>
-<string>"+ multiResponse.TransactionId + @"</string>
+<string>" + multiResponse.TransactionId + @"</string>
 </value>
 </member>
 <member>
@@ -40,12 +66,12 @@ namespace GecolPro.Main.UssdService
 </value>
 </param>
 </params>
-</methodResponse>";
+</methodResponse>");
         }
 
         public static string Fault_Response(MultiResponseUSSD multiResponse)
         {
-            return
+            return OrganizeXmlString(
 @"<?xml version=""1.0"" encoding=""UTF-8""?>
 <methodResponse>
 <fault>
@@ -54,7 +80,7 @@ namespace GecolPro.Main.UssdService
  <member>
  <name>faultCode</name>
  <value>
- <int>"+ multiResponse .ResponseCode+ @"</int>
+ <int>" + multiResponse .ResponseCode+ @"</int>
  </value>
  </member>
  <member>
@@ -66,7 +92,7 @@ namespace GecolPro.Main.UssdService
  </struct>
 </value>
 </fault>
-</methodResponse>";
+</methodResponse>");
         }
     }
 }

@@ -14,19 +14,12 @@ namespace ClassLibrary.DCBSystem_Update
 
         private static Loggers LoggerG = new Loggers();
 
-        //private static QryUserBasicBalRsp qryUserBasicBalRsp = new QryUserBasicBalRsp();
-
-        //private static DirectDebitUnitRsp directDebitUnitRsp = new DirectDebitUnitRsp();
-
-        //private static string FaultString = "";
-
         private enum SoapAction
         {
             QryUserBasicBal,
             DirectDebitUnit,
             DebitRollback
         }
-
 
         public async Task<DcbSystemResponse> QryUserBasicBalOp(string msisdn)
         {
@@ -126,6 +119,55 @@ namespace ClassLibrary.DCBSystem_Update
             }
         }
 
+        public async Task<DcbSystemResponse> DebitRollbackOp(string conversationId, string transactionId, string msisdn, int amount)
+        {
+            var statusCode = "";
+            try
+            {
+                DebitRollbackReqSoap debitRollbackReq = new()
+                {
+                    ServiceName = "Gecol",
+                    TransactionID = transactionId,
+                    ConversationID = conversationId,
+                    DestinationAddress = msisdn,
+                    Amount = amount * 1000
+                };
+
+                var body = _createXml.CreateXmlDebitRollback(debitRollbackReq);
+
+                var soapRsp = await SendSoapRequest(body, SoapAction.DebitRollback.ToString());
+
+                statusCode = soapRsp.StatusCode;
+
+
+                if (soapRsp.IsSuccessStatusCode)
+                {
+                    var debitRollbackRsp = await _createResponse.ToDebitRollbackRsp(soapRsp.Response);
+                    return new DcbSystemResponse(debitRollbackRsp.TransactionID, statusCode, soapRsp.IsSuccessStatusCode);
+                }
+
+                string? faultCode;
+                if (soapRsp.Response.ToLower() != "timeout")
+                {
+
+                    faultCode = await FailedCase(soapRsp.Response);
+
+                }
+                else
+                {
+
+                    faultCode = "timeout";
+
+                }
+                return new DcbSystemResponse(faultCode, statusCode, soapRsp.IsSuccessStatusCode);
+            }
+            catch (Exception e)
+            {
+                LogException(e);
+                return new DcbSystemResponse(e.Message, statusCode, false);
+            }
+        }
+
         public async Task<string?> FailedCase(string failedXmlRespons)
         {
             try
@@ -141,6 +183,10 @@ namespace ClassLibrary.DCBSystem_Update
                 return ("Fault");
             }
         }
+
+
+
+
 
         private static async Task<DcbSystemResponse> SendSoapRequest(string Body, string soapAction)
         {
@@ -162,7 +208,7 @@ namespace ClassLibrary.DCBSystem_Update
 
                 var response = await client.SendAsync(request);
 
-                await LoggerG.LogDcbTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
+                await LoggerG.LogDcbTransAsync($"{response.Content.ReadAsStringAsync().Result}");
 
 
                 if (response.IsSuccessStatusCode)
@@ -200,34 +246,17 @@ namespace ClassLibrary.DCBSystem_Update
 
             // Log exception details
         }
-
-        private static string OrganizeXmlString(string xml)
-        {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
-
-            StringBuilder stringBuilder = new StringBuilder();
-            XmlWriterSettings settings = new XmlWriterSettings
-            {
-                Indent = true,
-                IndentChars = "    " // Use four spaces for indentation
-            };
-
-            using (XmlWriter writer = XmlWriter.Create(stringBuilder, settings))
-            {
-                xmlDoc.WriteTo(writer);
-            }
-
-            string afterOrganizeXml = stringBuilder.ToString();
-
-            return afterOrganizeXml;
-        }
-
-
+    
     }
     public interface IDcbServices
     {
+    
         public Task<DcbSystemResponse> QryUserBasicBalOp(string msisdn);
+        
         public Task<DcbSystemResponse> DirectDebitUnitOp(string conversationId, string msisdn, int amount);
+
+        public Task<DcbSystemResponse> DebitRollbackOp(string conversationId, string transactionId, string msisdn, int amount);
+
+
     }
 }

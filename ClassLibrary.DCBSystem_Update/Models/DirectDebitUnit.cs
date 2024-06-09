@@ -4,20 +4,11 @@ namespace ClassLibrary.DCBSystem_Update.Models
 {
     public class DirectDebitUnitReqSoap : DebitObjReq
     {
-    
     }
-
-    //public class DirectDebitUnitRsp : DebitObjResp
-    //{
-
-    //}
 
     public class DirectDebitUnitRsp : DirectDebitUnitRspXml.DirectDebitUnitResp
     {
-
     }
-
-
 
     public class DirectDebitUnitRspXml
     {
@@ -62,7 +53,6 @@ namespace ClassLibrary.DCBSystem_Update.Models
             public string ConversationID { get; set; }
             public string TransactionID { get; set; }
             public string Amount { get; set; }
-
         }
     }
 }

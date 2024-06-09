@@ -15,13 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.GecolSystem", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.GecolSystem_Update", "ClassLibrary.GecolSystem_Update\ClassLibrary.GecolSystem_Update.csproj", "{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppTest", "ConsoleAppTest\ConsoleAppTest.csproj", "{A6A911AF-C37F-4C01-B14D-5AD3453BA4D9}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.DCBSystem_Update", "ClassLibrary.DCBSystem_Update\ClassLibrary.DCBSystem_Update.csproj", "{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.DataAccess", "ClassLibrary.DataAccess\ClassLibrary.DataAccess.csproj", "{F087FCC4-7E9B-4F80-8D69-DCF6C22C1727}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApI.TestDataAccess", "WebApI.TestDataAccess\WebApI.TestDataAccess.csproj", "{A9C1CEF3-043E-47D9-A5BB-17E2D64A911B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApI.TestDataAccess", "WebApI.TestDataAccess\WebApI.TestDataAccess.csproj", "{A9C1CEF3-043E-47D9-A5BB-17E2D64A911B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +51,6 @@ Global
 		{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6A911AF-C37F-4C01-B14D-5AD3453BA4D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6A911AF-C37F-4C01-B14D-5AD3453BA4D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6A911AF-C37F-4C01-B14D-5AD3453BA4D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6A911AF-C37F-4C01-B14D-5AD3453BA4D9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}.Release|Any CPU.ActiveCfg = Release|Any CPU

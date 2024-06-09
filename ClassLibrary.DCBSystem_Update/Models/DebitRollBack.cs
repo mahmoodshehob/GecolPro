@@ -2,16 +2,12 @@
 
 namespace ClassLibrary.DCBSystem_Update.Models
 {
-    public class DebitRollBackReqSoap : DebitObjReq
+    public class DebitRollbackReqSoap : DebitObjReq
     {
-
     }
 
-
-    public class DebitRollBackRsp : DebitObjResp
+    public class DebitRollBackRsp : DebitRollbackRspXml.DebitRollbackResp
     {
-        //public string MSISDN { get; set; }
-        //public string ProviderName { get; set; }
     }
 
     public class DebitRollbackRspXml
