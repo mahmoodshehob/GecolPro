@@ -22,21 +22,21 @@ namespace GecolPro.Main.BusinessRules
         private static Loggers LoggerG = new Loggers();
         private static MsgContent msgContentResult = new MsgContent();
         private static SubProService subProService = new SubProService();
-        private static IDcbServices? DcbServices = new DcbServices();
-        private static IGecolServices? GecolServices = new GecolServices();
+        //private static IDcbServices? DcbServices = new DcbServices();
+        //private static IGecolServices? GecolServices = new GecolServices();
+        private static IDcbServices? DcbServices ;
+        private static IGecolServices? GecolServices ;
 
 
         private static string logPrefix = "LynaGclsys";
 
         private static string conversationId => subProService.ConversationID;
 
-
-        public UssdProcessV2()
+        public UssdProcessV2(IDcbServices? _dcbServices , IGecolServices? _gecolServices)
         {
-
+            DcbServices = _dcbServices;
+            GecolServices = _gecolServices;
         }
-
-
 
         private enum RespActions
         {
@@ -292,6 +292,62 @@ namespace GecolPro.Main.BusinessRules
 
 
 
+        /* Rollback balance with Billing :
+        * 
+        * 1. if charging Success reply with true.
+        *
+        * 2. if charging Failed reply with false.
+        *
+         */
+
+        private static async Task<TokenOrError> ProcessRollBackDCB(SubProService subProService ,string TransactionID)
+        {
+
+            try
+            {
+
+                string msisdn = subProService.MSISDN;
+                int amount = subProService.Amount;
+
+                await LoggerG.LogInfoAsync($"{logPrefix}|==>|Req_BillingSys|{conversationId}|{msisdn}|{amount}");
+
+                DcbSystemResponse subProServiceResp = await DcbServices.DebitRollbackOp(conversationId, TransactionID, msisdn, amount);
+
+                await LoggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccessStatusCode}|{subProServiceResp.Response}");
+
+                if (subProServiceResp.IsSuccessStatusCode)
+                {
+                    //here ConncetionString to saveing in DB in success case : 
+                    return new TokenOrError
+                    {
+                        TknOrErr = subProServiceResp.Response,
+                        Status = true
+                    };
+                }
+
+                //*here ConncetionString to saveing in DB in Failed case :
+
+                return new TokenOrError
+                {
+                    TknOrErr = subProServiceResp.Response,
+                    Status = false
+                };
+
+
+            }
+            catch (Exception ex)
+            {
+                await ExceptionLogs(ex);
+                return new TokenOrError
+                {
+                    TknOrErr = ex.Message,
+                    Status = false
+                };
+            }
+        }
+
+
+
         /* Order Token From GECOL :
 * 
 * 1. if token Success reply with true.
@@ -411,7 +467,6 @@ namespace GecolPro.Main.BusinessRules
 
 
 
-
         /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
        */
 
@@ -464,8 +519,6 @@ namespace GecolPro.Main.BusinessRules
                   $"\n{subProService.ConversationID}|{ex.StackTrace.ToString()}"
                   );
         }
-
-
 
 
 

@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.DataAccess", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApI.TestDataAccess", "WebApI.TestDataAccess\WebApI.TestDataAccess.csproj", "{A9C1CEF3-043E-47D9-A5BB-17E2D64A911B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppTest", "ConsoleAppTest\ConsoleAppTest.csproj", "{DA12C89A-8F51-42AA-A269-12913012A0EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{A9C1CEF3-043E-47D9-A5BB-17E2D64A911B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9C1CEF3-043E-47D9-A5BB-17E2D64A911B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9C1CEF3-043E-47D9-A5BB-17E2D64A911B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA12C89A-8F51-42AA-A269-12913012A0EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA12C89A-8F51-42AA-A269-12913012A0EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA12C89A-8F51-42AA-A269-12913012A0EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA12C89A-8F51-42AA-A269-12913012A0EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
