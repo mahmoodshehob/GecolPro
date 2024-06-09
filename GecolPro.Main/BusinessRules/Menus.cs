@@ -109,9 +109,14 @@ namespace GecolPro.Main.BusinessRules
                             msgContent.UssdCont = string.Format("The service under maintenance.");
 
                             break;
-                       
+
                         case "caseFree3":
                             msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+
+                        case "VD.13020116":
+                            msgContent.UssdCont = string.Format("The service under maintenance,Issue with Amount Value");
 
                             break;
 
@@ -148,6 +153,11 @@ namespace GecolPro.Main.BusinessRules
                             break;
                         case "caseFree3":
                             msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+
+                        case "VD.13020116":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة,مشكلة في قيمة الرصيد.");
 
                             break;
 
