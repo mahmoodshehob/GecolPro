@@ -1,6 +1,7 @@
 ﻿using ClassLibrary.GecolSystem.Models;
 using ClassLibrary.Services;
 using System.Text;
+using System.Xml;
 
 
 namespace ClassLibrary.GecolSystem
@@ -47,9 +48,7 @@ namespace ClassLibrary.GecolSystem
 
                 HttpResponseMessage response = await _client.SendAsync(request);
 
-
-
-                await LoggerG.LogGecolTransAsync($"{response.Content.ReadAsStringAsync().Result}");
+                await LoggerG.LogGecolTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
 
 
                 statusCode = response.StatusCode.ToString();
@@ -76,6 +75,29 @@ namespace ClassLibrary.GecolSystem
                 return (message, statusCode, false);
             }
         }
+
+
+        private static string OrganizeXmlString(string xml)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+
+            StringBuilder stringBuilder = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "    " // Use four spaces for indentation
+            };
+
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, settings))
+            {
+                xmlDoc.WriteTo(writer);
+            }
+
+            return stringBuilder.ToString();
+        }
+
+
     }
 }
 

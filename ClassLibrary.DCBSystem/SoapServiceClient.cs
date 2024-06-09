@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace ClassLibrary.DCBSystem
 {
@@ -37,7 +38,7 @@ namespace ClassLibrary.DCBSystem
 
                 HttpResponseMessage response = await _client.SendAsync(request);
 
-                await LoggerG.LogDcbTransAsync($"{response.Content.ReadAsStringAsync().Result}");
+                await LoggerG.LogDcbTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
 
 
                 if (response.IsSuccessStatusCode)
@@ -70,6 +71,30 @@ namespace ClassLibrary.DCBSystem
 
             }
         }
+
+
+        private string OrganizeXmlString(string xml)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+
+            StringBuilder stringBuilder = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "    " // Use four spaces for indentation
+            };
+
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, settings))
+            {
+                xmlDoc.WriteTo(writer);
+            }
+
+            string afterOrganizeXml = stringBuilder.ToString();
+
+            return afterOrganizeXml;
+        }
+
     }
 }
 

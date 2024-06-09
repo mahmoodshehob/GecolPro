@@ -10,6 +10,7 @@ using static ClassLibrary.Models.Models.MultiRequestUSSD;
 using ClassLibrary.Models.Models;
 using Newtonsoft.Json;
 using ClassLibrary.Services;
+using System.Xml;
 
 namespace GecolPro.Main.Controllers
 {
@@ -87,7 +88,7 @@ namespace GecolPro.Main.Controllers
             {
                 string respContetn = Responses.Resp(multiResponse);
 
-                await LoggerG.LogUssdTransAsync($"{respContetn}");
+                await LoggerG.LogUssdTransAsync($"{OrganizeXmlString(respContetn)}");
 
                 response = new ContentResult
                 {
@@ -112,6 +113,30 @@ namespace GecolPro.Main.Controllers
                 };
                 return response;
             }
+        }
+
+
+
+        private async Task<string> OrganizeXmlString(string xml)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+
+            StringBuilder stringBuilder = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "    " // Use four spaces for indentation
+            };
+
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, settings))
+            {
+                xmlDoc.WriteTo(writer);
+            }
+
+            string afterOrganizeXml = stringBuilder.ToString();
+
+            return afterOrganizeXml;
         }
     }
 }

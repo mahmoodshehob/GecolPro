@@ -4,6 +4,7 @@ using ClassLibrary.Services;
 
 using ClassLibrary.Models.Models;
 using System.Text;
+using System.Xml;
 
 namespace ClassLibrary.GecolSystem_Update
 {
@@ -183,7 +184,7 @@ namespace ClassLibrary.GecolSystem_Update
 
                 var response = await client.SendAsync(request);
 
-                await LoggerG.LogGecolTransAsync($"{response.Content.ReadAsStringAsync().Result}");
+                await LoggerG.LogGecolTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
 
 
 
@@ -211,6 +212,29 @@ namespace ClassLibrary.GecolSystem_Update
 
             // Log exception details
         }
+
+        private static string OrganizeXmlString(string xml)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xml);
+
+            StringBuilder stringBuilder = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "    " // Use four spaces for indentation
+            };
+
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, settings))
+            {
+                xmlDoc.WriteTo(writer);
+            }
+
+            string afterOrganizeXml = stringBuilder.ToString();
+
+            return afterOrganizeXml;
+        }
+
     }
 
     public interface IGecolServices
