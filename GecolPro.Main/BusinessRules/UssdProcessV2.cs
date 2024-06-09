@@ -493,15 +493,16 @@ namespace GecolPro.Main.BusinessRules
 
 
             /* Generate Sesstion ID :
-             
-            */
 
-            string sessionId = DateTime.Now.ToString("yyyyMMddHHmmss");
+            */
+            string TransIDms = DateTime.Now.ToString("fff");
+
+            string sessionId = DateTime.Now.ToString($"yyyyMMddHHmmss{TransIDms}");
 
             if (DateTime.TryParseExact(multiRequest.TransactionTime, "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
             {
                 // Format the DateTime object into the desired format
-                sessionId = parsedDate.ToString("yyyyMMddHHmmss");
+                sessionId = parsedDate.ToString("yyyyMMddHHmmss") + TransIDms;
             }
 
 
