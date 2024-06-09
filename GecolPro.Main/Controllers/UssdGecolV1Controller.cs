@@ -78,8 +78,7 @@ namespace GecolPro.Main.Controllers
 
             MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest, lang);
 
-            string TransID = DateTime.Now.ToString("ffff");
-            await LoggerG.LogUssdTransAsync($"TransID[{TransID}] : {xmlContent}");
+            await LoggerG.LogUssdTransAsync($"{xmlContent}");
 
 
 
@@ -88,7 +87,7 @@ namespace GecolPro.Main.Controllers
             {
                 string respContetn = Responses.Resp(multiResponse);
 
-                await LoggerG.LogUssdTransAsync($"TransID[{TransID}] : {respContetn}");
+                await LoggerG.LogUssdTransAsync($"{respContetn}");
 
                 response = new ContentResult
                 {
@@ -103,7 +102,7 @@ namespace GecolPro.Main.Controllers
             {
                 string respContetn = Responses.Fault_Response(multiResponse);
 
-                await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {respContetn}");
+                await LoggerG.LogDcbTransAsync($"{respContetn}");
 
                 response = new ContentResult
                 {
