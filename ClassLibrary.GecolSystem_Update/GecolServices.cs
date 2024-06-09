@@ -179,11 +179,11 @@ namespace ClassLibrary.GecolSystem_Update
 
                 string TransID = DateTime.Now.ToString("ffff");
 
-                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {body}");
+                await LoggerG.LogGecolTransAsync($"{body}");
 
                 var response = await client.SendAsync(request);
 
-                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
+                await LoggerG.LogGecolTransAsync($"{response.Content.ReadAsStringAsync().Result}");
 
 
 

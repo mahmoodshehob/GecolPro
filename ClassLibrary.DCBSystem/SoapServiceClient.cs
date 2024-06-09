@@ -33,12 +33,11 @@ namespace ClassLibrary.DCBSystem
                 request.Headers.Add("SOAPAction", SOAPAction);
 
 
-                string TransID = DateTime.Now.ToString("ffff");
-                await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {Body}");
+                await LoggerG.LogDcbTransAsync($"{Body}");
 
                 HttpResponseMessage response = await _client.SendAsync(request);
 
-                await LoggerG.LogDcbTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
+                await LoggerG.LogDcbTransAsync($"{response.Content.ReadAsStringAsync().Result}");
 
 
                 if (response.IsSuccessStatusCode)

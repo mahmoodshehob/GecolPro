@@ -27,5 +27,11 @@
     <ProjectReference Include="..\ClassLibrary.Services\ClassLibrary.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="defaultValues_Gecol.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

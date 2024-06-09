@@ -42,14 +42,14 @@ namespace ClassLibrary.GecolSystem
                     Content = new StringContent(soapEnvelope, Encoding.UTF8, "text/xml")
                 };
 
-                string TransID = DateTime.Now.ToString("ffff");
 
-                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {Body}");
+                await LoggerG.LogGecolTransAsync($"{Body}");
 
                 HttpResponseMessage response = await _client.SendAsync(request);
 
 
-                await LoggerG.LogGecolTransAsync($"TransID[{TransID}] : {response.Content.ReadAsStringAsync()}");
+
+                await LoggerG.LogGecolTransAsync($"{response.Content.ReadAsStringAsync().Result}");
 
 
                 statusCode = response.StatusCode.ToString();
