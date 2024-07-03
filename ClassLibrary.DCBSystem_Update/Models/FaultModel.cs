@@ -1,4 +1,4 @@
-﻿namespace ClassLibrary.DCBSystem_Update.Models
+﻿namespace ClassLibrary.DCBSystem.Models
 {
     public class FaultModel
     {

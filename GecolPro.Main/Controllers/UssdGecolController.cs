@@ -32,7 +32,7 @@ namespace GecolPro.Main.Controllers
         {
             _context = context;
         }
-        
+
         private async Task<ContentResult> GetResponseV1(string xmlContent, string lang)
         {
 
@@ -79,59 +79,13 @@ namespace GecolPro.Main.Controllers
             }
         }
 
-        private async Task<ContentResult> GetResponseV2(string xmlContent, string lang)
-        {
-
-            ContentResult response = new ContentResult();
-
-            MultiRequestUSSD.MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
-
-
-            MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest, lang);
-
-            await LoggerG.LogUssdTransAsync($"{xmlContent}");
-
-
-
-
-            if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
-            {
-                string respContetn = Responses.Resp(multiResponse);
-
-                await LoggerG.LogUssdTransAsync($"{respContetn}");
-
-                response = new ContentResult
-                {
-                    ContentType = contentType,
-                    Content = respContetn,
-                    StatusCode = 200
-                };
-                return response;
-
-            }
-            else
-            {
-                string respContetn = Responses.Fault_Response(multiResponse);
-
-                await LoggerG.LogDcbTransAsync($"{respContetn}");
-
-                response = new ContentResult
-                {
-                    ContentType = contentType,
-                    Content = respContetn,
-                    StatusCode = 400
-                };
-                return response;
-            }
-        }
-
-
-
         // Version 1
+
+        //English
 
         [HttpPost]
         [Consumes("text/xml")]
-        [Route("api/{Controller}/creditVendReq/v1/En")]
+        [Route("api/{Controller}/creditVendReq/V1/En")]
         public async Task<ContentResult> PostV1En()
         {
             using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
@@ -147,50 +101,12 @@ namespace GecolPro.Main.Controllers
 
         }
 
+        //Arabic
+
         [HttpPost]
         [Consumes("text/xml")]
-        [Route("api/{Controller}/creditVendReq/v1/Ar")]
+        [Route("api/{Controller}/creditVendReq/V1/Ar")]
         public async Task<ContentResult> PostV1Ar()
-        {
-            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
-            {
-                ContentResult response = new ContentResult();
-
-                string xmlContent = await reader.ReadToEndAsync();
-
-                response = await GetResponseV1(xmlContent, "Ar");
-
-                return response;
-            }
-        }
-
-
-
-
-        // Version 2
-
-        [HttpPost]
-        [Consumes("text/xml")]
-        [Route("api/{Controller}/creditVendReq/V2/En")]
-        public async Task<ContentResult> PostV2En()
-        {
-            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
-            {
-                ContentResult response = new ContentResult();
-
-                string xmlContent = await reader.ReadToEndAsync();
-
-                response = await GetResponseV2(xmlContent, "En");
-
-                return response;
-            }
-
-        }
-
-        [HttpPost]
-        [Consumes("text/xml")]
-        [Route("api/{Controller}/creditVendReq/V2/Ar")]
-        public async Task<ContentResult> PostV2Ar()
         {
             using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
             {
@@ -200,15 +116,13 @@ namespace GecolPro.Main.Controllers
 
                 MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
 
-                response = await GetResponseV2(xmlContent, "Ar");
+                response = await GetResponseV1(xmlContent, "Ar");
 
 
 
                 return response;
             }
         }
-
-
     }
 }
 

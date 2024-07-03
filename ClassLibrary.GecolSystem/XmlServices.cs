@@ -3,9 +3,9 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using ClassLibrary.GecolSystem_Update.Models;
+using ClassLibrary.GecolSystem.Models;
 
-namespace ClassLibrary.GecolSystem_Update
+namespace ClassLibrary.GecolSystem
 {
     internal class XmlServices : ICreateResponse, ICreateXml
     {

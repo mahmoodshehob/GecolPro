@@ -16,7 +16,11 @@ namespace  ClassLibrary.Models.Models
 
         [Required]
         public string ConversationID { get; set; }
-        
+
+
+        //This in case billing success
+        public string TransactionID { get; set; }
+
         [Required]
         public string MSISDN { get; set; }
 

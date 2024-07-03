@@ -5,23 +5,19 @@ VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.Main", "GecolPro.Main\GecolPro.Main.csproj", "{2D1A1AEA-D346-48CF-8F4B-5F8D836FC617}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.DCBSystem", "ClassLibrary.DCBSystem\ClassLibrary.DCBSystem.csproj", "{05990D7D-6005-460D-960E-584A69B0C983}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.Models", "ClassLibrary.Models\ClassLibrary.Models.csproj", "{0C2C03C8-0E1E-42A8-9E7F-77D523E6CAE3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.Services", "ClassLibrary.Services\ClassLibrary.Services.csproj", "{A941617B-9EBD-4D51-894D-C89776D52C64}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.GecolSystem", "ClassLibrary.GecolSystem\ClassLibrary.GecolSystem.csproj", "{BE966B4F-F631-4184-8517-346A90FE7AF5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.GecolSystem_Update", "ClassLibrary.GecolSystem_Update\ClassLibrary.GecolSystem_Update.csproj", "{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.DCBSystem_Update", "ClassLibrary.DCBSystem_Update\ClassLibrary.DCBSystem_Update.csproj", "{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.DataAccess", "ClassLibrary.DataAccess\ClassLibrary.DataAccess.csproj", "{F087FCC4-7E9B-4F80-8D69-DCF6C22C1727}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApI.TestDataAccess", "WebApI.TestDataAccess\WebApI.TestDataAccess.csproj", "{A9C1CEF3-043E-47D9-A5BB-17E2D64A911B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppTest", "ConsoleAppTest\ConsoleAppTest.csproj", "{DA12C89A-8F51-42AA-A269-12913012A0EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppTest", "ConsoleAppTest\ConsoleAppTest.csproj", "{DA12C89A-8F51-42AA-A269-12913012A0EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary.DCBSystem", "ClassLibrary.DCBSystem\ClassLibrary.DCBSystem.csproj", "{985E0F07-A308-4EEC-82B7-63D7EFE1EABF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary.GecolSystem", "ClassLibrary.GecolSystem\ClassLibrary.GecolSystem.csproj", "{817BF6EE-2361-46FA-A5E9-AC80EE18EAFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +29,6 @@ Global
 		{2D1A1AEA-D346-48CF-8F4B-5F8D836FC617}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D1A1AEA-D346-48CF-8F4B-5F8D836FC617}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{2D1A1AEA-D346-48CF-8F4B-5F8D836FC617}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{05990D7D-6005-460D-960E-584A69B0C983}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{05990D7D-6005-460D-960E-584A69B0C983}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{05990D7D-6005-460D-960E-584A69B0C983}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{05990D7D-6005-460D-960E-584A69B0C983}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C2C03C8-0E1E-42A8-9E7F-77D523E6CAE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C2C03C8-0E1E-42A8-9E7F-77D523E6CAE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C2C03C8-0E1E-42A8-9E7F-77D523E6CAE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,18 +37,6 @@ Global
 		{A941617B-9EBD-4D51-894D-C89776D52C64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A941617B-9EBD-4D51-894D-C89776D52C64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A941617B-9EBD-4D51-894D-C89776D52C64}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE966B4F-F631-4184-8517-346A90FE7AF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE966B4F-F631-4184-8517-346A90FE7AF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE966B4F-F631-4184-8517-346A90FE7AF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE966B4F-F631-4184-8517-346A90FE7AF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{627EB09A-49C5-4F83-AF58-98A5AEA6FB8E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1B0FAA8A-738E-446C-B2B1-23CF7BCEB645}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F087FCC4-7E9B-4F80-8D69-DCF6C22C1727}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F087FCC4-7E9B-4F80-8D69-DCF6C22C1727}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F087FCC4-7E9B-4F80-8D69-DCF6C22C1727}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -69,6 +49,14 @@ Global
 		{DA12C89A-8F51-42AA-A269-12913012A0EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA12C89A-8F51-42AA-A269-12913012A0EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA12C89A-8F51-42AA-A269-12913012A0EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{985E0F07-A308-4EEC-82B7-63D7EFE1EABF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{985E0F07-A308-4EEC-82B7-63D7EFE1EABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{985E0F07-A308-4EEC-82B7-63D7EFE1EABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{985E0F07-A308-4EEC-82B7-63D7EFE1EABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{817BF6EE-2361-46FA-A5E9-AC80EE18EAFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{817BF6EE-2361-46FA-A5E9-AC80EE18EAFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{817BF6EE-2361-46FA-A5E9-AC80EE18EAFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{817BF6EE-2361-46FA-A5E9-AC80EE18EAFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

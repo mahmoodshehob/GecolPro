@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary.Models\ClassLibrary.Models.csproj" />
     <ProjectReference Include="..\ClassLibrary.Services\ClassLibrary.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="defaultValues_Gecol.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

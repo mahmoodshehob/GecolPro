@@ -1,6 +1,6 @@
 ﻿
-using ClassLibrary.GecolSystem_Update;
-using ClassLibrary.GecolSystem_Update.Models;
+using ClassLibrary.GecolSystem;
+using ClassLibrary.GecolSystem.Models;
 using ClassLibrary.Services;
 using System;
 
@@ -29,8 +29,8 @@ namespace ConsoleAppTest
 
 
 
-            var jjjjj = new ClassLibrary.GecolSystem_Update.Models.AuthCred();
-            var kkkkk = new ClassLibrary.GecolSystem_Update.Models.CommonParameters();
+            var jjjjj = new ClassLibrary.GecolSystem.Models.AuthCred();
+            var kkkkk = new ClassLibrary.GecolSystem.Models.CommonParameters();
 
             Console.ReadLine();
         }
@@ -51,8 +51,8 @@ namespace ConsoleAppTest
 
 
 
-            var jjjjj = new ClassLibrary.GecolSystem_Update.Models.AuthCred();
-            var kkkkk = new ClassLibrary.GecolSystem_Update.Models.CommonParameters();
+            var jjjjj = new ClassLibrary.GecolSystem.Models.AuthCred();
+            var kkkkk = new ClassLibrary.GecolSystem.Models.CommonParameters();
 
             Console.ReadLine();
         }

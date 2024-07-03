@@ -1,4 +1,4 @@
-﻿using static ClassLibrary.DCBSystem_Update.Models.DebitObjModels;
+﻿using static ClassLibrary.DCBSystem.Models.DebitObjModels;
 
 namespace ClassLibrary.DCBSystem_Update.Models
 {

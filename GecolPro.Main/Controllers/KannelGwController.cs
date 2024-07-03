@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ClassLibrary.Models.Models;
+using GecolPro.Main.BusinessRules;
 
 namespace GecolPro.Main.Controllers
 {
@@ -12,7 +13,9 @@ namespace GecolPro.Main.Controllers
         //api/KannelGw/PostMessage/v1
         public async Task<IActionResult> PostMessage([FromBody] SmsMessage messageData)
         {
-            BusinessRules.UssdProcessV1.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message);
+            //BusinessRules.UssdProcessV1.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message);
+            
+            SendMessage.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message,"0000000099");
 
             return StatusCode(200);
         }

@@ -7,8 +7,13 @@ namespace ClassLibrary.DCBSystem_Update.Models
     {
         public AuthHeader()
         {
-            var json = File.ReadAllText("defaultValues_DCB.json");
+
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string jsonFilePath = Path.Combine(baseDirectory, "defaultValues_DCB.json");
+            var json = File.ReadAllText(jsonFilePath);
             var defaultValues = JsonConvert.DeserializeObject<DefaultValues>(json);
+
+
 
             Username = defaultValues!.Username;
             Password = defaultValues.Password;

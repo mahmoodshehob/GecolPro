@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClassLibrary.GecolSystem.Models
+﻿namespace ClassLibrary.GecolSystem.Models
 {
     public class FaultModel
     {
 
         // NOTE: Generated code may require at least .NET Framework 4.5 or .NET Core/Standard 2.0.
         /// <remarks/>
-        [System.SerializableAttribute()]
-        [System.ComponentModel.DesignerCategoryAttribute("code")]
-        [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
-        [System.Xml.Serialization.XmlRootAttribute(Namespace = "http://schemas.xmlsoap.org/soap/envelope/", IsNullable = false)]
-        public partial class Envelope
+        [Serializable()]
+        [System.ComponentModel.DesignerCategory("code")]
+        [System.Xml.Serialization.XmlType(AnonymousType = true, Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+        [System.Xml.Serialization.XmlRoot(Namespace = "http://schemas.xmlsoap.org/soap/envelope/", IsNullable = false)]
+        public class Envelope
         {
             /// <remarks/>
             public object Header { get; set; }
@@ -25,20 +19,20 @@ namespace ClassLibrary.GecolSystem.Models
         }
 
         /// <remarks/>
-        [System.SerializableAttribute()]
-        [System.ComponentModel.DesignerCategoryAttribute("code")]
+        [Serializable()]
+        [System.ComponentModel.DesignerCategory("code")]
         [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
-        public partial class EnvelopeBody
+        public  class EnvelopeBody
         {
             /// <remarks/>
             public EnvelopeBodyFault Fault { get; set; }
         }
 
         /// <remarks/>
-        [System.SerializableAttribute()]
-        [System.ComponentModel.DesignerCategoryAttribute("code")]
-        [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
-        public partial class EnvelopeBodyFault
+        [Serializable()]
+        [System.ComponentModel.DesignerCategory("code")]
+        [System.Xml.Serialization.XmlType(AnonymousType = true, Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+        public  class EnvelopeBodyFault
         {
 
   
@@ -56,11 +50,11 @@ namespace ClassLibrary.GecolSystem.Models
         }
 
         /// <remarks/>
-        [System.SerializableAttribute()]
-        [System.ComponentModel.DesignerCategoryAttribute("code")]
-        [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-        [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-        public partial class faultstring
+        [Serializable()]
+        [System.ComponentModel.DesignerCategory("code")]
+        [System.Xml.Serialization.XmlType(AnonymousType = true)]
+        [System.Xml.Serialization.XmlRoot(Namespace = "", IsNullable = false)]
+        public  class faultstring
         {
             /// <remarks/>
             [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified, Namespace = "http://www.w3.org/XML/1998/namespace")]
@@ -73,11 +67,11 @@ namespace ClassLibrary.GecolSystem.Models
         }
 
         /// <remarks/>
-        [System.SerializableAttribute()]
-        [System.ComponentModel.DesignerCategoryAttribute("code")]
-        [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-        [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-        public partial class detail
+        [Serializable()]
+        [System.ComponentModel.DesignerCategory("code")]
+        [System.Xml.Serialization.XmlType(AnonymousType = true)]
+        [System.Xml.Serialization.XmlRoot(Namespace = "", IsNullable = false)]
+        public  class detail
         {
             /// <remarks/>
             [System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema")]
@@ -87,11 +81,11 @@ namespace ClassLibrary.GecolSystem.Models
 
 
         /// <remarks/>
-        [System.SerializableAttribute()]
-        [System.ComponentModel.DesignerCategoryAttribute("code")]
-        [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema")]
-        [System.Xml.Serialization.XmlRootAttribute(Namespace = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema", IsNullable = false)]
-        public partial class xmlvendFaultResp
+        [Serializable()]
+        [System.ComponentModel.DesignerCategory("code")]
+        [System.Xml.Serialization.XmlType(AnonymousType = true, Namespace = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema")]
+        [System.Xml.Serialization.XmlRoot(Namespace = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema", IsNullable = false)]
+        public  class xmlvendFaultResp
         {
             /// <remarks/>
             public xmlvendFaultRespFault Fault { get; set; }
@@ -99,9 +93,9 @@ namespace ClassLibrary.GecolSystem.Models
 
 
         /// <remarks/>
-        [System.SerializableAttribute()]
-        [System.ComponentModel.DesignerCategoryAttribute("code")]
-        [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema")]
+        [Serializable()]
+        [System.ComponentModel.DesignerCategory("code")]
+        [System.Xml.Serialization.XmlType(AnonymousType = true, Namespace = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema")]
         public partial class xmlvendFaultRespFault
         {
             /// <remarks/>

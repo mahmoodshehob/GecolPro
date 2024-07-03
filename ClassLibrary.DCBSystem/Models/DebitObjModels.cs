@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ClassLibrary.DCBSystem.Models
+﻿namespace ClassLibrary.DCBSystem.Models
 {
     public class DebitObjModels
     {
@@ -21,55 +15,55 @@ namespace ClassLibrary.DCBSystem.Models
 
             public string ConversationID
             {
-                get { return _conversationID; }
-                set { _conversationID = value; }
+                get => _conversationID;
+                set => _conversationID = value;
             }
 
             public string TransactionID
             {
-                get { return _transactionID; }
-                set { _transactionID = value; }
+                get => _transactionID;
+                set => _transactionID = value;
             }
 
             public string ServiceName
             {
-                get { return _service; }
-                set { _service = value; }
+                get => _service;
+                set => _service = value;
             }
 
             public string ProviderName
             {
-                get { return _service; }
-                set { _service = value; }
+                get => _service;
+                set => _service = value;
             }
 
 
             public string OriginatingAddress
             {
-                get { return _msisdn; }
-                set { _msisdn = value; }
+                get => _msisdn;
+                set => _msisdn = value;
             }
 
             public string DestinationAddress
             {
-                get { return _msisdn; }
-                set { _msisdn = value; }
+                get => _msisdn;
+                set => _msisdn = value;
             }
 
             public string ChargingAddress
             {
-                get { return _msisdn; }
-                set { _msisdn = value; }
+                get => _msisdn;
+                set => _msisdn = value;
             }
 
             public int Amount
             {
-                get { return _amount; }
-                set { _amount = value; }
+                get => _amount;
+                set => _amount = value;
             }
         }
 
-        public partial class DebitObjResp
+        public  class DebitObjResp
         {
             public string ConversationID { get; set; }
             public string TransactionID { get; set; }

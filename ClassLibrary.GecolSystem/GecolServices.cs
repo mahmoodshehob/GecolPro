@@ -1,12 +1,12 @@
 ﻿
-using ClassLibrary.GecolSystem_Update.Models;
+using ClassLibrary.GecolSystem.Models;
 using ClassLibrary.Services;
 
 using ClassLibrary.Models.Models;
 using System.Text;
 using System.Xml;
 
-namespace ClassLibrary.GecolSystem_Update
+namespace ClassLibrary.GecolSystem
 {
     public class GecolServices : IGecolServices
     {
