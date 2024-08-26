@@ -1,14 +1,27 @@
 ﻿using System;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using ClassLibrary.GecolSystem.Models;
+using static ClassLibrary.GecolSystem.Models.CreditVendRespBody;
 
 namespace ClassLibrary.GecolSystem
 {
     internal class XmlServices : ICreateResponse, ICreateXml
     {
+        // Define namespaces to simplify queries
+
+        private readonly XNamespace soap = "http://schemas.xmlsoap.org/soap/envelope/";
+
+        private readonly XNamespace ns2 = "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema";
+
+        private readonly XNamespace ns3 = "http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema";
+
+        private readonly XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+        //
+
 
         private static string OrganizeXmlString(string xml)
         {
@@ -51,30 +64,114 @@ namespace ClassLibrary.GecolSystem
             return loginRsp;
         }
 
-        public async Task<string?> ToCreditVendCRsp(string xmlSoapResponse) => await Task.Run(() =>
+        public async Task<CreditVendRespBody.CreditVendResp> ToCreditVendCRsp(string xmlSoapResponse) => await Task.Run(() =>
         {
-            XmlDocument doc = new();
-            doc.LoadXml(xmlSoapResponse); // Load the XML from the string
+            // Parse the XML using XDocument
+            XDocument xdoc = XDocument.Parse(xmlSoapResponse);
 
-            // Create a namespace manager to handle the namespaces in the XML
-            XmlNamespaceManager nsmgr = new(doc.NameTable);
-            nsmgr.AddNamespace("ns2", "http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema");
-            nsmgr.AddNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            CreditVendRespBody.CreditVendResp creditVendResp = new CreditVendRespBody.CreditVendResp();
 
-            XmlElement root = doc.DocumentElement;
-            if (root != null)
+            // Query the XML document
+
+            creditVendResp.ClientID = xdoc.Descendants(ns2 + "clientID").FirstOrDefault()?.Attribute("ean")?.Value;
+
+            creditVendResp.ServerID = xdoc.Descendants(ns2 + "serverID").FirstOrDefault()?.Attribute("ean")?.Value;
+
+            creditVendResp.TerminalID = xdoc.Descendants(ns2 + "terminalID").FirstOrDefault()?.Attribute("id")?.Value;
+
+            creditVendResp.ReqMsgID = new ReqMsgID()
             {
-                // Select the token node using XPath and namespaces
-                XmlNode tokenNode = root.SelectSingleNode("//ns2:token", nsmgr);
-                if (tokenNode != null && tokenNode["ns2:stsCipher"] != null)
-                {
-                    string stsCipher = tokenNode["ns2:stsCipher"].InnerText;
-                    //Console.WriteLine("STS Cipher: " + stsCipher);
+                Datetime = xdoc.Descendants(ns2 + "reqMsgID").FirstOrDefault()?.Attribute("dateTime")?.Value,
 
-                    return stsCipher;
+                UniqueNumber = xdoc.Descendants(ns2 + "reqMsgID").FirstOrDefault()?.Attribute("uniqueNumber")?.Value
+            };
+
+            creditVendResp.RespDateTime = xdoc.Descendants(ns2 + "respDateTime").FirstOrDefault()?.Value;
+
+            creditVendResp.DispHeader = xdoc.Descendants(ns2 + "dispHeader").FirstOrDefault()?.Value;
+
+            creditVendResp.ClientStatus = xdoc.Descendants(ns2 + "availCredit").FirstOrDefault()?.Attribute("value")?.Value;
+
+            creditVendResp.CreditVendReceipt = xdoc.Descendants(ns3 + "creditVendReceipt").FirstOrDefault()?.Attribute("receiptNo")?.Value;
+
+            creditVendResp.TenderAmount = xdoc.Descendants(ns3 + "tenderAmt").Attributes("value").First().Value;
+
+            var transactions = xdoc.Descendants(ns3 + "tx").ToList();
+
+            //////////////////////////
+            ///
+            /// Transactions / CreditVendTx
+            ///
+            //////////////////////////
+
+            var trans_CreditVendTx = transactions[0];
+
+            List<XElement> trans_ServiceChrgTx = new List<XElement>();
+            for (int i = 1; i < transactions.Count; i++)
+            {
+                trans_ServiceChrgTx.Add(transactions[i]);
+            }
+
+            //////////////////////////
+            ///
+            ///  Transactions / CreditVendTx / Credit Token Issue
+            ///  
+            ///  Transactions / CreditVendTx / KC Token Issue
+            ///
+            //////////////////////////
+
+
+            string KcTokenDesc = null;
+            string KcTokenIssueSet1 = null;
+            string KcTokenIssueSet2 = null;
+
+
+
+            if (trans_CreditVendTx.Element(ns3 + "kcTokenIssue") != null)
+            {
+                KcTokenDesc = trans_CreditVendTx.Element(ns3 + "kcTokenIssue").Element(ns2 + "desc").Value;
+                KcTokenIssueSet1 = trans_CreditVendTx.Element(ns3 + "kcTokenIssue").Element(ns2 + "token").Element(ns2 + "set1stMeterKey").Element(ns2 + "stsCipher").Value;
+                KcTokenIssueSet2 = trans_CreditVendTx.Element(ns3 + "kcTokenIssue").Element(ns2 + "token").Element(ns2 + "set2ndMeterKey").Element(ns2 + "stsCipher").Value;
+            }
+
+            creditVendResp.CreditVendTx = new TransactionsCreditVendTx()
+            {
+                Amout = trans_CreditVendTx.Element(ns3 + "amt").Attribute("value")?.Value,
+                Symbol = trans_CreditVendTx.Element(ns3 + "amt").Attribute("symbol")?.Value,
+                Desc_CToken = trans_CreditVendTx.Element(ns3 + "creditTokenIssue").Element(ns2 + "desc").Value,
+                STS1Token = trans_CreditVendTx.Element(ns3 + "creditTokenIssue").Element(ns2 + "token").Element(ns2 + "stsCipher").Value,
+                Desc_KcToken = KcTokenDesc,
+                Set1stMeterKey = KcTokenIssueSet1,
+                Set2ndMeterKey = KcTokenIssueSet2,
+                Tariff = trans_CreditVendTx.Element(ns3 + "tariff").Element(ns2 + "name").Value,
+            };
+
+            //////////////////////////
+            ///
+            ///  Transactions / ServiceChrgTx
+            ///
+            //////////////////////////
+
+
+            if (trans_ServiceChrgTx != null)
+            {
+                creditVendResp.ServiceChrgTx = new List<TransactionsServiceChrgTx>();
+
+                foreach (var trans_ServiceChrgTxp in trans_ServiceChrgTx)
+                {
+                    creditVendResp.ServiceChrgTx.Add(new TransactionsServiceChrgTx
+                    {
+                        AccDesc = trans_ServiceChrgTxp.Element(ns3 + "accDesc").Value,
+                        Amout = trans_ServiceChrgTxp.Element(ns3 + "amt").Attribute("value")?.Value,
+                        Tariff = trans_ServiceChrgTxp.Element(ns3 + "tariff").Value,
+
+                    }
+                    );
                 }
             }
-            return null;
+
+            return creditVendResp;
+
         }).ConfigureAwait(false);
 
         public async Task<FaultModel.xmlvendFaultRespFault> ToFaultRsp(string xmlSoapResponse)
@@ -223,7 +320,7 @@ namespace ClassLibrary.GecolSystem
 
     public interface ICreateResponse
     {
-        Task<string?> ToCreditVendCRsp(string xmlSoapResponse);
+        Task<CreditVendRespBody.CreditVendResp?> ToCreditVendCRsp(string xmlSoapResponse);
         Task<FaultModel.xmlvendFaultRespFault> ToFaultRsp(string xmlSoapResponse);
         Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse);
     }

@@ -1,10 +1,16 @@
-﻿
+﻿using System;
+using System.Text;
+using System.Text.Json;
+using System.Xml;
+
+using System.Xml.Linq;
+using System.Xml.Serialization;
+
 using ClassLibrary.GecolSystem.Models;
 using ClassLibrary.Services;
 
 using ClassLibrary.Models.Models;
-using System.Text;
-using System.Xml;
+
 
 namespace ClassLibrary.GecolSystem
 {
@@ -118,6 +124,8 @@ namespace ClassLibrary.GecolSystem
 
         public async Task<GecolSystemResponse> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue)
         {
+            CreditVendRespBody.CreditVendResp creditVendResp = new CreditVendRespBody.CreditVendResp();
+
             try
             {
 
@@ -126,11 +134,17 @@ namespace ClassLibrary.GecolSystem
                 var soapRsp = await SendSoapRequest(body, SoapActionEnum.CreditVendReq.ToString());
 
                 if (!soapRsp.IsSuccessStatusCode) return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
+
+
+
+
                 string? creditToken;
                 try
                 {
-                    creditToken = await _createResponse.ToCreditVendCRsp(soapRsp.Response);
+                    // Response in Json formate
+                    creditToken = JsonSerializer.Serialize(await _createResponse.ToCreditVendCRsp(soapRsp.Response));
 
+                
                 }
                 catch (Exception ex)
                 {

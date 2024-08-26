@@ -20,6 +20,8 @@
         public string FromSystem { get; set; } //Gecol Or Dcb
 
         public DateTime CreatedDate { get; set; }= DateTime.Now;
-                                        
+
+        //public string[] Tokens { get { return Token.Split(";"); } }
+
     }
 }
