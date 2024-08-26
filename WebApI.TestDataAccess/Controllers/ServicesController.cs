@@ -50,11 +50,12 @@ namespace WebApI.TestDataAccess.Controllers
         }
 
 
-        [HttpGet("SaveGecolRequest/{conversationId}/{MSISDN}/{amount}/{status}/{token}/{uniqueNumber}")]
+        [HttpGet("SaveGecolRequest/{conversationId}/{MSISDN}/{amount}/{status}/{token}/{uniqueNumber}/{totalTax}")]
         public async Task<IActionResult> SaveGecolRequest(string? conversationId, string? MSISDN, string amount,
-            bool status, string token, string uniqueNumber)
+            bool status, [FromQuery] string[] token, 
+             string uniqueNumber, string totalTax)
         {
-            var result = await _requestService.SaveGecolRequest(conversationId, MSISDN, amount, status, token,uniqueNumber);
+            var result = await _requestService.SaveGecolRequest(conversationId, MSISDN, amount, status, token,uniqueNumber, totalTax);
             return Ok(result);
         }
 

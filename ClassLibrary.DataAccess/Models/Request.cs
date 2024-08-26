@@ -8,6 +8,7 @@
         
         public string? MSISDN{ get; set; }
         public string? Amount{ get; set; }
+        public string? TotalTax { get; set; }
 
         public bool Status { get; set; }//true = Done , false = Failed
 
@@ -20,6 +21,8 @@
         public string FromSystem { get; set; } //Gecol Or Dcb
 
         public DateTime CreatedDate { get; set; }= DateTime.Now;
-                                        
+
+        public string[] Tokens { get { return Token.Split(";"); } }
+
     }
 }

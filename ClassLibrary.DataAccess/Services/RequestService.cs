@@ -20,20 +20,25 @@ namespace ClassLibrary.DataAccess.Services
         }
 
 
-        public async Task<ServiceResult> SaveGecolRequest(string? conversationId, string? MSISDN, string amount, bool status, string token, string uniqueNumber)
+        public async Task<ServiceResult> SaveGecolRequest(string? conversationId, string? MSISDN, string amount, bool status, string[] token, string uniqueNumber,string totalTax)
         {
             try
             {
+                const string separator = ";"; // العلامة المستخدمة للفصل
+                var tokens = string.Join(separator, token);
+
+
                 Request request = new()
                 {
                     ConversationId = conversationId,
                     MSISDN = MSISDN,
                     Status = status,
-                    Token = token,
+                    Token = tokens,
                     Amount = amount,
                     TransactionId = "",
                     UniqueNumber = uniqueNumber,
-                    FromSystem = "Gecol"
+                    FromSystem = "Gecol",
+                    TotalTax = totalTax,CreatedDate = DateTime.Now
 
                 };
 
