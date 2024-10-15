@@ -1,5 +1,7 @@
 ﻿//using GecolPro.Main.Models;
 using ClassLibrary.Models.Models;
+using ConsoleApp_GecolSystem;
+using GecolPro.Main.Test;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -49,6 +51,21 @@ namespace GecolPro.Main.Controllers
 
             return Content(Message);
         }
+
+        public IActionResult Test()
+        {
+            string xmlFile = new ReadXmlFile().Read();
+
+            string ddd =  new DeSerlV1().DoDeSerl(xmlFile);
+
+
+
+            var creditVend = new CreditVend().ToCreditVendCRsp(xmlFile);
+
+            string Message = ddd;
+            return Content(Message);
+        }
+
 
 
 

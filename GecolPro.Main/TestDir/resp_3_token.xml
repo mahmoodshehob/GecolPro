@@ -1,0 +1,88 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+	<SOAP-ENV:Header/>
+	<SOAP-ENV:Body>
+		<ns3:creditVendResp xmlns:ns2="http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema" xmlns:ns3="http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema" xmlns:ns4="http://www.nrs.eskom.co.za/xmlvend/meter/2.1/schema">
+			<ns2:clientID xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ean="0000000000001" xsi:type="ns2:EANDeviceID"/>
+			<ns2:serverID xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ean="3210987654321" xsi:type="ns2:EANDeviceID"/>
+			<ns2:terminalID xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="0000000000001" xsi:type="ns2:GenericDeviceID"/>
+			<ns2:reqMsgID dateTime="20241015052123" uniqueNumber="42"/>
+			<ns2:respDateTime>2024-10-15T17:23:07.000+02:00</ns2:respDateTime>
+			<ns2:dispHeader>CREDIT VEND – TAX INVOICE|0|0|0</ns2:dispHeader>
+			<ns2:clientStatus>
+				<ns2:availCredit symbol="LYD" value="998487.4"/>
+			</ns2:clientStatus>
+			<ns2:utility address=" " name="MDC Tenant"/>
+			<ns2:vendor address="" name="Almadar"/>
+			<ns2:custVendDetail accNo="0268999900262" address="null" daysLastPurchase="15" locRef="TEST_GROUP" name="0268999900262"/>
+			<ns3:creditVendReceipt receiptNo="2410151723070003">
+				<ns3:transactions>
+					<ns3:tx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" receiptNo="2410151723070003" xsi:type="ns3:CreditVendTx">
+						<ns3:amt symbol="LYD" value="40.75"/>
+						<ns3:creditTokenIssue xsi:type="ns2:SaleCredTokenIssue">
+							<ns2:desc>SaleCredTokenIssue</ns2:desc>
+							<ns2:meterDetail krn="1" msno="0268999900262" sgc="600816" ti="01">
+								<ns2:meterType at="07" tt="02"/>
+								<ns2:maxVendAmt>220.0</ns2:maxVendAmt>
+								<ns2:minVendAmt>2.72</ns2:minVendAmt>
+								<ns2:maxVendEng>null</ns2:maxVendEng>
+								<ns2:minVendEng>null</ns2:minVendEng>
+							</ns2:meterDetail>
+							<ns2:token xsi:type="ns2:STS1Token">
+								<ns2:stsCipher>24001114602373050768</ns2:stsCipher>
+							</ns2:token>
+							<ns2:units siUnit="kWh" value="0"/>
+							<ns2:resource xsi:type="ns2:Electricity"/>
+						</ns3:creditTokenIssue>
+						<ns3:kcTokenIssue>
+							<ns2:desc>KCTokenIssue</ns2:desc>
+							<ns2:meterDetail krn="1" msno="0268999900262" sgc="600816" ti="01">
+								<ns2:meterType at="07" tt="02"/>
+								<ns2:maxVendAmt>null</ns2:maxVendAmt>
+								<ns2:minVendAmt>null</ns2:minVendAmt>
+								<ns2:maxVendEng>null</ns2:maxVendEng>
+								<ns2:minVendEng>null</ns2:minVendEng>
+							</ns2:meterDetail>
+							<ns2:token xsi:type="ns2:KCToken">
+								<ns2:set1stMeterKey>
+									<ns2:stsCipher>13519572313577129238</ns2:stsCipher>
+								</ns2:set1stMeterKey>
+								<ns2:set2ndMeterKey>
+									<ns2:stsCipher>33733830540189422636</ns2:stsCipher>
+								</ns2:set2ndMeterKey>
+							</ns2:token>
+							<ns2:kctData fromKRN="1" fromSGC="600816" fromTI="01" toKRN="2" toSGC="990458" toTI="01"/>
+						</ns3:kcTokenIssue>
+						<ns3:tariff>
+							<ns2:name>Resident</ns2:name>
+						</ns3:tariff>
+					</ns3:tx>
+					<ns3:tx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns3:ServiceChrgTx">
+						<ns3:amt symbol="LYD" value="0.25"/>
+						<ns3:accDesc>GECOL</ns3:accDesc>
+						<ns3:accNo>0268999900262</ns3:accNo>
+						<ns3:tariff>
+							<ns2:name>Resident</ns2:name>
+						</ns3:tariff>
+					</ns3:tx>
+					<ns3:tx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns3:ServiceChrgTx">
+						<ns3:amt symbol="LYD" value="3.00"/>
+						<ns3:accDesc>everymonth</ns3:accDesc>
+						<ns3:accNo>0268999900262</ns3:accNo>
+						<ns3:tariff>
+							<ns2:name>Resident</ns2:name>
+						</ns3:tariff>
+					</ns3:tx>
+					<ns3:tx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns3:ServiceChrgTx">
+						<ns3:amt symbol="LYD" value="3"/>
+						<ns3:accDesc>everymonth * 2</ns3:accDesc>
+						<ns3:accNo>0268999900262</ns3:accNo>
+						<ns3:tariff/>
+					</ns3:tx>
+					<ns3:lessRound symbol="LYD" value="50"/>
+					<ns3:tenderAmt symbol="LYD" value="50"/>
+					<ns3:change symbol="LYD" value="0"/>
+				</ns3:transactions>
+			</ns3:creditVendReceipt>
+		</ns3:creditVendResp>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

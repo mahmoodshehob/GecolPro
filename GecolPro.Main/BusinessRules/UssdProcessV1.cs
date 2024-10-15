@@ -631,10 +631,12 @@ namespace GecolPro.Main.BusinessRules
                         if (TokenOrder.Status)
                         {
                             
-                            TokenOrder = await ProcessChargeByDCB(subProService);
+                            //TokenOrder = await ProcessChargeByDCB(subProService);
                             
-                            subProService.TransactionID = TokenOrder.TknOrErr;
+                            //subProService.TransactionID = TokenOrder.TknOrErr;
 
+                            //
+                            TokenOrder.Status = true;
 
                             if (TokenOrder.Status)
                             {

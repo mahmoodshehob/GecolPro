@@ -159,20 +159,28 @@ namespace ClassLibrary.GecolSystem
 
                 foreach (var trans_ServiceChrgTxp in trans_ServiceChrgTx)
                 {
-                    string onthm3 = "";
 
-
-
-
-
-                    creditVendResp.ServiceChrgTx.Add(new TransactionsServiceChrgTx
+                    TransactionsServiceChrgTx serviceChrgTx = new TransactionsServiceChrgTx()
                     {
                         AccDesc = trans_ServiceChrgTxp.Element(ns3 + "accDesc").Value,
                         Amout = trans_ServiceChrgTxp.Element(ns3 + "amt").Attribute("value")?.Value,
                         Tariff = trans_ServiceChrgTxp.Element(ns3 + "tariff").Value,
 
+                    };
+
+
+                    if (serviceChrgTx.AccDesc.Contains("everymonth * "))
+                    {
+                        var getNumOfMonth = serviceChrgTx.AccDesc.Split('*');
+
+                        int NumOfMonthExpLastMonth = int.Parse(getNumOfMonth[1].Trim());
+
+                        serviceChrgTx.Amout = (int.Parse(serviceChrgTx.Amout) * NumOfMonthExpLastMonth).ToString();
+
+                        serviceChrgTx.AccDesc = "Monthly Tax for old (" + NumOfMonthExpLastMonth + ") months";
                     }
-                    );
+
+                    creditVendResp.ServiceChrgTx.Add(serviceChrgTx);
                 }
             }
 
