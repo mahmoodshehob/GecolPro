@@ -2,10 +2,18 @@ using GecolPro.Main.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using ClassLibrary.DCBSystem;
+using ClassLibrary.GecolSystem;
+using ClassLibrary.Services;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+builder.Services.AddScoped<IDcbServices, DcbServices>();
+builder.Services.AddScoped<IGecolServices, GecolServices>();
 
 var connectionString = builder.Configuration.GetConnectionString("VM129Connection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

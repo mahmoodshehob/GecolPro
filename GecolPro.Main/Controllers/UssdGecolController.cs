@@ -8,9 +8,7 @@ using GecolPro.Main.UssdService;
 using GecolPro.Main.BusinessRules;
 using static ClassLibrary.Models.Models.MultiRequestUSSD;
 using ClassLibrary.Models.Models;
-using Newtonsoft.Json;
 using ClassLibrary.Services;
-using System.Xml;
 
 namespace GecolPro.Main.Controllers
 {
@@ -35,8 +33,7 @@ namespace GecolPro.Main.Controllers
 
         private async Task<ContentResult> GetResponseV1(string xmlContent, string lang)
         {
-
-            ContentResult response = new ContentResult();
+                        ContentResult response = new ContentResult();
 
             MultiRequestUSSD.MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
 
@@ -78,6 +75,11 @@ namespace GecolPro.Main.Controllers
                 return response;
             }
         }
+
+
+
+
+        #region API Region 
 
         // Version 1
 
@@ -123,6 +125,8 @@ namespace GecolPro.Main.Controllers
                 return response;
             }
         }
+        #endregion
+
     }
 }
 

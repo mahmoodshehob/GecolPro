@@ -159,6 +159,12 @@ namespace ClassLibrary.GecolSystem
 
                 foreach (var trans_ServiceChrgTxp in trans_ServiceChrgTx)
                 {
+                    string onthm3 = "";
+
+
+
+
+
                     creditVendResp.ServiceChrgTx.Add(new TransactionsServiceChrgTx
                     {
                         AccDesc = trans_ServiceChrgTxp.Element(ns3 + "accDesc").Value,

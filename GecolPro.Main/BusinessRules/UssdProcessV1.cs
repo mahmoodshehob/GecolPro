@@ -22,10 +22,10 @@ namespace GecolPro.Main.BusinessRules
         private static Loggers LoggerG = new Loggers();
         private static MsgContent msgContentResult = new MsgContent();
         private static SubProService subProService = new SubProService();
-        //private static IDcbServices? DcbServices = new DcbServices();
-        //private static IGecolServices? GecolServices = new GecolServices();
         private static IDcbServices? DcbServices = new DcbServices();
         private static IGecolServices? GecolServices = new GecolServices();
+        //private static IDcbServices? DcbServices;
+        //private static IGecolServices? GecolServices;
 
 
         private static string logPrefix = "LynaGclsys";
@@ -34,9 +34,10 @@ namespace GecolPro.Main.BusinessRules
         private static string transactionID => subProService.TransactionID;
 
 
-        public UssdProcessV1()
+        public UssdProcessV1(IGecolServices _gecolServices , IDcbServices? _dcbServices)
         {
-          
+            DcbServices = _dcbServices;
+            GecolServices = _gecolServices;
         }
 
         private enum RespActions
@@ -151,7 +152,7 @@ namespace GecolPro.Main.BusinessRules
          
         */
 
-        private static async Task<bool> CheckServiceExist()
+        public static async Task<bool> CheckServiceExist()
         {
             try
             {
