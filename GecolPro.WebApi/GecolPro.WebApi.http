@@ -1,0 +1,6 @@
+@GecolPro.WebApi_HostAddress = http://localhost:5161
+
+GET {{GecolPro.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
