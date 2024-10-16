@@ -1,11 +1,12 @@
 ﻿using System.IO;
 using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
+using GecolPro.Services.IServices;
 
 
 namespace GecolPro.Services
 {
-    public class Loggers
+    public class Loggers : ILoggers
     {
         private string baseDirectory;
 

@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using GecolPro.WebApi.Interfaces;
+using Newtonsoft.Json;
 
 namespace GecolPro.WebApi.BusinessRules
 {
-    public class BlackListFun
+    public class BlackListFun : IBlackListFun
     {
         private readonly string jsonFilePath;
 

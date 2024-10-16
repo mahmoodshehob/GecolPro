@@ -1,12 +1,18 @@
-﻿using ClassLibrary.Models.Models;
-
+﻿using GecolPro.Models.Models;
+using GecolPro.WebApi.Interfaces;
 namespace GecolPro.WebApi.BusinessRules
 {
-    public class Menus
+    public class Menus : IMenus
     {
-        private static MsgContent msgContent = new MsgContent();
 
-        public static async Task<MsgContent> SuccessResponseAsync(List<string> Arg, string Lang)
+        public Menus() 
+        { 
+        
+        }
+
+        private  MsgContent msgContent = new MsgContent();
+
+        public  async Task<MsgContent> SuccessResponseAsync(List<string> Arg, string Lang)
         {
             switch (Lang)
             {
@@ -29,7 +35,7 @@ namespace GecolPro.WebApi.BusinessRules
         }
 
 
-        public static async Task<MsgContent> BlockedResponseAsync(string Lang)
+        public  async Task<MsgContent> BlockedResponseAsync(string Lang)
         {
 
             switch (Lang)
@@ -48,7 +54,7 @@ namespace GecolPro.WebApi.BusinessRules
             return (msgContent);
         }
 
-        public static async Task<MsgContent> BlockedResponseAsync(string FaultCode, string Lang)
+        public  async Task<MsgContent> BlockedResponseAsync(string FaultCode, string Lang)
         {
 
             switch (Lang)
@@ -90,7 +96,7 @@ namespace GecolPro.WebApi.BusinessRules
         //    return msgContent;
         //}
 
-        public static async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
+        public  async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
         {
             switch (Lang)
             {
@@ -183,7 +189,7 @@ namespace GecolPro.WebApi.BusinessRules
             return msgContent;
         }
 
-        public static async Task<MsgContent> UnderMaintenance_Billing(string FaultCode, string Lang)
+        public  async Task<MsgContent> UnderMaintenance_Billing(string FaultCode, string Lang)
         {
 
 

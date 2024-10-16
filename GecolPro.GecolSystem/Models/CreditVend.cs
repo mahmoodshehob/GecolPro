@@ -37,6 +37,9 @@ namespace GecolPro.GecolSystem.Models
 
             public TransactionsCreditVendTx? CreditVendTx { set; get; }
 
+            public TransactionsDebtRecoveryTx? RecoveryTx { set; get; }
+
+
             public List<TransactionsServiceChrgTx>? ServiceChrgTx { set; get; }
 
             public string TenderAmount { set; get; }
@@ -65,6 +68,17 @@ namespace GecolPro.GecolSystem.Models
             public string? Set2ndMeterKey { set; get; }
 
             public string Tariff { set; get; }
+        }
+
+        public class TransactionsDebtRecoveryTx
+        {
+            public string Amout { set; get; }
+
+            public string AccDesc { set; get; }
+
+            public string Tariff { set; get; }
+
+            public string Balance { set; get; }
         }
 
         public class TransactionsServiceChrgTx

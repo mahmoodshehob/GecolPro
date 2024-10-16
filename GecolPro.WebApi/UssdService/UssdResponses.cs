@@ -1,13 +1,14 @@
-﻿using ClassLibrary.Models.Models;
+﻿using GecolPro.Models.Models;
+using GecolPro.WebApi.Interfaces;
 using System.Text;
 using System.Xml;
 
 namespace GecolPro.WebApi.UssdService
 {
-    public class Responses
+    public class Responses : IResponses
     {
 
-        private static string OrganizeXmlString(string xml)
+        private string OrganizeXmlString(string xml)
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
@@ -30,7 +31,7 @@ namespace GecolPro.WebApi.UssdService
         }
 
 
-        public static string Resp(MultiResponseUSSD multiResponse)
+        public string Resp(MultiResponseUSSD multiResponse)
         {
             return OrganizeXmlString(
  @"<?xml version=""1.0"" encoding=""UTF-8""?>
@@ -69,7 +70,7 @@ namespace GecolPro.WebApi.UssdService
 </methodResponse>");
         }
 
-        public static string Fault_Response(MultiResponseUSSD multiResponse)
+        public string Fault_Response(MultiResponseUSSD multiResponse)
         {
             return OrganizeXmlString(
 @"<?xml version=""1.0"" encoding=""UTF-8""?>

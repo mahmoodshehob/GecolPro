@@ -1,17 +1,25 @@
-﻿using ClassLibrary.Models.Models;
-using ClassLibrary.Services;
+﻿using GecolPro.Models.Models;
+using GecolPro.Services.IServices;
+using GecolPro.WebApi.Interfaces;
 using Newtonsoft.Json;
 
 namespace GecolPro.WebApi.BusinessRules
 {
-    public class SendMessage
+    public class SendMessage : ISendMessage
+
     {
-        private static Loggers LoggerG = new Loggers();
+        private ILoggers _loggerG;
 
-        /* Send SMS API to SMPP Client  :
- */
+        /* Send SMS API to SMPP Client  :*/
 
-        public static async void SendGecolMessage(string? sender, string receiver, string message, string ConversationID)
+
+        public SendMessage(ILoggers loggerG)
+        {
+            _loggerG = loggerG;
+
+        }
+
+        public  async Task SendGecolMessage(string? sender, string receiver, string message, string ConversationID)
         {
             try
             {
@@ -33,12 +41,12 @@ namespace GecolPro.WebApi.BusinessRules
                     request.Content = content;
                     var response = await client.SendAsync(request);
 
-                    await LoggerG.LogInfoAsync($"LynaGclsys|==>|Req_SMSCSystem|Submet|To|{receiver}");
+                    await _loggerG.LogInfoAsync($"LynaGclsys|==>|Req_SMSCSystem|Submet|To|{receiver}");
 
                     response.EnsureSuccessStatusCode();
                     var messageResponse = await response.Content.ReadAsStringAsync();
 
-                    await LoggerG.LogInfoAsync($"LynaGclsys|<==|Rsp_SMSCSystem|Respon|{messageResponse}");
+                    await _loggerG.LogInfoAsync($"LynaGclsys|<==|Rsp_SMSCSystem|Respon|{messageResponse}");
                 }
             }
             catch (Exception ex)
@@ -47,9 +55,9 @@ namespace GecolPro.WebApi.BusinessRules
             }
         }
 
-        private static async Task ExceptionLogs(Exception ex , string ConversationID)
+        private async Task ExceptionLogs(Exception ex, string ConversationID)
         {
-            await LoggerG.LogDebugAsync(
+            await _loggerG.LogDebugAsync(
                   $"excp" +
                   $"\n{ConversationID}|{ex.Message}" +
                   $"\n{ConversationID}|{ex.InnerException}" +
@@ -59,4 +67,6 @@ namespace GecolPro.WebApi.BusinessRules
 
 
     }
+
+  
 }

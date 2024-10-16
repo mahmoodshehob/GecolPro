@@ -3,41 +3,56 @@ using Newtonsoft.Json;
 
 //Models
 
-using ClassLibrary.Models.Models;
-using static ClassLibrary.Models.Models.MultiRequestUSSD;
+using GecolPro.Models.Models;
+using static GecolPro.Models.Models.MultiRequestUSSD;
 
 
 // Class Library
-using ClassLibrary.DCBSystem;
-using ClassLibrary.GecolSystem;
-using ClassLibrary.Services;
+using GecolPro.DCBSystem;
+using GecolPro.GecolSystem;
+using GecolPro.Services.IServices;
+using GecolPro.WebApi.Interfaces;
+
+
 
 
 namespace GecolPro.WebApi.BusinessRules
 {
-    public class UssdProcessV1
+    public class UssdProcessV1 : IUssdProcessV1
     {
 
         private static Random random = new Random();
-        private static Loggers LoggerG = new Loggers();
-        private static MsgContent msgContentResult = new MsgContent();
-        private static SubProService subProService = new SubProService();
-        private static IDcbServices? DcbServices = new DcbServices();
-        private static IGecolServices? GecolServices = new GecolServices();
-        //private static IDcbServices? DcbServices;
-        //private static IGecolServices? GecolServices;
+
+        private ILoggers _loggerG ;
+        private MsgContent msgContentResult = new MsgContent();
+        private SubProService subProService = new SubProService();
+        private IDcbServices? _dcbServices;
+        private IGecolServices? _gecolServices;
+        private IMenus? _menus;
+        private ISendMessage? _sendMessage;
 
 
-        private static string logPrefix = "LynaGclsys";
 
-        private static string conversationId => subProService.ConversationID;
-        private static string transactionID => subProService.TransactionID;
+        //
+        private const string logPrefix = "LynaGclsys";
+
+        //
+        private string conversationId => subProService.ConversationID;
+        private string transactionID => subProService.TransactionID;
 
 
-        public UssdProcessV1(IGecolServices _gecolServices , IDcbServices? _dcbServices)
+        public UssdProcessV1(
+            IGecolServices  gecolServices , 
+            IDcbServices?   dcbServices,
+            ILoggers        loggerG,
+            IMenus          menus,
+            ISendMessage    sendMessage)
         {
-            DcbServices = _dcbServices;
-            GecolServices = _gecolServices;
+            _dcbServices = dcbServices;
+            _gecolServices = gecolServices;
+            _loggerG = loggerG;
+            _menus = menus;
+            _sendMessage = sendMessage;
         }
 
         private enum RespActions
@@ -59,11 +74,11 @@ namespace GecolPro.WebApi.BusinessRules
 
  */
 
-        private static async Task<MsgContent> MenuReader(SubProService subProService, string Lang)
+        private async Task<MsgContent> MenuReader(SubProService subProService, string Lang)
         {
             try
             {
-                DcbSystemResponse subProServiceResp = await DcbServices.QryUserBasicBalOp(subProService.MSISDN);
+                DcbSystemResponse subProServiceResp = await _dcbServices.QryUserBasicBalOp(subProService.MSISDN);
 
                 if (subProServiceResp.IsSuccessStatusCode)
                 {
@@ -77,13 +92,13 @@ namespace GecolPro.WebApi.BusinessRules
                     outputs.Add(subProService.MSISDN);
                     outputs.Add(BalanceValue);
 
-                    msgContentResult = await Menus.SuccessResponseAsync(outputs, Lang);
+                    msgContentResult = await _menus.SuccessResponseAsync(outputs, Lang);
                     return (msgContentResult);
 
                 }
                 else
                 {
-                    msgContentResult = await Menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
+                    msgContentResult = await _menus.UnderMaintenance_Billing(subProServiceResp.StatusCode, Lang);
 
                     return (msgContentResult);
                 }
@@ -105,7 +120,7 @@ namespace GecolPro.WebApi.BusinessRules
         /*Chech if Msisdn Blocked or Not :
          */
 
-        private static async Task<bool> BlackListMsisdn(string msisdn)
+        private async Task<bool> BlackListMsisdn(string msisdn)
         {
             try
             {
@@ -115,7 +130,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                 if (!File.Exists(jsonFilePath))
                 {
-                    await LoggerG.LogInfoAsync($"{logPrefix}|xxx|BlackList_File_Not_Found|{conversationId}|Service Connected");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|xxx|BlackList_File_Not_Found|{conversationId}|Service Connected");
                     return false;
                 }
 
@@ -123,7 +138,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                 if (string.IsNullOrWhiteSpace(json))
                 {
-                    await LoggerG.LogInfoAsync($"{logPrefix}|xxx|BlackList_Empty_File|{conversationId}|Service Connected");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|xxx|BlackList_Empty_File|{conversationId}|Service Connected");
                     return false;
                 }
 
@@ -131,7 +146,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                 if (blackList != null && blackList.Any(x => x.StartsWith(msisdn)))
                 {
-                    await LoggerG.LogInfoAsync($"{logPrefix}|xxx|Msisdn_Blocked|{conversationId}|Service Connected");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|xxx|Msisdn_Blocked|{conversationId}|Service Connected");
                     return true;
                 }
 
@@ -152,21 +167,21 @@ namespace GecolPro.WebApi.BusinessRules
          
         */
 
-        public static async Task<bool> CheckServiceExist()
+        public async Task<bool> CheckServiceExist()
         {
             try
             {
-                await LoggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolCheck|{conversationId}|Check Service Connectivity");
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolCheck|{conversationId}|Check Service Connectivity");
 
-                GecolSystemResponse loginOp = await GecolServices.LoginReqOp();
+                GecolSystemResponse loginOp = await _gecolServices.LoginReqOp();
 
                 if (loginOp.IsSuccessStatusCode)
                 {
-                    await LoggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{conversationId}|Service Connected");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{conversationId}|Service Connected");
                     return true;
                 }
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{conversationId}|Service Not Connected");
+                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{conversationId}|Service Not Connected");
                 return false;
 
 
@@ -195,14 +210,14 @@ namespace GecolPro.WebApi.BusinessRules
         //
         */
 
-        private static async Task<bool> CheckMeterExist(string MeterNumber)
+        private async Task<bool> CheckMeterExist(string MeterNumber)
         {
             try
             {
 
                 string meterNumber = subProService.MeterNumber;
 
-                await LoggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{meterNumber}");
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{meterNumber}");
 
                 // Query in DB
                 // Uncomment and implement DB query logic here
@@ -213,15 +228,15 @@ namespace GecolPro.WebApi.BusinessRules
                 // {
                 // }
 
-                GecolSystemResponse gecolSystem = await GecolServices.ConfirmCustomerOp(MeterNumber);
+                GecolSystemResponse gecolSystem = await _gecolServices.ConfirmCustomerOp(MeterNumber);
 
                 if (gecolSystem.IsSuccessStatusCode)
                 {
-                    await LoggerG.LogInfoAsync($"{logPrefix}<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{meterNumber}");
+                    await _loggerG.LogInfoAsync($"{logPrefix}<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{meterNumber}");
                     return true;
                 }
 
-                await LoggerG.LogInfoAsync($"{logPrefix}<==|Rsp_GecolMeter|{conversationId}|The Meter Number Not Exist or has Issue|{meterNumber}");
+                await _loggerG.LogInfoAsync($"{logPrefix}<==|Rsp_GecolMeter|{conversationId}|The Meter Number Not Exist or has Issue|{meterNumber}");
                 return false;
             }
             catch (Exception ex)
@@ -245,7 +260,7 @@ namespace GecolPro.WebApi.BusinessRules
         *
          */
 
-        private static async Task<TokenOrError> ProcessChargeByDCB(SubProService subProService)
+        private async Task<TokenOrError> ProcessChargeByDCB(SubProService subProService)
         {
 
             try
@@ -254,11 +269,11 @@ namespace GecolPro.WebApi.BusinessRules
                 string msisdn = subProService.MSISDN;
                 int amount = subProService.Amount;
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|==>|Req_BillingSys|{conversationId}|{msisdn}|{amount}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_BillingSys|{conversationId}|{msisdn}|{amount}");
 
-                DcbSystemResponse subProServiceResp = await DcbServices.DirectDebitUnitOp(conversationId, msisdn, amount);
+                DcbSystemResponse subProServiceResp = await _dcbServices.DirectDebitUnitOp(conversationId, msisdn, amount);
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccessStatusCode}|{subProServiceResp.Response}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccessStatusCode}|{subProServiceResp.Response}");
 
                 if (subProServiceResp.IsSuccessStatusCode)
                 {
@@ -302,7 +317,7 @@ namespace GecolPro.WebApi.BusinessRules
         *
          */
 
-        private static async Task<TokenOrError> ProcessRollBackDCB(SubProService subProService)
+        private async Task<TokenOrError> ProcessRollBackDCB(SubProService subProService)
         {
 
             try
@@ -311,11 +326,11 @@ namespace GecolPro.WebApi.BusinessRules
                 string msisdn = subProService.MSISDN;
                 int amount = subProService.Amount;
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|==>|Req_RollBackDCB|{conversationId}|{msisdn}|{amount}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_RollBackDCB|{conversationId}|{msisdn}|{amount}");
 
-                DcbSystemResponse subProServiceResp = await DcbServices.DebitRollbackOp(conversationId, subProService.TransactionID, msisdn, amount);
+                DcbSystemResponse subProServiceResp = await _dcbServices.DebitRollbackOp(conversationId, subProService.TransactionID, msisdn, amount);
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_RollBackDCB|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccessStatusCode}|{subProServiceResp.Response}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_RollBackDCB|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccessStatusCode}|{subProServiceResp.Response}");
 
                 if (subProServiceResp.IsSuccessStatusCode)
                 {
@@ -358,7 +373,7 @@ namespace GecolPro.WebApi.BusinessRules
 *
  */
 
-        private static async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService)
+        private async Task<TokenOrError> ProcessTokenFromGecol(SubProService subProService)
         {
 
             try
@@ -367,11 +382,11 @@ namespace GecolPro.WebApi.BusinessRules
                 int amount = subProService.Amount;
                 string uniqeNumber = subProService.UniqueNumber;
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|==>|Req_GecolVnSys|{conversationId}|{msisdn}|{amount}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_GecolVnSys|{conversationId}|{msisdn}|{amount}");
 
-                var subProServiceResp = await GecolServices.CreditVendOp(subProService.MeterNumber, uniqeNumber, amount);
+                var subProServiceResp = await _gecolServices.CreditVendOp(subProService.MeterNumber, uniqeNumber, amount);
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccessStatusCode}|{subProServiceResp.Response}|{uniqeNumber}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccessStatusCode}|{subProServiceResp.Response}|{uniqeNumber}");
 
 
                 /*
@@ -432,7 +447,7 @@ namespace GecolPro.WebApi.BusinessRules
         /* Send SMS API to SMPP Client  :
         */
 
-        public static async Task SendGecolMessage(string? sender, string receiver, string message)
+        public async Task SendGecolMessage(string? sender, string receiver, string message)
         {
             try
             {
@@ -453,12 +468,12 @@ namespace GecolPro.WebApi.BusinessRules
 
                 var response = await client.SendAsync(request);
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|==>|Req_SMSCSystem|Submet|To|{msisdn}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_SMSCSystem|Submet|To|{msisdn}");
 
                 response.EnsureSuccessStatusCode();
                 var messageResponse = await response.Content.ReadAsStringAsync();
 
-                await LoggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_SMSCSystem|Response|{messageResponse}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_SMSCSystem|Response|{messageResponse}");
             }
             catch (Exception ex)
             {
@@ -472,7 +487,7 @@ namespace GecolPro.WebApi.BusinessRules
         /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
        */
 
-        private static SubProService CreateSubProService(MultiRequest multiRequest, string sessionId)
+        private SubProService CreateSubProService(MultiRequest multiRequest, string sessionId)
         {
             string[] Para = multiRequest.USSDRequestString.Split('#');
 
@@ -512,9 +527,9 @@ namespace GecolPro.WebApi.BusinessRules
         /*Chech Exception Logs :
         */
 
-        private static async Task ExceptionLogs(Exception ex)
+        private async Task ExceptionLogs(Exception ex)
         {
-            await LoggerG.LogDebugAsync(
+            await _loggerG.LogDebugAsync(
                   $"excp" +
                   $"\n{subProService.ConversationID}|{ex.Message}" +
                   $"\n{subProService.ConversationID}|{ex.InnerException}" +
@@ -528,7 +543,7 @@ namespace GecolPro.WebApi.BusinessRules
         /* Main Class (Service Start here)
          */
 
-        public static async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
+        public async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
         {
             TokenOrError TokenOrder;
 
@@ -566,7 +581,7 @@ namespace GecolPro.WebApi.BusinessRules
             /* Logger for start Sesstion :
              */
 
-            await LoggerG.LogInfoAsync($"UssdSystem|==>|Req_{logPrefix}|Start|Session_Id |{sessionId}");
+            await _loggerG.LogInfoAsync($"UssdSystem|==>|Req_{logPrefix}|Start|Session_Id |{sessionId}");
 
 
 
@@ -585,7 +600,7 @@ namespace GecolPro.WebApi.BusinessRules
 
             if (await BlackListMsisdn(multiRequest.MSISDN))
             {
-                msgContentResult = await Menus.BlockedResponseAsync(Lang);
+                msgContentResult = await _menus.BlockedResponseAsync(Lang);
 
                 return new MultiResponseUSSD
                 {
@@ -648,15 +663,15 @@ namespace GecolPro.WebApi.BusinessRules
                                     subProService.UniqueNumber
                                 };
 
-                                msgContentResult = await Menus.SuccessResponseAsync(outputs, Lang);
+                                msgContentResult = await _menus.SuccessResponseAsync(outputs, Lang);
 
                                 if (!string.IsNullOrEmpty(msgContentResult.MessageCont))
                                 {
-                                    SendMessage.SendGecolMessage(null, subProService.MSISDN, msgContentResult.MessageCont, subProService.ConversationID);
+                                    _sendMessage.SendGecolMessage(null, subProService.MSISDN, msgContentResult.MessageCont, subProService.ConversationID);
                                 }
                                 else
                                 {
-                                    msgContentResult = await Menus.UnderMaintenance_Billing(TokenOrder.TknOrErr, Lang);
+                                    msgContentResult = await _menus.UnderMaintenance_Billing(TokenOrder.TknOrErr, Lang);
                                 }
                             }
                             else
@@ -664,7 +679,7 @@ namespace GecolPro.WebApi.BusinessRules
                                 var tk = ProcessRollBackDCB(subProService);
 
 
-                                msgContentResult = await Menus.UnderMaintenance_Billing(TokenOrder.TknOrErr, Lang);
+                                msgContentResult = await _menus.UnderMaintenance_Billing(TokenOrder.TknOrErr, Lang);
 
                             }
                             
@@ -672,7 +687,7 @@ namespace GecolPro.WebApi.BusinessRules
                         }
                         else
                         {
-                            msgContentResult = await Menus.UnderMaintenance_Gecol(TokenOrder.TknOrErr, Lang);
+                            msgContentResult = await _menus.UnderMaintenance_Gecol(TokenOrder.TknOrErr, Lang);
                         }
 
 
@@ -685,17 +700,17 @@ namespace GecolPro.WebApi.BusinessRules
                 }
                 else
                 {
-                    msgContentResult = await Menus.UnderMaintenance_Gecol("VD.01010018", Lang);
+                    msgContentResult = await _menus.UnderMaintenance_Gecol("VD.01010018", Lang);
                 }
             }
             else
             {
-                msgContentResult = await Menus.UnderMaintenance_Gecol(default, Lang);
+                msgContentResult = await _menus.UnderMaintenance_Gecol(default, Lang);
             }
 
             // Generate USSD Response
 
-            await LoggerG.LogInfoAsync($"UssdSystem|<==|Rsp_{logPrefix}|Close|Session_Id |{sessionId}");
+            await _loggerG.LogInfoAsync($"UssdSystem|<==|Rsp_{logPrefix}|Close|Session_Id |{sessionId}");
 
             var multiResponse = new MultiResponseUSSD()
             {

@@ -1,23 +1,23 @@
-﻿using ClassLibrary.Models.Models;
+﻿using GecolPro.Models.Models;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-using static ClassLibrary.Models.Models.MultiRequestUSSD.MultiRequestSerXml;
-using static ClassLibrary.Models.Models.MultiRequestUSSD.MultiRequest;
-
+using static GecolPro.Models.Models.MultiRequestUSSD.MultiRequestSerXml;
+using static GecolPro.Models.Models.MultiRequestUSSD.MultiRequest;
+using GecolPro.WebApi.Interfaces;
 
 namespace GecolPro.WebApi.UssdService
 
 {
-    public class UssdConverter
+    public class UssdConverter : IUssdConverter
     {
-        private static MultiRequestUSSD.MultiRequest multiRequestRE = new MultiRequestUSSD.MultiRequest();
-        private static XmlSerializer serializer = new XmlSerializer(typeof(MethodCall));
+        private MultiRequestUSSD.MultiRequest multiRequestRE = new MultiRequestUSSD.MultiRequest();
+        private XmlSerializer serializer = new XmlSerializer(typeof(MethodCall));
 
-        public static async Task<MultiRequestUSSD.MultiRequest> ConverterFaster(string xmlString)
+        public async Task<MultiRequestUSSD.MultiRequest> ConverterFaster(string xmlString)
         {
             using (StringReader reader = new StringReader(xmlString))
             {
@@ -69,6 +69,3 @@ namespace GecolPro.WebApi.UssdService
         }
     }
 }
-
-
-//   await Task.Run(() => { action(item); }).ConfigureAwait(false);

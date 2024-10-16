@@ -9,7 +9,6 @@ namespace GecolPro.Main.Test
 {
     public class CreditVend
     {
-        //public async Task<string?> ToCreditVendCRsp(string xmlSoapResponse) => await Task.Run(() =>
         public string ToCreditVendCRsp(string xmlSoapResponse)
         {
             XmlDocument doc = new();

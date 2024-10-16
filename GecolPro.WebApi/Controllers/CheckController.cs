@@ -1,21 +1,25 @@
-﻿using GecolPro.WebApi.UssdService;
-using Microsoft.AspNetCore.Mvc;
-using static ClassLibrary.Models.Models.MultiRequestUSSD;
-using System.Text;
-using Microsoft.AspNetCore.Components.Forms;
-using GecolPro.WebApi.BusinessRules;
+﻿using Microsoft.AspNetCore.Mvc;
+using GecolPro.WebApi.Interfaces;
 
 namespace GecolPro.WebApi.Controllers
 {
+    [ApiController]
+    [Route("api/[Controller]/VendService")]
     public class CheckController : ControllerBase
     {
+        private IUssdProcessV1 _ussdProcess;
 
-  
-        [HttpGet()]
-        [Route("api/[Controller]/VendService")]
+
+        public CheckController(IUssdProcessV1 ussdProcess) 
+        {
+            _ussdProcess = ussdProcess;
+        }
+
+        
+        [HttpGet(Name = "VendService")]
         public async Task<IActionResult> VendService()
         {
-            bool Status = await UssdProcessV1.CheckServiceExist();
+            bool Status = await _ussdProcess.CheckServiceExist();
 
             string responseTime = "| " +DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 

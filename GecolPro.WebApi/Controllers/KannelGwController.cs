@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ClassLibrary.Models.Models;
+using GecolPro.Models.Models;
 using GecolPro.WebApi.BusinessRules;
+using GecolPro.WebApi.Interfaces;
 
 namespace GecolPro.WebApi.Controllers
 {
@@ -9,13 +10,20 @@ namespace GecolPro.WebApi.Controllers
     public class KannelGwController : ControllerBase
     {
 
+        private ISendMessage _sendMessage;
+
+        public KannelGwController(ISendMessage sendMessage)
+        {
+            _sendMessage = sendMessage;
+        }
+
         [HttpPost]
         //api/KannelGw/PostMessage/v1
         public async Task<IActionResult> PostMessage([FromBody] SmsMessage messageData)
         {
             //BusinessRules.UssdProcessV1.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message);
-            
-            SendMessage.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message,"0000000099");
+
+            _sendMessage.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message,"0000000099");
 
             return StatusCode(200);
         }

@@ -1,10 +1,10 @@
 ﻿//using GecolPro.Main.Models;
 using ClassLibrary.Models.Models;
 using ConsoleApp_GecolSystem;
-using GecolPro.Main.Test;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+
+using ClassLibrary.GecolSystem;
 
 namespace GecolPro.Main.Controllers
 {
@@ -54,16 +54,22 @@ namespace GecolPro.Main.Controllers
 
         public IActionResult Test()
         {
-            string xmlFile = new ReadXmlFile().Read();
+            string Message = "{}";
 
-            string ddd =  new DeSerlV1().DoDeSerl(xmlFile);
+            //string xmlFile = new ReadXmlFile().Read();
 
+            //string ddd =  new DeSerlV1().DoDeSerl(xmlFile);
 
+            //var _xmlServices = new XmlServices();
 
-            var creditVend = new CreditVend().ToCreditVendCRsp(xmlFile);
+            //var resp = _xmlServices.ToCreditVendCRsp(xmlFile);
 
-            string Message = ddd;
-            return Content(Message);
+            //string respToJson = System.Text.Json.JsonSerializer.Serialize(resp);
+
+            //Message = respToJson;
+
+            return Content(Message, "application/json");
+
         }
 
 

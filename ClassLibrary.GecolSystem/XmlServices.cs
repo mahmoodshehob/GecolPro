@@ -103,13 +103,26 @@ namespace ClassLibrary.GecolSystem
             /// Transactions / CreditVendTx
             ///
             //////////////////////////
+            XElement trans_CreditVendTx = transactions[0];
 
-            var trans_CreditVendTx = transactions[0];
+            XElement? trans_RecoveryTx =null;
 
             List<XElement> trans_ServiceChrgTx = new List<XElement>();
-            for (int i = 1; i < transactions.Count; i++)
+
+
+            for (int i = 1; i < transactions.Count ; i++)
             {
-                trans_ServiceChrgTx.Add(transactions[i]);
+                string _attrib = transactions[i].Attribute(xsi + "type")?.Value;
+
+                if (_attrib == "ns3:DebtRecoveryTx")
+                {
+
+                    trans_RecoveryTx = transactions[i];
+                }
+                if (_attrib == "ns3:ServiceChrgTx")
+                {
+                    trans_ServiceChrgTx.Add(transactions[i]);
+                }   
             }
 
             //////////////////////////
@@ -146,6 +159,30 @@ namespace ClassLibrary.GecolSystem
                 Tariff = trans_CreditVendTx.Element(ns3 + "tariff").Element(ns2 + "name").Value,
             };
 
+
+
+
+            //////////////////////////
+            ///
+            ///  Transactions / RecoveryTx
+            ///
+            //////////////////////////
+
+
+            if (trans_RecoveryTx != null)
+            {
+                creditVendResp.RecoveryTx = new TransactionsDebtRecoveryTx()
+                {
+                    AccDesc = trans_RecoveryTx.Element(ns3 + "accDesc").Value,
+                    Amout = trans_RecoveryTx.Element(ns3 + "amt").Attribute("value")?.Value,
+                    Tariff = trans_RecoveryTx.Element(ns3 + "tariff").Value,
+                    Balance = trans_RecoveryTx.Element(ns3 + "balance").Attribute("value")?.Value
+
+                };
+            }
+
+
+
             //////////////////////////
             ///
             ///  Transactions / ServiceChrgTx
@@ -153,7 +190,11 @@ namespace ClassLibrary.GecolSystem
             //////////////////////////
 
 
-            if (trans_ServiceChrgTx != null)
+            if (trans_ServiceChrgTx == null || trans_ServiceChrgTx.Count == 0)
+            {
+                creditVendResp.ServiceChrgTx = null;
+            }
+            else if (trans_ServiceChrgTx != null )
             {
                 creditVendResp.ServiceChrgTx = new List<TransactionsServiceChrgTx>();
 
@@ -183,6 +224,7 @@ namespace ClassLibrary.GecolSystem
                     creditVendResp.ServiceChrgTx.Add(serviceChrgTx);
                 }
             }
+            
 
             return creditVendResp;
 

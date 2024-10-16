@@ -1,14 +1,16 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using GecolPro.WebApi.UssdService;
+using GecolPro.Services.IServices;
+
 
 //using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 using GecolPro.WebApi.BusinessRules;
-using static ClassLibrary.Models.Models.MultiRequestUSSD;
-using ClassLibrary.Models.Models;
-using ClassLibrary.Services;
+using static GecolPro.Models.Models.MultiRequestUSSD;
+using GecolPro.Models.Models;
+using GecolPro.Services;
+using GecolPro.WebApi.Interfaces;
 
 namespace GecolPro.WebApi.Controllers
 {
@@ -16,32 +18,52 @@ namespace GecolPro.WebApi.Controllers
 
     public class UssdGecolController : ControllerBase
     {
-        private static Loggers LoggerG = new Loggers();
 
-        private static MultiRequest multiRequestRE = new MultiRequest();
-        private static readonly string contentType = "text/xml";
+        private ILoggers _loggerG;
+        private IUssdConverter _ussdConverter;
+        private IResponses _responses;
+        private IUssdProcessV1 _ussdProcess;
+
+
+
+        private MultiRequest multiRequestRE = new MultiRequest();
+        private readonly string contentType = "text/xml";
         //private ServiceProcess.SendMessage sendMessage = new ServiceProcess.SendMessage();
+
+
+  
+
+
+
+
+        public UssdGecolController(IUssdConverter ussdConverter, IResponses responses, ILoggers loggerG, IUssdProcessV1 ussdProcess)
+        {
+            _ussdConverter = ussdConverter;
+            _responses = responses;
+            _loggerG = loggerG;
+            _ussdProcess = ussdProcess;
+        }
 
 
         private async Task<ContentResult> GetResponseV1(string xmlContent, string lang)
         {
                         ContentResult response = new ContentResult();
 
-            MultiRequestUSSD.MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
+            MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
 
 
-            MultiResponseUSSD multiResponse = await UssdProcessV1.ServiceProcessing(multiRequest, lang);
+            MultiResponseUSSD multiResponse = await _ussdProcess.ServiceProcessing(multiRequest, lang);
 
-            await LoggerG.LogUssdTransAsync($"{xmlContent}");
+            await _loggerG.LogUssdTransAsync($"{xmlContent}");
 
 
 
 
             if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
             {
-                string respContetn = Responses.Resp(multiResponse);
+                string respContetn = _responses.Resp(multiResponse);
 
-                await LoggerG.LogUssdTransAsync($"{respContetn}");
+                await _loggerG.LogUssdTransAsync($"{respContetn}");
 
                 response = new ContentResult
                 {
@@ -54,9 +76,9 @@ namespace GecolPro.WebApi.Controllers
             }
             else
             {
-                string respContetn = Responses.Fault_Response(multiResponse);
+                string respContetn = _responses.Fault_Response(multiResponse);
 
-                await LoggerG.LogDcbTransAsync($"{respContetn}");
+                await _loggerG.LogDcbTransAsync($"{respContetn}");
 
                 response = new ContentResult
                 {
@@ -108,7 +130,7 @@ namespace GecolPro.WebApi.Controllers
 
                 string xmlContent = await reader.ReadToEndAsync();
 
-                MultiRequest multiRequest = await UssdConverter.ConverterFaster(xmlContent);
+                MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
 
                 response = await GetResponseV1(xmlContent, "Ar");
 

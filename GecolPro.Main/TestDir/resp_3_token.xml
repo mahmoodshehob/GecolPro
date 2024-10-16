@@ -56,6 +56,15 @@
 							<ns2:name>Resident</ns2:name>
 						</ns3:tariff>
 					</ns3:tx>
+					<ns3:tx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns3:DebtRecoveryTx">
+						<ns3:amt symbol="LYD" value="5.00"/>
+						<ns3:accDesc>0268999900262</ns3:accDesc>
+						<ns3:accNo>0268999900262</ns3:accNo>
+						<ns3:tariff>
+							<ns2:name>Resident</ns2:name>
+						</ns3:tariff>
+						<ns3:balance symbol="LYD" value="495.00"/>
+					</ns3:tx>
 					<ns3:tx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns3:ServiceChrgTx">
 						<ns3:amt symbol="LYD" value="0.25"/>
 						<ns3:accDesc>GECOL</ns3:accDesc>
