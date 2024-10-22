@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿
 
-namespace GecolPro.GecolSystem.Models
+namespace GecolPro.Models.Gecol
 {
     public class CommonParameters : AuthCred
     {

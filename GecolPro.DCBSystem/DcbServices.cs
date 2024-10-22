@@ -1,18 +1,31 @@
 ﻿using System.Text;
+using System.Text.Json;
 using System.Xml;
-using GecolPro.DCBSystem.Models;
+using GecolPro.Models.DCB;
 using GecolPro.Models.Models;
 using GecolPro.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace GecolPro.DCBSystem
 {
     public class DcbServices : IDcbServices
     {
 
-        private readonly XmlServices.ICreateResponse _createResponse = new XmlServices();
-        private readonly XmlServices.ICreateXml _createXml = new XmlServices();
-
+        private readonly IDcbCreateResponse _createResponse;
+        private readonly IDcbCreateXml _createXml;
+        private readonly AuthHeader _authHeader;
         private static Loggers LoggerG = new Loggers();
+
+
+        // Constructor with IOptions<AuthCred> for dependency injection
+        public DcbServices(IConfiguration config, IDcbCreateResponse createResponse, IDcbCreateXml createXml)
+        {
+            _authHeader = new AuthHeader();
+            config.GetSection("AuthHeaderOfDCB").Bind(_authHeader);
+            _createResponse = createResponse ?? throw new ArgumentNullException(nameof(createResponse));
+            _createXml = createXml ?? throw new ArgumentNullException(nameof(createXml));
+        }
+
 
         private enum SoapAction
         {
@@ -206,11 +219,7 @@ namespace GecolPro.DCBSystem
             }
         }
 
-
-
-
-
-        private static async Task<DcbSystemResponse> SendSoapRequest(string Body, string soapAction)
+        private async Task<DcbSystemResponse> SendSoapRequest(string Body, string soapAction)
         {
             try
             {
@@ -218,9 +227,9 @@ namespace GecolPro.DCBSystem
                 {
                     Timeout = TimeSpan.FromMilliseconds(5000)
                 };
-                var authHeader = new AuthHeader();
+           
 
-                var request = new HttpRequestMessage(HttpMethod.Post, authHeader.Url)
+                var request = new HttpRequestMessage(HttpMethod.Post, _authHeader.Url)
                 {
                     Content = new StringContent(Body, Encoding.UTF8, "text/xml")
                 };

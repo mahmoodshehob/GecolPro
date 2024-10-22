@@ -1,34 +1,34 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Xml;
-
-using System.Xml.Linq;
-using System.Xml.Serialization;
-
-using GecolPro.GecolSystem.Models;
+using GecolPro.Models.Gecol;
 using GecolPro.Services;
-
 using GecolPro.Models.Models;
-
+using Microsoft.Extensions.Configuration;
 
 namespace GecolPro.GecolSystem
 {
     public class GecolServices : IGecolServices
     {
-        //private readonly SoapServiceClient _soapServiceClient = new();
-        private readonly ICreateResponse _createResponse = new XmlServices();
-        private readonly ICreateXml _createXml = new XmlServices();
+        private readonly IGecolCreateResponse _createResponse;
+        private readonly IGecolCreateXml _createXml;
+        private readonly AuthCred _authCred;
         private static Loggers LoggerG = new Loggers();
 
+        public GecolServices(IConfiguration config, IGecolCreateResponse createResponse, IGecolCreateXml createXml)
+        {
+            _authCred = new AuthCred();
+            config.GetSection("AuthHeaderOfGecol").Bind(_authCred);
+            _createResponse = createResponse ?? throw new ArgumentNullException(nameof(createResponse));
+            _createXml = createXml ?? throw new ArgumentNullException(nameof(createXml));
+        }
 
-        private enum SoapActionEnum
+        private enum SoapAction
         {
             LoginReq,
             CreditVendReq,
             ConfirmCustomerReq
         }
-
 
         public async Task<GecolSystemResponse> LoginReqOp()
         {
@@ -38,7 +38,7 @@ namespace GecolPro.GecolSystem
                 var body = OrganizeXmlString(_createXml.CreateXmlLoginRequest());
 
 
-                var soapRsp = await SendSoapRequest(body, SoapActionEnum.LoginReq.ToString());
+                var soapRsp = await SendSoapRequest(body, SoapAction.LoginReq.ToString());
 
                 if (soapRsp.IsSuccessStatusCode)
                 {
@@ -95,7 +95,7 @@ namespace GecolPro.GecolSystem
 
                 var body = _createXml.CreateXmlCustomerRequest(meterNumber);
 
-                var soapRsp = await SendSoapRequest(body, SoapActionEnum.ConfirmCustomerReq.ToString());
+                var soapRsp = await SendSoapRequest(body, SoapAction.ConfirmCustomerReq.ToString());
 
                 if (!soapRsp.IsSuccessStatusCode) return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
                 string meterExisting;
@@ -131,7 +131,7 @@ namespace GecolPro.GecolSystem
 
                 var body = _createXml.CreateXmlCreditVendRequest(meterNumber, uniqeNumber, purchaseValue);
 
-                var soapRsp = await SendSoapRequest(body, SoapActionEnum.CreditVendReq.ToString());
+                var soapRsp = await SendSoapRequest(body, SoapAction.CreditVendReq.ToString());
 
                 if (!soapRsp.IsSuccessStatusCode) return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
 
@@ -176,13 +176,13 @@ namespace GecolPro.GecolSystem
             }
         }
 
-        private static async Task<GecolSystemResponse> SendSoapRequest(string body, string soapAction)
+        private async Task<GecolSystemResponse> SendSoapRequest(string body, string soapAction)
         {
             var client = new HttpClient
             {
                 Timeout = TimeSpan.FromMilliseconds(5000)
             };
-            var authCred = new AuthCred();
+            var authCred = _authCred;
             var statusCode = "";
 
             try
@@ -248,13 +248,13 @@ namespace GecolPro.GecolSystem
 
             return afterOrganizeXml;
         }
-
     }
-
     public interface IGecolServices
     {
         public Task<GecolSystemResponse> LoginReqOp();
+        
         public Task<GecolSystemResponse> ConfirmCustomerOp(string meterNumber);
+       
         public  Task<GecolSystemResponse> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue);
     }
 }

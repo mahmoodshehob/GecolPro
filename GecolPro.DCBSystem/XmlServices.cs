@@ -1,15 +1,34 @@
 ﻿using System.Text;
+using Microsoft.Extensions.Configuration;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using GecolPro.DCBSystem.Models;
+using GecolPro.Models.DCB;
+//using static GecolPro.Models.DCB.;
+
 
 
 
 namespace GecolPro.DCBSystem
 {
-    public class XmlServices:  XmlServices.ICreateResponse, XmlServices.ICreateXml
+    public class XmlServices:  IDcbCreateResponse, IDcbCreateXml
     {
+
+        // AuthCred instance to hold configuration values
+        private readonly AuthHeader _authHeader;
+
+        // Constructor accepting IOptions<AuthHeader>
+        public XmlServices(IConfiguration config)
+        {
+
+
+            //_authCred = authCredOptions.Value ?? throw new ArgumentNullException(nameof(authCredOptions));
+            _authHeader = new AuthHeader();
+            config.GetSection("AuthHeaderOfDCB").Bind(_authHeader);
+
+        }
+
+
         private static string OrganizeXmlString(string xml)
         {
             XmlDocument xmlDoc = new XmlDocument();
@@ -123,7 +142,7 @@ namespace GecolPro.DCBSystem
 
         public string CreateXmlQryUserBal(QryUserBasicBalSoap qryUserBasicBalSoap)
         {
-            var authHeader = new AuthHeader();
+            var authHeader = _authHeader;
 
             var xmlSoap = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:lib='http://libya.customization.ws.bss.zsmart.ztesoft.com'>
    <soapenv:Header>
@@ -210,28 +229,27 @@ namespace GecolPro.DCBSystem
             return xmlSoap.Replace("'", "\"");
         }
 
-   
+
+    }
+
+    public interface IDcbCreateResponse
+    {
+        Task<DirectDebitUnitRsp> ToDirectDebitUnitCRsp(string xmlSoapResponse);
+
+        Task<DebitRollBackRsp> ToDebitRollbackRsp(string xmlSoapResponse);
+
+        Task<FaultModel> ToFaultRsp(string xmlSoapResponse);
+
+        Task<QryUserBasicBalRsp> ToQryUserBasicRsp(string xmlSoapResponse);
+    }
 
 
-        public interface ICreateResponse
-        {
-            Task<DirectDebitUnitRsp> ToDirectDebitUnitCRsp(string xmlSoapResponse);
-            
-            Task<DebitRollBackRsp> ToDebitRollbackRsp(string xmlSoapResponse);
-            
-            Task<FaultModel> ToFaultRsp(string xmlSoapResponse);
-            
-            Task<QryUserBasicBalRsp> ToQryUserBasicRsp(string xmlSoapResponse);
-        }
+    public interface IDcbCreateXml
+    {
+        string CreateXmlQryUserBal(QryUserBasicBalSoap qryUserBasicBalSoap);
 
+        string CreateXmlDirectDebitUnit(DirectDebitUnitReqSoap directDebitUnitReqSoap);
 
-        public interface ICreateXml
-        {
-            string CreateXmlQryUserBal(QryUserBasicBalSoap qryUserBasicBalSoap);
-
-            string CreateXmlDirectDebitUnit(DirectDebitUnitReqSoap directDebitUnitReqSoap);
-
-            string CreateXmlDebitRollback(DebitRollbackReqSoap debitRollbackReqSoap);
-        }
+        string CreateXmlDebitRollback(DebitRollbackReqSoap debitRollbackReqSoap);
     }
 }

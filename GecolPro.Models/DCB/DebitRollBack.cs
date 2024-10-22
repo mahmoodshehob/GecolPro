@@ -1,16 +1,16 @@
-﻿using static GecolPro.DCBSystem.Models.DebitObjModels;
+﻿using static GecolPro.Models.DCB.DebitObjModels;
 
-namespace GecolPro.DCBSystem.Models
+namespace GecolPro.Models.DCB
 {
-    public class DirectDebitUnitReqSoap : DebitObjReq
+    public class DebitRollbackReqSoap : DebitObjReq
     {
     }
 
-    public class DirectDebitUnitRsp : DirectDebitUnitRspXml.DirectDebitUnitResp
+    public class DebitRollBackRsp : DebitRollbackRspXml.DebitRollbackResp
     {
     }
 
-    public class DirectDebitUnitRspXml
+    public class DebitRollbackRspXml
     {
         // NOTE: Generated code may require at least .NET Framework 4.5 or .NET Core/Standard 2.0.
         /// <remarks/>
@@ -31,7 +31,7 @@ namespace GecolPro.DCBSystem.Models
         public partial class EnvelopeBody
         {
             [System.Xml.Serialization.XmlElement(Namespace = "http://libya.customization.ws.bss.zsmart.ztesoft.com")]
-            public DirectDebitUnitResponse DirectDebitUnitResponse { get; set; }
+            public DebitRollbackResponse DebitRollbackResponse { get; set; }
         }
 
         /// <remarks/>
@@ -39,16 +39,16 @@ namespace GecolPro.DCBSystem.Models
         [System.ComponentModel.DesignerCategory("code")]
         [System.Xml.Serialization.XmlType(AnonymousType = true, Namespace = "http://libya.customization.ws.bss.zsmart.ztesoft.com")]
         [System.Xml.Serialization.XmlRoot(Namespace = "http://libya.customization.ws.bss.zsmart.ztesoft.com", IsNullable = false)]
-        public partial class DirectDebitUnitResponse
+        public partial class DebitRollbackResponse
         {
-            public DirectDebitUnitResp DirectDebitUnitResp { get; set; }
+            public DebitRollbackResp DebitRollbackResp { get; set; }
         }
 
         /// <remarks/>
         [Serializable()]
         [System.ComponentModel.DesignerCategory("code")]
         [System.Xml.Serialization.XmlType(AnonymousType = true, Namespace = "http://libya.customization.ws.bss.zsmart.ztesoft.com")]
-        public partial class DirectDebitUnitResp //: DebitObjResp
+        public partial class DebitRollbackResp
         {
             public string ConversationID { get; set; }
             public string TransactionID { get; set; }

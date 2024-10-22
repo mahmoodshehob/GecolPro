@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GecolPro.GecolSystem.Models
+namespace GecolPro.Models.Gecol
 {
     public class CreditVendReq : CommonParameters
     {

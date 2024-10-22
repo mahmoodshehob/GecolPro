@@ -7,5 +7,7 @@ namespace GecolPro.WebApi.Interfaces
     {
         public Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang);
         public Task<bool> CheckServiceExist();
+        public Task<bool> CheckDcbExist();
+
     }
 }

@@ -19,15 +19,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.DCBSystem", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary.GecolSystem", "ClassLibrary.GecolSystem\ClassLibrary.GecolSystem.csproj", "{817BF6EE-2361-46FA-A5E9-AC80EE18EAFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GecolPro.WebApi", "GecolPro.WebApi\GecolPro.WebApi.csproj", "{7B7CB013-CA65-4133-A019-166EA90401B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.WebApi", "GecolPro.WebApi\GecolPro.WebApi.csproj", "{7B7CB013-CA65-4133-A019-166EA90401B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GecolPro.Services", "GecolPro.Services\GecolPro.Services.csproj", "{E45DED2F-46FE-422B-A6AA-6502F97B8763}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.Services", "GecolPro.Services\GecolPro.Services.csproj", "{E45DED2F-46FE-422B-A6AA-6502F97B8763}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GecolPro.GecolSystem", "GecolPro.GecolSystem\GecolPro.GecolSystem.csproj", "{81DF266A-76EE-43D8-9539-9FB104833A38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.GecolSystem", "GecolPro.GecolSystem\GecolPro.GecolSystem.csproj", "{81DF266A-76EE-43D8-9539-9FB104833A38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GecolPro.Models", "GecolPro.Models\GecolPro.Models.csproj", "{852DA71B-ABB2-413A-B473-70F8D6864F46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.Models", "GecolPro.Models\GecolPro.Models.csproj", "{852DA71B-ABB2-413A-B473-70F8D6864F46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GecolPro.DCBSystem", "GecolPro.DCBSystem\GecolPro.DCBSystem.csproj", "{172835C4-E6C9-481F-AFD9-5A3DD64E7269}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.DCBSystem", "GecolPro.DCBSystem\GecolPro.DCBSystem.csproj", "{172835C4-E6C9-481F-AFD9-5A3DD64E7269}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GecolPro.SmppClient", "GecolPro.SmppClient\GecolPro.SmppClient.csproj", "{119C59B1-C0D7-4FC7-A4F2-5D73D56F5175}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{172835C4-E6C9-481F-AFD9-5A3DD64E7269}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{172835C4-E6C9-481F-AFD9-5A3DD64E7269}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{172835C4-E6C9-481F-AFD9-5A3DD64E7269}.Release|Any CPU.Build.0 = Release|Any CPU
+		{119C59B1-C0D7-4FC7-A4F2-5D73D56F5175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{119C59B1-C0D7-4FC7-A4F2-5D73D56F5175}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{119C59B1-C0D7-4FC7-A4F2-5D73D56F5175}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{119C59B1-C0D7-4FC7-A4F2-5D73D56F5175}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

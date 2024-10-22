@@ -1,4 +1,4 @@
-﻿namespace GecolPro.DCBSystem.Models
+﻿namespace GecolPro.Models.DCB
 {
     public class DebitObjModels
     {

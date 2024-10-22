@@ -1,4 +1,281 @@
-﻿using System.Globalization;
+project 
+"
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GecolPro.DCBSystem\GecolPro.DCBSystem.csproj" />
+    <ProjectReference Include="..\GecolPro.GecolSystem\GecolPro.GecolSystem.csproj" />
+    <ProjectReference Include="..\GecolPro.Models\GecolPro.Models.csproj" />
+    <ProjectReference Include="..\GecolPro.Services\GecolPro.Services.csproj" />
+  </ItemGroup>
+
+</Project>
+
+"
+
+appsettings.json
+"
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+
+  "AuthHeaderOfDCB": {
+    "username": "SMSC_NS_DCB",
+    "password": "S3IS9C8D_HI6P4S5",
+    "url": "http://172.16.18.165:8223/ocswebservices/services/WebServicesSoapLibya"
+  },
+
+
+  "AuthHeaderOfGecol": {
+    "username": "AG0502",
+    "password": "1234567891012",
+    "url": "http://160.19.103.138:8080/xmlvend/xmlvend.wsdl",
+    "eandeviceId": "0000000000001",
+    "genericdeviceId": "0000000000001"
+
+  },
+
+  "AllowedHosts": "*",
+  "Urls": "http://localhost:5015"
+}
+"
+
+Program.cs
+"
+using GecolPro.WebApi.UssdService;
+using GecolPro.WebApi.Interfaces;
+using GecolPro.WebApi.BusinessRules;
+
+using GecolPro.Services;
+using GecolPro.Services.IServices;
+
+using GecolPro.GecolSystem;
+using GecolPro.DCBSystem;
+
+using GecolPro.Models.DCB;
+using GecolPro.Models.Gecol;
+
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<AuthHeader>(builder.Configuration.GetSection("AuthHeaderOfDCB"));
+builder.Services.Configure<AuthCred>(builder.Configuration.GetSection("AuthHeaderOfGecol"));
+
+
+
+
+
+builder.Services.AddScoped<IDcbServices, DcbServices>();
+builder.Services.AddScoped<IGecolServices, GecolServices>();
+
+
+builder.Services.AddScoped<IUssdConverter, UssdConverter>();
+builder.Services.AddScoped<IResponses, Responses>();
+builder.Services.AddScoped<ILoggers,Loggers>();
+builder.Services.AddScoped<ISendMessage, SendMessage>();
+builder.Services.AddScoped<IBlackListFun,BlackListFun>();
+builder.Services.AddScoped<IMenus,Menus>();
+builder.Services.AddScoped<IUssdProcessV1, UssdProcessV1>();
+
+
+
+
+
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+"
+
+UssdGecolController
+"
+
+using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using GecolPro.Services.IServices;
+
+
+//using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
+using GecolPro.WebApi.BusinessRules;
+using static GecolPro.Models.Models.MultiRequestUSSD;
+using GecolPro.Models.Models;
+using GecolPro.Services;
+using GecolPro.WebApi.Interfaces;
+
+namespace GecolPro.WebApi.Controllers
+{
+    [ApiController]
+
+    public class UssdGecolController : ControllerBase
+    {
+
+        private ILoggers _loggerG;
+        private IUssdConverter _ussdConverter;
+        private IResponses _responses;
+        private IUssdProcessV1 _ussdProcess;
+
+
+
+        private MultiRequest multiRequestRE = new MultiRequest();
+        private readonly string contentType = "text/xml";
+        //private ServiceProcess.SendMessage sendMessage = new ServiceProcess.SendMessage();
+
+
+  
+
+
+
+
+        public UssdGecolController(IUssdConverter ussdConverter, IResponses responses, ILoggers loggerG, IUssdProcessV1 ussdProcess)
+        {
+            _ussdConverter = ussdConverter;
+            _responses = responses;
+            _loggerG = loggerG;
+            _ussdProcess = ussdProcess;
+        }
+
+
+        private async Task<ContentResult> GetResponseV1(string xmlContent, string lang)
+        {
+                        ContentResult response = new ContentResult();
+
+            MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
+
+
+            MultiResponseUSSD multiResponse = await _ussdProcess.ServiceProcessing(multiRequest, lang);
+
+            await _loggerG.LogUssdTransAsync($"{xmlContent}");
+
+
+
+
+            if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
+            {
+                string respContetn = _responses.Resp(multiResponse);
+
+                await _loggerG.LogUssdTransAsync($"{respContetn}");
+
+                response = new ContentResult
+                {
+                    ContentType = contentType,
+                    Content = respContetn,
+                    StatusCode = 200
+                };
+                return response;
+
+            }
+            else
+            {
+                string respContetn = _responses.Fault_Response(multiResponse);
+
+                await _loggerG.LogDcbTransAsync($"{respContetn}");
+
+                response = new ContentResult
+                {
+                    ContentType = contentType,
+                    Content = respContetn,
+                    StatusCode = 400
+                };
+                return response;
+            }
+        }
+
+
+
+
+        #region API Region 
+
+        // Version 1
+
+        //English
+
+        [HttpPost]
+        [Consumes("text/xml")]
+        [Route("api/[Controller]/creditVendReq/V1/En")]
+        public async Task<ContentResult> PostV1En()
+        {
+            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
+            {
+                ContentResult response = new ContentResult();
+
+                string xmlContent = await reader.ReadToEndAsync();
+
+                response = await GetResponseV1(xmlContent, "En");
+
+                return response;
+            }
+
+        }
+
+        //Arabic
+
+        [HttpPost]
+        [Consumes("text/xml")]
+        [Route("api/[Controller]/creditVendReq/V1/Ar")]
+        public async Task<ContentResult> PostV1Ar()
+        {
+            using (StreamReader reader = new StreamReader(Request.Body, Encoding.UTF8))
+            {
+                ContentResult response = new ContentResult();
+
+                string xmlContent = await reader.ReadToEndAsync();
+
+                MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
+
+                response = await GetResponseV1(xmlContent, "Ar");
+
+
+
+                return response;
+            }
+        }
+        #endregion
+
+    }
+}
+"
+
+UssdProcessV1
+"
+using System.Globalization;
 using Newtonsoft.Json;
 
 //Models
@@ -197,39 +474,6 @@ namespace GecolPro.WebApi.BusinessRules
                 }
 
                 await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{conversationId}|Service Not Connected");
-                return false;
-
-
-            }
-            catch (Exception ex)
-            {
-                await ExceptionLogs(ex);
-                return false;
-            }
-
-
-        }
-
-
-        /*Chech if Gecol System Reachable or Not :
-
-*/
-
-        public async Task<bool> CheckDcbExist()
-        {
-            try
-            {
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DcbCheck|{conversationId}|Check Service Connectivity");
-
-                DcbSystemResponse loginOp = await _dcbServices.QryUserBasicBalOp("218947776156");
-
-                if (loginOp.IsSuccessStatusCode)
-                {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Connected");
-                    return true;
-                }
-
-                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Not Connected");
                 return false;
 
 
@@ -774,3 +1018,462 @@ namespace GecolPro.WebApi.BusinessRules
         }
     }
 }
+"
+
+SendMessage.cs
+"
+using GecolPro.Models.Models;
+using GecolPro.Services.IServices;
+using GecolPro.WebApi.Interfaces;
+using Newtonsoft.Json;
+
+namespace GecolPro.WebApi.BusinessRules
+{
+    public class SendMessage : ISendMessage
+
+    {
+        private ILoggers _loggerG;
+
+        /* Send SMS API to SMPP Client  :*/
+
+
+        public SendMessage(ILoggers loggerG)
+        {
+            _loggerG = loggerG;
+
+        }
+
+        public  async Task SendGecolMessage(string? sender, string receiver, string message, string ConversationID)
+        {
+            try
+            {
+
+                if (!string.IsNullOrEmpty(message))
+                {
+                    var client = new HttpClient();
+                    var request = new HttpRequestMessage(HttpMethod.Post, "http://172.16.31.17:8086/api/Messages");
+
+                    SmsMessage jsonObject = new SmsMessage()
+                    {
+                        Sender = "2188997772",
+                        Receiver = receiver,
+                        Message = message
+                    };
+
+
+                    var content = new StringContent(JsonConvert.SerializeObject(jsonObject), null, "application/json");
+                    request.Content = content;
+                    var response = await client.SendAsync(request);
+
+                    await _loggerG.LogInfoAsync($"LynaGclsys|==>|Req_SMSCSystem|Submet|To|{receiver}");
+
+                    response.EnsureSuccessStatusCode();
+                    var messageResponse = await response.Content.ReadAsStringAsync();
+
+                    await _loggerG.LogInfoAsync($"LynaGclsys|<==|Rsp_SMSCSystem|Respon|{messageResponse}");
+                }
+            }
+            catch (Exception ex)
+            {
+                await ExceptionLogs(ex, ConversationID);
+            }
+        }
+
+        private async Task ExceptionLogs(Exception ex, string ConversationID)
+        {
+            await _loggerG.LogDebugAsync(
+                  $"excp" +
+                  $"\n{ConversationID}|{ex.Message}" +
+                  $"\n{ConversationID}|{ex.InnerException}" +
+                  $"\n{ConversationID}|{ex.StackTrace.ToString()}"
+                  );
+        }
+
+
+    }
+
+  
+}
+
+"
+
+Menus.cs
+"
+using GecolPro.Models.Models;
+using GecolPro.WebApi.Interfaces;
+namespace GecolPro.WebApi.BusinessRules
+{
+    public class Menus : IMenus
+    {
+
+        public Menus() 
+        { 
+        
+        }
+
+        private  MsgContent msgContent = new MsgContent();
+
+        public  async Task<MsgContent> SuccessResponseAsync(List<string> Arg, string Lang)
+        {
+            switch (Lang)
+            {
+                case "En":
+                    msgContent.UssdCont = string.Format("The Meter: {0}\nCharged Amount: {1} LYD\n the Token : {2}\nSupportKey : {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+
+                    msgContent.MessageCont = string.Format("The Meter: {0}, Charged by  {1} LYD \n the Token :  {2} \n tKey :  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+
+                    break;
+
+                default:
+
+                    msgContent.UssdCont = string.Format("رقم العداد {0}\nالقيمة المشحونة {1}  دينار\nكرت {2}\n رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]); ;
+
+                    msgContent.MessageCont = string.Format("تم شحن العداد {0} بي {1} دينار \n  كرت الشحن  {2} \n   رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+
+                    break;
+            }
+            return (msgContent);
+        }
+
+
+        public  async Task<MsgContent> BlockedResponseAsync(string Lang)
+        {
+
+            switch (Lang)
+            {
+                case "En":
+                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
+
+                    break;
+
+                default:
+
+                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
+
+                    break;
+            }
+            return (msgContent);
+        }
+
+        public  async Task<MsgContent> BlockedResponseAsync(string FaultCode, string Lang)
+        {
+
+            switch (Lang)
+            {
+                case "En":
+                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
+
+                    break;
+
+                default:
+
+                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
+
+                    break;
+            }
+            return (msgContent);
+        }
+
+        //public static async Task<MsgContent> MeterNotExist(string Arg ,string Lang)
+        //{
+        //    string ussdCont;
+
+        //    //string messageCont = null;
+
+        //    switch (Lang)
+        //    {
+        //        case "En":
+        //            msgContent.UssdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
+
+        //            break;
+
+        //        default:
+
+        //            msgContent.UssdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
+
+        //            break;
+        //    }
+        //    //return (ussdCont, messageCont);
+        //    return msgContent;
+        //}
+
+        public  async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
+        {
+            switch (Lang)
+            {
+                case "En":
+
+                    switch (FaultCode)
+                    {
+ 
+
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+
+                        case "caseFree3":
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+
+                        case "VD.13020116":
+                            msgContent.UssdCont = string.Format("The service under maintenance,Issue with Amount Value");
+
+                            break;
+
+                        case "timeout":
+                            msgContent.UssdCont = string.Format("The service timeouted.");
+
+                            break;
+
+                        case "VD.01010018":
+                            msgContent.UssdCont = string.Format("Customer does not exist or unbound meter");
+
+                            break;
+
+                        default:
+
+                            msgContent.UssdCont = string.Format("The service under maintenance.");
+
+                            break;
+                    }
+                    break;
+
+                default:
+                    switch (FaultCode)
+                    {
+
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+                        case "caseFree3":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+
+                        case "VD.13020116":
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة,مشكلة في قيمة الرصيد.");
+
+                            break;
+
+                        case "timeout":
+                            msgContent.UssdCont = string.Format("مهلة الاتصال انتهت");
+
+                            break;
+
+                        case "VD.01010018":
+                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح او غير موجود.");
+
+                            break;
+
+                        default:
+                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+
+                            break;
+                    }
+                    break;
+
+            }
+
+            return msgContent;
+        }
+
+        public  async Task<MsgContent> UnderMaintenance_Billing(string FaultCode, string Lang)
+        {
+
+
+            switch (Lang)
+            {
+                case "En":
+                    switch (FaultCode)
+                    {
+
+                        case "ns1:S-WS-00045":
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+
+                            break;
+
+                        case "S-ACT-00112":
+                            msgContent.UssdCont = string.Format("Not sufficient balance.");
+
+                            break;
+
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+
+                            break;
+
+                        default:
+
+                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+
+                            break;
+                    }
+                    break;
+                
+                default:
+                    switch (FaultCode)
+                    {
+                        case "ns1:S-WS-00045":
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+
+                            break;
+
+                        case "S-ACT-00112":
+                            msgContent.UssdCont = string.Format("رصيدك غير كافي.");
+
+                            break;
+
+                        case "caseFree1":
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+
+                            break;
+
+                        case "caseFree2":
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+
+
+
+                            break;
+
+                        default:
+
+                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+
+                            break;
+                    }
+                    break;
+            }
+
+            return msgContent;
+        }
+    }
+}
+
+
+"
+
+BlackListFun.cs
+"
+using GecolPro.WebApi.Interfaces;
+using Newtonsoft.Json;
+
+namespace GecolPro.WebApi.BusinessRules
+{
+    public class BlackListFun : IBlackListFun
+    {
+        private readonly string jsonFilePath;
+
+        public BlackListFun()
+        {
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            jsonFilePath = Path.Combine(baseDirectory, "BlackListMsisdn.json");
+        }
+
+        public async Task SyncBlackList(List<string> blackMsisdnList)
+        {
+            try
+            {
+
+                if (blackMsisdnList == null || blackMsisdnList.Count == 0)
+                {
+                    //return BadRequest("Invalid phone numbers list.");
+                }
+
+                List<string> blackList = new List<string>();
+
+                if (System.IO.File.Exists(jsonFilePath))
+                {
+                    var json = await System.IO.File.ReadAllTextAsync(jsonFilePath);
+                    blackList = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
+                }
+
+                foreach (var newNumber in blackMsisdnList)
+                {
+                    if (!blackList.Exists(number => newNumber.StartsWith(number)))
+                    {
+                        blackList.Add(newNumber);
+                    }
+                }
+
+                var updatedJson = JsonConvert.SerializeObject(blackList, Formatting.Indented);
+                await System.IO.File.WriteAllTextAsync(jsonFilePath, updatedJson);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+
+            }
+        }
+
+        public async Task<List<string>> GetBlackList()
+        {
+
+            if (!System.IO.File.Exists(jsonFilePath))
+            {
+                return new List<string>();
+            }
+
+            var json = await System.IO.File.ReadAllTextAsync(jsonFilePath);
+            var blackList = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
+
+            return blackList;
+        }
+
+
+        public async Task SyncDeleteBlackList(string phoneNumber)
+        {
+            string res;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(phoneNumber))
+                {
+                    res = "Invalid phone number.";
+                }
+
+                if (!System.IO.File.Exists(jsonFilePath))
+                {
+                    res = "Blacklist not found.";
+                }
+
+                var json = await System.IO.File.ReadAllTextAsync(jsonFilePath);
+                var blacklist = JsonConvert.DeserializeObject<List<string>>(json) ?? new List<string>();
+
+                if (!blacklist.Remove(phoneNumber))
+                {
+
+                    res = "Phone number not found in the blacklist.";
+                }
+
+                var updatedJson = JsonConvert.SerializeObject(blacklist, Formatting.Indented);
+                await System.IO.File.WriteAllTextAsync(jsonFilePath, updatedJson);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+
+            }
+        }
+
+
+    }
+}
+
+"

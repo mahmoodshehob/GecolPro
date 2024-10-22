@@ -4,7 +4,7 @@ using GecolPro.WebApi.Interfaces;
 namespace GecolPro.WebApi.Controllers
 {
     [ApiController]
-    [Route("api/[Controller]/VendService")]
+    [Route("api/[Controller]/")]
     public class CheckController : ControllerBase
     {
         private IUssdProcessV1 _ussdProcess;
@@ -15,8 +15,12 @@ namespace GecolPro.WebApi.Controllers
             _ussdProcess = ussdProcess;
         }
 
-        
-        [HttpGet(Name = "VendService")]
+
+
+        #region API Region 
+
+        [HttpGet("VendService", Name = "VendService")]
+
         public async Task<IActionResult> VendService()
         {
             bool Status = await _ussdProcess.CheckServiceExist();
@@ -32,6 +36,24 @@ namespace GecolPro.WebApi.Controllers
                 return BadRequest(new { Status = $"Service Down {responseTime}" });
             }
         }
+
+        [HttpGet("DcbService",Name = "DcbService")]
+        public async Task<IActionResult> DcbService()
+        {
+            bool Status = await _ussdProcess.CheckDcbExist();
+
+            string responseTime = "| " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+            if (Status)
+            {
+                return Ok(new { Status = $"Service Connected {responseTime}" });
+            }
+            else
+            {
+                return BadRequest(new { Status = $"Service Down {responseTime}" });
+            }
+        }
+        #endregion
 
     }
 }

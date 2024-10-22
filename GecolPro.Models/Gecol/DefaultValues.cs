@@ -1,4 +1,4 @@
-﻿namespace GecolPro.GecolSystem.Models
+﻿namespace GecolPro.Models.Gecol
 {
     internal class DefaultValues
     {

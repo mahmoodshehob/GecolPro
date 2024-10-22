@@ -1,15 +1,15 @@
-﻿using System;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text;
+using Microsoft.Extensions.Configuration;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using GecolPro.GecolSystem.Models;
-using static GecolPro.GecolSystem.Models.CreditVendRespBody;
+using GecolPro.Models.Gecol;
+using static GecolPro.Models.Gecol.CreditVendRespBody;
+
 
 namespace GecolPro.GecolSystem
 {
-    internal class XmlServices : ICreateResponse, ICreateXml
+    public class XmlServices : IGecolCreateResponse, IGecolCreateXml
     {
         // Define namespaces to simplify queries
 
@@ -22,6 +22,20 @@ namespace GecolPro.GecolSystem
         private readonly XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
         //
 
+
+        // AuthCred instance to hold configuration values
+        private readonly AuthCred _authCred;
+
+        // Constructor accepting IOptions<AuthCred>
+        public XmlServices(IConfiguration config)
+        {
+
+
+            //_authCred = authCredOptions.Value ?? throw new ArgumentNullException(nameof(authCredOptions));
+            _authCred = new AuthCred();
+            config.GetSection("AuthHeaderOfGecol").Bind(_authCred);
+
+        }
 
         private static string OrganizeXmlString(string xml)
         {
@@ -272,18 +286,30 @@ namespace GecolPro.GecolSystem
 
 
 
-
+        
 
         public string CreateXmlLoginRequest()
         {
-            CommonParameters login = new();
+
+            CommonParameters login = new()
+            {
+                Username = _authCred.Username, 
+                Password = _authCred.Password,
+                Url = _authCred.Url,
+                EANDeviceID = _authCred.EANDeviceID,
+                GenericDeviceID = _authCred.GenericDeviceID,
+
+            };
+
+
+
 
             var xmlSoap = $@"<s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/'>
 <s:Body xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
 <loginReq xmlns='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema'>
 <clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='{login.EANDeviceID}' />
 <terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='{login.GenericDeviceID}'/>
-<msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='20190110150301' uniqueNumber='{login.UniqueNumber}'/>
+<msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='{login.DateTimeReq}' uniqueNumber='{login.UniqueNumber}'/>
 <authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
 <opName>{login.Username}</opName>
 <password>{login.Password}</password>
@@ -375,14 +401,14 @@ namespace GecolPro.GecolSystem
     }
 
 
-    public interface ICreateResponse
+    public interface IGecolCreateResponse
     {
         Task<CreditVendRespBody.CreditVendResp?> ToCreditVendCRsp(string xmlSoapResponse);
         Task<FaultModel.xmlvendFaultRespFault> ToFaultRsp(string xmlSoapResponse);
         Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse);
     }
 
-    public interface ICreateXml
+    public interface IGecolCreateXml
     {  
         string CreateXmlLoginRequest();
         string CreateXmlCustomerRequest(string meterNumber);
