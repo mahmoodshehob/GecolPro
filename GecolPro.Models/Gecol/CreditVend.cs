@@ -33,12 +33,13 @@ namespace GecolPro.Models.Gecol
 
             public string? ClientStatus { set; get; }
 
+            public string? CustVendAccNo { set; get; }            
+
             public string? CreditVendReceipt { set; get; }
 
             public TransactionsCreditVendTx? CreditVendTx { set; get; }
 
             public TransactionsDebtRecoveryTx? RecoveryTx { set; get; }
-
 
             public List<TransactionsServiceChrgTx>? ServiceChrgTx { set; get; }
 

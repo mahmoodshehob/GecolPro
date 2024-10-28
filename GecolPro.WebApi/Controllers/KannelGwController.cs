@@ -21,9 +21,7 @@ namespace GecolPro.WebApi.Controllers
         //api/KannelGw/PostMessage/v1
         public async Task<IActionResult> PostMessage([FromBody] SmsMessage messageData)
         {
-            //BusinessRules.UssdProcessV1.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message);
-
-            _sendMessage.SendGecolMessage("2188997772", messageData.Receiver, messageData.Message,"0000000099");
+            _sendMessage.SendGecolMessage(messageData.Receiver, messageData.Message,"0000000099");
 
             return StatusCode(200);
         }

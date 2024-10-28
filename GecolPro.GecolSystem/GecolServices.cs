@@ -5,6 +5,8 @@ using GecolPro.Models.Gecol;
 using GecolPro.Services;
 using GecolPro.Models.Models;
 using Microsoft.Extensions.Configuration;
+using static GecolPro.Models.Gecol.LoginRspXml;
+using System.Windows.Markup;
 
 namespace GecolPro.GecolSystem
 {
@@ -32,18 +34,16 @@ namespace GecolPro.GecolSystem
 
         public async Task<GecolSystemResponse> LoginReqOp()
         {
-
             try
             {
                 var body = OrganizeXmlString(_createXml.CreateXmlLoginRequest());
-
 
                 var soapRsp = await SendSoapRequest(body, SoapAction.LoginReq.ToString());
 
                 if (soapRsp.IsSuccessStatusCode)
                 {
                     //  here the response of Success Case
-                    var accountWallet = "Exception";
+                    var accountWallet = "Exception"; //?
 
                     try
                     {
@@ -68,7 +68,6 @@ namespace GecolPro.GecolSystem
                     {
                         LogException(ex);
 
-
                         accountWallet = "Exception";
                     }
 
@@ -92,26 +91,33 @@ namespace GecolPro.GecolSystem
         {
             try
             {
-
                 var body = _createXml.CreateXmlCustomerRequest(meterNumber);
 
                 var soapRsp = await SendSoapRequest(body, SoapAction.ConfirmCustomerReq.ToString());
 
-                if (!soapRsp.IsSuccessStatusCode) return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-                string meterExisting;
-                try
+                if (soapRsp.IsSuccessStatusCode)
                 {
-                    //  var  confirmCustomerRsp = await GecolConvertRsp.Converte(SoapRsp.Responce);
-                    meterExisting = "Meter Exist";
+
+                    var MeterDetails = await _createResponse.ToCreateXmlCustomerCRsp(soapRsp.Response);
+
+                    string meterExisting;
+                    try
+                    {
+                        meterExisting = "Meter Exist";
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException(ex);
+                        meterExisting = "Exception";
+
+                    }
+
+                    return new GecolSystemResponse(meterExisting, soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
                 }
-                catch (Exception ex)
+                else
                 {
-                    LogException(ex);
-                    meterExisting = "Exception";
-
+                    return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
                 }
-
-                return new GecolSystemResponse(meterExisting, soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
 
             }
             catch (Exception ex)
@@ -133,26 +139,30 @@ namespace GecolPro.GecolSystem
 
                 var soapRsp = await SendSoapRequest(body, SoapAction.CreditVendReq.ToString());
 
-                if (!soapRsp.IsSuccessStatusCode) return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-
-
-
-
-                string? creditToken;
-                try
+                if (soapRsp.IsSuccessStatusCode)
                 {
-                    // Response in Json formate
-                    creditToken = JsonSerializer.Serialize(await _createResponse.ToCreditVendCRsp(soapRsp.Response));
+                    string? creditToken;
+                    try
+                    {
+                        // Response in Json formate
+                        creditToken = JsonSerializer.Serialize(await _createResponse.ToCreditVendCRsp(soapRsp.Response));
 
-                
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException(ex);
+                        creditToken = "Exception";
+                    }
+
+                    return new GecolSystemResponse(creditToken!, soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
                 }
-                catch (Exception ex)
+                else
                 {
-                    LogException(ex);
-                    creditToken = "Exception";
+                    return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
+
                 }
 
-                return new GecolSystemResponse(creditToken!, soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
 
             }
             catch (Exception ex)
@@ -161,6 +171,232 @@ namespace GecolPro.GecolSystem
                 return new GecolSystemResponse("Fault", ex.Message, false);
             }
         }
+
+
+
+
+        public async Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOpx()
+        {
+            try
+            {
+                var body = OrganizeXmlString(_createXml.CreateXmlLoginRequest());
+
+                var soapRsp = await SendSoapRequest(body, SoapAction.LoginReq.ToString());
+
+                if (soapRsp.IsSuccessStatusCode)
+                {
+                    //  here the response of Success Case
+                    try
+                    {
+                        var loginRsp = await _createResponse.ToLoginRsp(soapRsp.Response);
+
+                        SuccessResponseLogin successResponseResult = new SuccessResponseLogin()
+                        {
+                            Response = loginRsp,
+                            StatusCode = soapRsp.StatusCode,
+                            IsSuccessStatusCode = true
+                        };
+                        return Result<SuccessResponseLogin, FailureResponse>.SuccessResult(successResponseResult);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException(ex);
+
+                        FailureResponse failureResponse = new FailureResponse()
+                        {
+                            Failure = ex.Message,
+                            StatusCode = "Excp99",
+                            IsSuccessStatusCode = false
+                        };
+
+                        return Result<SuccessResponseLogin, FailureResponse>.FailureResult(failureResponse);
+
+
+                    }
+
+                }
+                else
+                {
+                    FailureResponse failureResponse = new FailureResponse()
+                    {
+                        Failure = "",
+                        StatusCode = "Excp99",
+                        IsSuccessStatusCode = false
+                    };
+
+                    return Result<SuccessResponseLogin, FailureResponse>.FailureResult(failureResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                LogException(ex);
+
+                //return new GecolSystemResponse("Fault", ex.Message, false);
+
+                FailureResponse failureResponse = new FailureResponse()
+                {
+                    Failure = "Fault",
+                    StatusCode = "ex.Message",
+                    IsSuccessStatusCode = false
+                };
+
+                return Result<SuccessResponseLogin, FailureResponse>.FailureResult(failureResponse);
+
+            }
+        }
+
+        public async Task<Result<SuccessResponseConfirmCustomer, FailureResponse>> ConfirmCustomerOpx(string meterNumber)
+        {
+            try
+            {
+                var body = _createXml.CreateXmlCustomerRequest(meterNumber);
+
+                var soapRsp = await SendSoapRequest(body, SoapAction.ConfirmCustomerReq.ToString());
+
+                if (soapRsp.IsSuccessStatusCode)
+                {
+                    try
+                    {
+                        var MeterDetails = await _createResponse.ToCreateXmlCustomerCRsp(soapRsp.Response);
+
+
+                        SuccessResponseConfirmCustomer successResponseResult = new SuccessResponseConfirmCustomer()
+                        {
+                            Response = MeterDetails,
+                            StatusCode = soapRsp.StatusCode,
+                            IsSuccessStatusCode = true
+                        };
+                        return Result<SuccessResponseConfirmCustomer, FailureResponse>.SuccessResult(successResponseResult);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException(ex);
+
+                        FailureResponse failureResponse = new FailureResponse()
+                        {
+                            Failure = ex.Message,
+                            StatusCode = "Excp99",
+                            IsSuccessStatusCode = false
+                        };
+
+                        return Result<SuccessResponseConfirmCustomer, FailureResponse>.FailureResult(failureResponse);
+
+
+                    }
+
+                }
+                else
+                {
+                    FailureResponse failureResponse = new FailureResponse()
+                    {
+                        Failure = "",
+                        StatusCode = "Excp99",
+                        IsSuccessStatusCode = false
+                    };
+
+                    return Result<SuccessResponseConfirmCustomer, FailureResponse>.FailureResult(failureResponse);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                LogException(ex);
+
+
+                FailureResponse failureResponse = new FailureResponse()
+                {
+                    Failure = "Fault",
+                    StatusCode = "ex.Message",
+                    IsSuccessStatusCode = false
+                };
+
+                return Result<SuccessResponseConfirmCustomer, FailureResponse>.FailureResult(failureResponse);
+
+            }
+        }
+
+        public async Task<Result<SuccessResponseCreditVend, FailureResponse>> CreditVendOpx(string meterNumber, string uniqeNumber, int purchaseValue)
+        {
+            CreditVendRespBody.CreditVendResp creditVendResp = new CreditVendRespBody.CreditVendResp();
+
+            try
+            {
+
+                var body = _createXml.CreateXmlCreditVendRequest(meterNumber, uniqeNumber, purchaseValue);
+
+                var soapRsp = await SendSoapRequest(body, SoapAction.CreditVendReq.ToString());
+
+                if (soapRsp.IsSuccessStatusCode)
+                {
+                    try
+                    {
+                        var invoice = await _createResponse.ToCreditVendCRsp(soapRsp.Response);
+
+                        SuccessResponseCreditVend successResponseResult = new SuccessResponseCreditVend()
+                        {
+                            Response = invoice,
+                            StatusCode = soapRsp.StatusCode,
+                            IsSuccessStatusCode = true
+                        };
+                        return Result<SuccessResponseCreditVend, FailureResponse>.SuccessResult(successResponseResult);
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException(ex);
+
+                        FailureResponse failureResponse = new FailureResponse()
+                        {
+                            Failure = ex.Message,
+                            StatusCode = "Excp99",
+                            IsSuccessStatusCode = false
+                        };
+
+                        return Result<SuccessResponseCreditVend, FailureResponse>.FailureResult(failureResponse);
+                    }
+
+                }
+                else
+                {
+                    FailureResponse failureResponse = new FailureResponse()
+                    {
+                        Failure = "",
+                        StatusCode = "Excp99",
+                        IsSuccessStatusCode = false
+                    };
+
+                    return Result<SuccessResponseCreditVend, FailureResponse>.FailureResult(failureResponse);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                LogException(ex);
+
+
+                FailureResponse failureResponse = new FailureResponse()
+                {
+                    Failure = "Fault",
+                    StatusCode = "ex.Message",
+                    IsSuccessStatusCode = false
+                };
+
+                return Result<SuccessResponseCreditVend, FailureResponse>.FailureResult(failureResponse);
+
+            }
+        }
+
+
+
+        //
+
+
 
         private async Task<string> FailedCase(string failedXmlRespons)
         {
@@ -200,13 +436,10 @@ namespace GecolPro.GecolSystem
 
                 await LoggerG.LogGecolTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
 
-
-
                 statusCode = response.StatusCode.ToString();
-                var result = new GecolSystemResponse(await response.Content.ReadAsStringAsync(), statusCode,
-                    response.IsSuccessStatusCode);
 
-                return result;
+                return new GecolSystemResponse(await response.Content.ReadAsStringAsync(), statusCode,
+                    response.IsSuccessStatusCode);
 
             }
             catch (Exception ex)
@@ -217,7 +450,7 @@ namespace GecolPro.GecolSystem
             }
         }
 
-        private static void LogException(Exception ex)
+        private void LogException(Exception ex)
         {
             var errorId = DateTime.Now.ToString("yyyyMMddTHHmmss");
             var message = ex.Message;
@@ -227,7 +460,7 @@ namespace GecolPro.GecolSystem
             // Log exception details
         }
 
-        private static string OrganizeXmlString(string xml)
+        private string OrganizeXmlString(string xml)
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
@@ -251,10 +484,18 @@ namespace GecolPro.GecolSystem
     }
     public interface IGecolServices
     {
-        public Task<GecolSystemResponse> LoginReqOp();
+        //public Task<GecolSystemResponse> LoginReqOp();
         
-        public Task<GecolSystemResponse> ConfirmCustomerOp(string meterNumber);
+        //public Task<GecolSystemResponse> ConfirmCustomerOp(string meterNumber);
        
-        public  Task<GecolSystemResponse> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue);
+        //public  Task<GecolSystemResponse> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue);
+
+
+
+        public Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOpx();
+
+        public Task<Result<SuccessResponseConfirmCustomer, FailureResponse>> ConfirmCustomerOpx(string meterNumber);
+
+        public Task<Result<SuccessResponseCreditVend, FailureResponse>> CreditVendOpx(string meterNumber, string uniqeNumber, int purchaseValue);
     }
 }

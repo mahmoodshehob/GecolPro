@@ -2,7 +2,7 @@
 {
     public interface ISendMessage
     {
-        public Task SendGecolMessage(string? sender, string receiver, string message, string ConversationID);
+        public Task SendGecolMessage(string receiver, string message, string ConversationID);
 
     }
 }

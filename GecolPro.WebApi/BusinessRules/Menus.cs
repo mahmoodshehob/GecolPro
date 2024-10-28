@@ -1,268 +1,280 @@
-﻿using GecolPro.Models.Models;
-using GecolPro.WebApi.Interfaces;
-namespace GecolPro.WebApi.BusinessRules
-{
-    public class Menus : IMenus
-    {
+﻿//using GecolPro.Models.Gecol;
+//using GecolPro.Models.Models;
+//using GecolPro.WebApi.Interfaces;
+//using Newtonsoft.Json;
+//using System.Security.Cryptography;
 
-        public Menus() 
-        { 
+//namespace GecolPro.WebApi.BusinessRules
+//{
+//    public class Menus : IMenus
+//    {
+
+//        public Menus() 
+//        { 
         
-        }
+//        }
 
-        private  MsgContent msgContent = new MsgContent();
+//        private  MsgContent msgContent = new MsgContent();
 
-        public  async Task<MsgContent> SuccessResponseAsync(List<string> Arg, string Lang)
-        {
-            switch (Lang)
-            {
-                case "En":
-                    msgContent.UssdCont = string.Format("The Meter: {0}\nCharged Amount: {1} LYD\n the Token : {2}\nSupportKey : {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+//        public  async Task<MsgContent> SuccessResponseAsync(List<string> Arg, string Lang)
+//        {          
+//            switch (Lang)
+//            {
+//                case "En":
+                    
+//                    msgContent.UssdCont =
+//                        $"Invoice: {Arg[0]}\n" +
+//                        $"Token: {Arg[1]}\n" +
+//                        $"Amount: {Arg[2]} LYD\n\n";
 
-                    msgContent.MessageCont = string.Format("The Meter: {0}, Charged by  {1} LYD \n the Token :  {2} \n tKey :  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+//                    msgContent.MessageCont =
+//                                         $"Invoice: {Arg[0]}\n" +
+//                        $"Token: {Arg[1]}\n" +
+//                        $"Amount: {Arg[2]} LYD\n\n";
 
-                    break;
+//                    break;
+                    
+//                default:
 
-                default:
+//                    //msgContent.UssdCont = string.Format("رقم العداد {0}\nالقيمة المشحونة {1}  دينار\nكرت {2}\n رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]); ;
 
-                    msgContent.UssdCont = string.Format("رقم العداد {0}\nالقيمة المشحونة {1}  دينار\nكرت {2}\n رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]); ;
+//                    //msgContent.MessageCont = string.Format("تم شحن العداد {0} بي {1} دينار \n  كرت الشحن  {2} \n   رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
 
-                    msgContent.MessageCont = string.Format("تم شحن العداد {0} بي {1} دينار \n  كرت الشحن  {2} \n   رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
+                    
+//                    break;
+//            }
+//            return (msgContent);
+//        }
 
-                    break;
-            }
-            return (msgContent);
-        }
 
+//        public  async Task<MsgContent> BlockedResponseAsync(string Lang)
+//        {
 
-        public  async Task<MsgContent> BlockedResponseAsync(string Lang)
-        {
+//            switch (Lang)
+//            {
+//                case "En":
+//                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
 
-            switch (Lang)
-            {
-                case "En":
-                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
+//                    break;
 
-                    break;
+//                default:
 
-                default:
+//                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
 
-                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
+//                    break;
+//            }
+//            return (msgContent);
+//        }
 
-                    break;
-            }
-            return (msgContent);
-        }
+//        public  async Task<MsgContent> BlockedResponseAsync(string FaultCode, string Lang)
+//        {
 
-        public  async Task<MsgContent> BlockedResponseAsync(string FaultCode, string Lang)
-        {
+//            switch (Lang)
+//            {
+//                case "En":
+//                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
 
-            switch (Lang)
-            {
-                case "En":
-                    msgContent.UssdCont = string.Format("The Servise not allow for your number.");
+//                    break;
 
-                    break;
+//                default:
 
-                default:
+//                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
 
-                    msgContent.UssdCont = string.Format("الخدمة غير متاحة لرقمك."); ;
+//                    break;
+//            }
+//            return (msgContent);
+//        }
 
-                    break;
-            }
-            return (msgContent);
-        }
+//        //public static async Task<MsgContent> MeterNotExist(string Arg ,string Lang)
+//        //{
+//        //    string ussdCont;
 
-        //public static async Task<MsgContent> MeterNotExist(string Arg ,string Lang)
-        //{
-        //    string ussdCont;
+//        //    //string messageCont = null;
 
-        //    //string messageCont = null;
+//        //    switch (Lang)
+//        //    {
+//        //        case "En":
+//        //            msgContent.UssdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
 
-        //    switch (Lang)
-        //    {
-        //        case "En":
-        //            msgContent.UssdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
+//        //            break;
 
-        //            break;
+//        //        default:
 
-        //        default:
+//        //            msgContent.UssdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
 
-        //            msgContent.UssdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
+//        //            break;
+//        //    }
+//        //    //return (ussdCont, messageCont);
+//        //    return msgContent;
+//        //}
 
-        //            break;
-        //    }
-        //    //return (ussdCont, messageCont);
-        //    return msgContent;
-        //}
+//        public  async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
+//        {
+//            switch (Lang)
+//            {
+//                case "En":
 
-        public  async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
-        {
-            switch (Lang)
-            {
-                case "En":
-
-                    switch (FaultCode)
-                    {
+//                    switch (FaultCode)
+//                    {
  
 
-                        case "caseFree1":
-                            msgContent.UssdCont = string.Format("The service under maintenance.");
+//                        case "caseFree1":
+//                            msgContent.UssdCont = string.Format("The service under maintenance.");
 
-                            break;
+//                            break;
 
-                        case "caseFree2":
-                            msgContent.UssdCont = string.Format("The service under maintenance.");
+//                        case "caseFree2":
+//                            msgContent.UssdCont = string.Format("The service under maintenance.");
 
-                            break;
+//                            break;
 
-                        case "caseFree3":
-                            msgContent.UssdCont = string.Format("The service under maintenance.");
+//                        case "caseFree3":
+//                            msgContent.UssdCont = string.Format("The service under maintenance.");
 
-                            break;
+//                            break;
 
-                        case "VD.13020116":
-                            msgContent.UssdCont = string.Format("The service under maintenance,Issue with Amount Value");
+//                        case "VD.13020116":
+//                            msgContent.UssdCont = string.Format("The service under maintenance,Issue with Amount Value");
 
-                            break;
+//                            break;
 
-                        case "timeout":
-                            msgContent.UssdCont = string.Format("The service timeouted.");
+//                        case "timeout":
+//                            msgContent.UssdCont = string.Format("The service timeouted.");
 
-                            break;
+//                            break;
 
-                        case "VD.01010018":
-                            msgContent.UssdCont = string.Format("Customer does not exist or unbound meter");
+//                        case "VD.01010018":
+//                            msgContent.UssdCont = string.Format("Customer does not exist or unbound meter");
 
-                            break;
+//                            break;
 
-                        default:
+//                        default:
 
-                            msgContent.UssdCont = string.Format("The service under maintenance.");
+//                            msgContent.UssdCont = string.Format("The service under maintenance.");
 
-                            break;
-                    }
-                    break;
+//                            break;
+//                    }
+//                    break;
 
-                default:
-                    switch (FaultCode)
-                    {
+//                default:
+//                    switch (FaultCode)
+//                    {
 
-                        case "caseFree1":
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+//                        case "caseFree1":
+//                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
 
-                            break;
+//                            break;
 
-                        case "caseFree2":
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+//                        case "caseFree2":
+//                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
 
-                            break;
-                        case "caseFree3":
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+//                            break;
+//                        case "caseFree3":
+//                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
 
-                            break;
+//                            break;
 
-                        case "VD.13020116":
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة,مشكلة في قيمة الرصيد.");
+//                        case "VD.13020116":
+//                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة,مشكلة في قيمة الرصيد.");
 
-                            break;
+//                            break;
 
-                        case "timeout":
-                            msgContent.UssdCont = string.Format("مهلة الاتصال انتهت");
+//                        case "timeout":
+//                            msgContent.UssdCont = string.Format("مهلة الاتصال انتهت");
 
-                            break;
+//                            break;
 
-                        case "VD.01010018":
-                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح او غير موجود.");
+//                        case "VD.01010018":
+//                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح او غير موجود.");
 
-                            break;
+//                            break;
 
-                        default:
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
+//                        default:
+//                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة");
 
-                            break;
-                    }
-                    break;
+//                            break;
+//                    }
+//                    break;
 
-            }
+//            }
 
-            return msgContent;
-        }
+//            return msgContent;
+//        }
 
-        public  async Task<MsgContent> UnderMaintenance_Billing(string FaultCode, string Lang)
-        {
+//        public  async Task<MsgContent> UnderMaintenance_Billing(string FaultCode, string Lang)
+//        {
 
 
-            switch (Lang)
-            {
-                case "En":
-                    switch (FaultCode)
-                    {
+//            switch (Lang)
+//            {
+//                case "En":
+//                    switch (FaultCode)
+//                    {
 
-                        case "ns1:S-WS-00045":
-                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+//                        case "ns1:S-WS-00045":
+//                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
 
-                            break;
+//                            break;
 
-                        case "S-ACT-00112":
-                            msgContent.UssdCont = string.Format("Not sufficient balance.");
+//                        case "S-ACT-00112":
+//                            msgContent.UssdCont = string.Format("Not sufficient balance.");
 
-                            break;
+//                            break;
 
-                        case "caseFree1":
-                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+//                        case "caseFree1":
+//                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
 
-                            break;
+//                            break;
 
-                        case "caseFree2":
-                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+//                        case "caseFree2":
+//                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
 
-                            break;
+//                            break;
 
-                        default:
+//                        default:
 
-                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
+//                            msgContent.UssdCont = string.Format("The Billing system under maintenance.");
 
-                            break;
-                    }
-                    break;
+//                            break;
+//                    }
+//                    break;
                 
-                default:
-                    switch (FaultCode)
-                    {
-                        case "ns1:S-WS-00045":
-                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+//                default:
+//                    switch (FaultCode)
+//                    {
+//                        case "ns1:S-WS-00045":
+//                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
 
-                            break;
+//                            break;
 
-                        case "S-ACT-00112":
-                            msgContent.UssdCont = string.Format("رصيدك غير كافي.");
+//                        case "S-ACT-00112":
+//                            msgContent.UssdCont = string.Format("رصيدك غير كافي.");
 
-                            break;
+//                            break;
 
-                        case "caseFree1":
-                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+//                        case "caseFree1":
+//                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
 
-                            break;
+//                            break;
 
-                        case "caseFree2":
-                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+//                        case "caseFree2":
+//                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
 
 
 
-                            break;
+//                            break;
 
-                        default:
+//                        default:
 
-                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
+//                            msgContent.UssdCont = string.Format("نظام الفوترة تحت الصيانة");
 
-                            break;
-                    }
-                    break;
-            }
+//                            break;
+//                    }
+//                    break;
+//            }
 
-            return msgContent;
-        }
-    }
-}
+//            return msgContent;
+//        }
+//    }
+//}
 

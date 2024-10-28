@@ -59,10 +59,4 @@
 
         }
     }
-
-    //public class LoginRsp : user
-    //{
-        
-    //}
-
 }

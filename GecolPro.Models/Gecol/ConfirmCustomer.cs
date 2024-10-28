@@ -8,5 +8,12 @@ namespace GecolPro.Models.Gecol
         public string? MeterNumber { set; get; }
     }
 
-   
+
+    public class ConfirmCustomerRespBody
+    {
+        
+        public string? CustomerNumber { set; get; }
+        public string? AT { set; get; }
+        public string? TT { set; get; }
+    }
 }

@@ -22,7 +22,7 @@ namespace GecolPro.WebApi.Controllers
         private ILoggers _loggerG;
         private IUssdConverter _ussdConverter;
         private IResponses _responses;
-        private IUssdProcessV1 _ussdProcess;
+        private IUssdProcess _ussdProcess;
 
 
 
@@ -36,7 +36,7 @@ namespace GecolPro.WebApi.Controllers
 
 
 
-        public UssdGecolController(IUssdConverter ussdConverter, IResponses responses, ILoggers loggerG, IUssdProcessV1 ussdProcess)
+        public UssdGecolController(IUssdConverter ussdConverter, IResponses responses, ILoggers loggerG, IUssdProcess ussdProcess)
         {
             _ussdConverter = ussdConverter;
             _responses = responses;
@@ -47,7 +47,7 @@ namespace GecolPro.WebApi.Controllers
 
         private async Task<ContentResult> GetResponseV1(string xmlContent, string lang)
         {
-                        ContentResult response = new ContentResult();
+            ContentResult response = new ContentResult();
 
             MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
 

@@ -7,9 +7,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary.GecolSystem\ClassLibrary.GecolSystem.csproj" />
-    <ProjectReference Include="..\ClassLibrary.Services\ClassLibrary.Services.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -38,6 +38,8 @@ namespace GecolPro.Services
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "UssdTrans"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "DcbTrans"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "GecolTrans"));
+            CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "IssuedTrans"));
+
         }
 
         private void CreateDirectoryIfNotExists(string path)
@@ -76,13 +78,20 @@ namespace GecolPro.Services
         {
             await WriteLogAsync(message, "UssdTrans");
         }
+        
         public async Task LogDcbTransAsync(string message)
         {
             await WriteLogAsync(message, "DcbTrans");
         }
+        
         public async Task LogGecolTransAsync(string message)
         {
             await WriteLogAsync(message, "GecolTrans");
+        }
+
+        public async Task LogIssuedTokenAsync(string message)
+        {
+            await WriteLogAsync(message, "IssuedToken");
         }
     }
 }
