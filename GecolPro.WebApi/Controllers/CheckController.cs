@@ -7,10 +7,10 @@ namespace GecolPro.WebApi.Controllers
     [Route("api/[Controller]/")]
     public class CheckController : ControllerBase
     {
-        private IUssdProcessV1 _ussdProcess;
+        private IUssdProcess _ussdProcess;
 
 
-        public CheckController(IUssdProcessV1 ussdProcess) 
+        public CheckController(IUssdProcess ussdProcess) 
         {
             _ussdProcess = ussdProcess;
         }

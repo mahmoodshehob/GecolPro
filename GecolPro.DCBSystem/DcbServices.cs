@@ -1,10 +1,10 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Xml;
-using GecolPro.Models.DCB;
+﻿using GecolPro.Models.DCB;
+//using GecolPro.Models.Gecol;
 using GecolPro.Models.Models;
 using GecolPro.Services;
 using Microsoft.Extensions.Configuration;
+using System.Text;
+using System.Xml;
 
 namespace GecolPro.DCBSystem
 {
@@ -27,12 +27,14 @@ namespace GecolPro.DCBSystem
         }
 
 
-        private enum SoapAction
+        private class SoapAction
         {
-            QryUserBasicBal,
-            DirectDebitUnit,
-            DebitRollback
+            public const string QryUserBasicBal = "QryUserBasicBal";
+            public const string DirectDebitUnit = "DirectDebitUnit";
+            public const string DebitRollback = "DebitRollback";
         }
+
+
 
         private static string OrganizeXmlString(string xml)
         {
@@ -73,7 +75,7 @@ namespace GecolPro.DCBSystem
 
                 var body = _createXml.CreateXmlQryUserBal(qryUserBasicBalSoap);
 
-                var soapRsp = await SendSoapRequest(body, SoapAction.QryUserBasicBal.ToString());
+                var soapRsp = await SendSoapRequest(body, SoapAction.QryUserBasicBal);
 
                 statusCode = soapRsp.StatusCode;
 
@@ -105,9 +107,89 @@ namespace GecolPro.DCBSystem
             }
         }
 
-        public async Task<DcbSystemResponse> DirectDebitUnitOp(string conversationId, string msisdn, int amount)
+        public async Task<Result<SuccessResponseQryUserBasicBal, FailureResponse>> QryUserBasicBalOpX(string msisdn)
+        {
+            try
+            {
+
+                QryUserBasicBalSoap qryUserBasicBalSoap = new()
+                {
+                    MSISDN = msisdn,
+                };
+
+                var body = _createXml.CreateXmlQryUserBal(qryUserBasicBalSoap);
+
+                var soapRsp = await SendSoapRequest(body, SoapAction.QryUserBasicBal);
+
+
+                if (soapRsp.IsSuccessStatusCode)
+                {
+
+
+                    QryUserBasicBalRsp qryUserBasicBalRsp = await _createResponse.ToQryUserBasicRsp(soapRsp.Response);
+
+                    qryUserBasicBalRsp.CommentsOrBalance = (int.Parse(qryUserBasicBalRsp.BalanceDto.BalanceValue) / 100000).ToString();
+
+                    SuccessResponseQryUserBasicBal successResponseResult = new SuccessResponseQryUserBasicBal()
+                    {
+                        Response = qryUserBasicBalRsp,
+                        StatusCode = soapRsp.StatusCode,
+                        IsSuccessStatusCode = true
+                    };
+
+                    return Result<SuccessResponseQryUserBasicBal, FailureResponse>.SuccessResult(successResponseResult);
+
+
+
+                }
+                else if (soapRsp.StatusCode.ToLower() != "timeout")
+                {
+                    var faultModel = await _createResponse.ToFaultRsp(soapRsp.Response);
+
+                    FailureResponse failureResponse = new FailureResponse()
+                    {
+                        Failure = faultModel.FaultString,
+                        StatusCode = faultModel.FaultCode,
+                        IsSuccessStatusCode = false
+                    };
+
+                    return Result<SuccessResponseQryUserBasicBal, FailureResponse>.FailureResult(failureResponse);
+
+                }
+                else
+                {
+                    FailureResponse failureResponse = new FailureResponse()
+                    {
+                        Failure = soapRsp.Response,
+                        StatusCode = "timeout",
+                        IsSuccessStatusCode = false
+                    };
+
+                    return Result<SuccessResponseQryUserBasicBal, FailureResponse>.FailureResult(failureResponse);
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+
+                FailureResponse failureResponse = new FailureResponse()
+                {
+                    Failure = "Fault",
+                    StatusCode = "ex.Message",
+                    IsSuccessStatusCode = false
+                };
+
+                return Result<SuccessResponseQryUserBasicBal, FailureResponse>.FailureResult(failureResponse);
+            }
+        }
+
+        public async Task<Result<SuccessResponseDirectDebit, FailureResponse>> DirectDebitUnitOp(string conversationId, string msisdn, int amount)
         {
             var statusCode = "";
+            string? RespDesc;
             try
             {
                 DirectDebitUnitReqSoap directDebitUnitReq = new()
@@ -121,36 +203,70 @@ namespace GecolPro.DCBSystem
 
                 var body = _createXml.CreateXmlDirectDebitUnit(directDebitUnitReq);
 
-                var soapRsp = await SendSoapRequest(body, SoapAction.DirectDebitUnit.ToString());
+                var soapRsp = await SendSoapRequest(body, SoapAction.DirectDebitUnit);
 
-                statusCode = soapRsp.StatusCode;
+                RespDesc = soapRsp.StatusCode;
 
 
                 if (soapRsp.IsSuccessStatusCode)
                 {
-                    var directDebitUnitRsp = await _createResponse.ToDirectDebitUnitCRsp(soapRsp.Response);
-                    return new DcbSystemResponse(directDebitUnitRsp.TransactionID, statusCode, soapRsp.IsSuccessStatusCode);
+                    DirectDebitUnitRsp directDebitUnit = await _createResponse.ToDirectDebitUnitCRsp(soapRsp.Response);
+
+                    SuccessResponseDirectDebit successResponseResult = new SuccessResponseDirectDebit()
+                    {
+                        Response = directDebitUnit,
+                        StatusCode = soapRsp.StatusCode,
+                        IsSuccessStatusCode = true
+                    };
+
+                    return Result<SuccessResponseDirectDebit, FailureResponse>.SuccessResult(successResponseResult);
+
                 }
-
-                string? faultCode;
-                if (soapRsp.Response.ToLower() != "timeout")
+                else if (soapRsp.StatusCode.ToLower() != "timeout")
                 {
+                    var faultModel = await _createResponse.ToFaultRsp(soapRsp.Response);
 
-                    faultCode = await FailedCase(soapRsp.Response);
+                    FailureResponse failureResponse = new FailureResponse()
+                    {
+                        Failure = faultModel.FaultString,
+                        StatusCode = faultModel.FaultCode,
+                        IsSuccessStatusCode = false
+                    };
+
+                    return Result<SuccessResponseDirectDebit, FailureResponse>.FailureResult(failureResponse);
 
                 }
                 else
                 {
 
-                    faultCode = "timeout";
+                    statusCode = "timeout";
+
+
+                    FailureResponse failureResponse = new FailureResponse()
+                    {
+                        Failure = soapRsp.Response,
+                        StatusCode = "timeout",
+                        IsSuccessStatusCode = false
+                    };
+
+                    return Result<SuccessResponseDirectDebit, FailureResponse>.FailureResult(failureResponse);
+
 
                 }
-                return new DcbSystemResponse(faultCode, statusCode, soapRsp.IsSuccessStatusCode);
+
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                LogException(e);
-                return new DcbSystemResponse(e.Message, statusCode, false);
+                LogException(ex);
+
+                FailureResponse failureResponse = new FailureResponse()
+                {
+                    Failure = "Fault",
+                    StatusCode = "ex.Message",
+                    IsSuccessStatusCode = false
+                };
+
+                return Result<SuccessResponseDirectDebit, FailureResponse>.FailureResult(failureResponse);
             }
         }
 
@@ -170,7 +286,7 @@ namespace GecolPro.DCBSystem
 
                 var body = _createXml.CreateXmlDebitRollback(debitRollbackReq);
 
-                var soapRsp = await SendSoapRequest(body, SoapAction.DebitRollback.ToString());
+                var soapRsp = await SendSoapRequest(body, SoapAction.DebitRollback);
 
                 statusCode = soapRsp.StatusCode;
 
@@ -221,13 +337,14 @@ namespace GecolPro.DCBSystem
 
         private async Task<DcbSystemResponse> SendSoapRequest(string Body, string soapAction)
         {
+            string? statusCode ="";
             try
             {
                 var client = new HttpClient
                 {
                     Timeout = TimeSpan.FromMilliseconds(5000)
                 };
-           
+
 
                 var request = new HttpRequestMessage(HttpMethod.Post, _authHeader.Url)
                 {
@@ -241,6 +358,7 @@ namespace GecolPro.DCBSystem
 
                 await LoggerG.LogDcbTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
 
+                statusCode = response.StatusCode.ToString();
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -253,17 +371,23 @@ namespace GecolPro.DCBSystem
                     throw new Exception($"Error calling SOAP API: {response.StatusCode}");
                 }
             }
-            catch (TaskCanceledException ex1)
+            catch (TaskCanceledException ex)
             {
-                LogException(ex1);
-                return new DcbSystemResponse("timeout", ex1.Message, false);
+                LogException(ex);
+                return new DcbSystemResponse(ex.Message, "timeout", false);
+
+            }
+            catch (HttpRequestException ex)
+            {
+                LogException(ex);
+                return new DcbSystemResponse(ex.Message, ex.GetType().Name, false);
 
             }
             catch (Exception ex)
             {
                 LogException(ex);
-
-                return new DcbSystemResponse("BillingSystemUnderMaintenance", ex.Message, false);
+                var lll = ex.GetType().Name;
+                return new DcbSystemResponse(ex.Message, statusCode, false);
 
             }
         }
@@ -277,17 +401,16 @@ namespace GecolPro.DCBSystem
 
             // Log exception details
         }
-    
+
     }
     public interface IDcbServices
     {
-    
-        public Task<DcbSystemResponse> QryUserBasicBalOp(string msisdn);
-        
-        public Task<DcbSystemResponse> DirectDebitUnitOp(string conversationId, string msisdn, int amount);
+        //public Task<DcbSystemResponse> QryUserBasicBalOp(string msisdn);
+
+        public Task<Result<SuccessResponseQryUserBasicBal, FailureResponse>> QryUserBasicBalOpX(string msisdn);
+
+        public Task<Result<SuccessResponseDirectDebit, FailureResponse>> DirectDebitUnitOp(string conversationId, string msisdn, int amount);
 
         public Task<DcbSystemResponse> DebitRollbackOp(string conversationId, string transactionId, string msisdn, int amount);
-
-
     }
 }

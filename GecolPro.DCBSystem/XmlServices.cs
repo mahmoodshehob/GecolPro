@@ -29,7 +29,7 @@ namespace GecolPro.DCBSystem
         }
 
 
-        private static string OrganizeXmlString(string xml)
+        private string OrganizeXmlString(string xml)
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
@@ -50,6 +50,108 @@ namespace GecolPro.DCBSystem
 
             return stringBuilder.ToString();
         }
+
+
+
+        //
+        // Create Request
+        //
+
+
+
+        public string CreateXmlQryUserBal(QryUserBasicBalSoap qryUserBasicBalSoap)
+        {
+
+
+            var xmlSoap = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:lib='http://libya.customization.ws.bss.zsmart.ztesoft.com'>
+   <soapenv:Header>
+      <lib:AuthHeader>
+         <lib:Username>{_authHeader.Username}</lib:Username>
+         <lib:Password>{_authHeader.Password}</lib:Password>
+      </lib:AuthHeader>
+   </soapenv:Header>
+   <soapenv:Body>
+      <lib:QryUserBasicBal>
+         <lib:QryUserBasicBalReqDto>
+            <lib:MSISDN>{qryUserBasicBalSoap.MSISDN}</lib:MSISDN>
+         </lib:QryUserBasicBalReqDto>
+      </lib:QryUserBasicBal>
+   </soapenv:Body>
+</soapenv:Envelope>
+";
+
+            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
+
+        }
+
+        public string CreateXmlDirectDebitUnit(DirectDebitUnitReqSoap directDebitUnitReqSoap)
+        {
+
+            var xmlSoap = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:lib='http://libya.customization.ws.bss.zsmart.ztesoft.com'>
+<soapenv:Header>
+     <lib:AuthHeader>
+        <lib:Username>{_authHeader.Username}</lib:Username>
+        <lib:Password>{_authHeader.Password}</lib:Password>
+     </lib:AuthHeader>
+  </soapenv:Header>
+<soapenv:Body>
+     <lib:DirectDebitUnit>
+        <lib:DirectDebitUnitReqDto>
+           <lib:ConversationID>{directDebitUnitReqSoap.ConversationID}</lib:ConversationID>
+           <lib:TransactionID>{directDebitUnitReqSoap.TransactionID} </lib:TransactionID>
+           <lib:ServiceName>{directDebitUnitReqSoap.ServiceName}</lib:ServiceName>
+           <lib:ProviderName>{directDebitUnitReqSoap.ProviderName}</lib:ProviderName>
+           <lib:OriginatingAddress>{directDebitUnitReqSoap.OriginatingAddress}</lib:OriginatingAddress>
+           <lib:DestinationAddress>{directDebitUnitReqSoap.DestinationAddress}</lib:DestinationAddress>
+           <lib:ChargingAddress>{directDebitUnitReqSoap.ChargingAddress}</lib:ChargingAddress>
+           <lib:Amount>{directDebitUnitReqSoap.Amount}</lib:Amount>
+        </lib:DirectDebitUnitReqDto>
+     </lib:DirectDebitUnit>
+  </soapenv:Body>
+</soapenv:Envelope>";
+
+
+
+            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
+        }
+
+        public string CreateXmlDebitRollback(DebitRollbackReqSoap debitRollbackReqSoap)
+        {
+            var xmlSoap = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:lib='http://libya.customization.ws.bss.zsmart.ztesoft.com'>
+<soapenv:Header>
+     <lib:AuthHeader>
+        <lib:Username>{_authHeader.Username}</lib:Username>
+        <lib:Password>{_authHeader.Password}</lib:Password>
+     </lib:AuthHeader>
+  </soapenv:Header>
+<soapenv:Body>
+     <lib:DebitRollbackUnit>
+        <lib:DebitRollbackUnitReqDto>
+           <lib:ConversationID>{debitRollbackReqSoap.ConversationID}</lib:ConversationID>
+           <lib:TransactionID>{debitRollbackReqSoap.TransactionID}</lib:TransactionID>
+           <lib:ServiceName>{debitRollbackReqSoap.ServiceName}</lib:ServiceName>
+           <lib:ProviderName>{debitRollbackReqSoap.ProviderName}</lib:ProviderName>
+           <lib:OriginatingAddress>{debitRollbackReqSoap.OriginatingAddress}</lib:OriginatingAddress>
+           <lib:DestinationAddress>{debitRollbackReqSoap.DestinationAddress}</lib:DestinationAddress>
+           <lib:ChargingAddress>{debitRollbackReqSoap.ChargingAddress}</lib:ChargingAddress>
+           <lib:Amount>{debitRollbackReqSoap.Amount}</lib:Amount>
+        </lib:DebitRollbackUnitReqDto>
+     </lib:DebitRollbackUnit>
+  </soapenv:Body>
+</soapenv:Envelope>";
+
+
+
+            return xmlSoap.Replace("'", "\"");
+        }
+
+
+
+        //
+        // Create Responce
+        //
+
+
 
         public async Task<QryUserBasicBalRsp> ToQryUserBasicRsp(string xmlSoapResponse)
         {
@@ -140,94 +242,7 @@ namespace GecolPro.DCBSystem
 
 
 
-        public string CreateXmlQryUserBal(QryUserBasicBalSoap qryUserBasicBalSoap)
-        {
-            var authHeader = _authHeader;
 
-            var xmlSoap = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:lib='http://libya.customization.ws.bss.zsmart.ztesoft.com'>
-   <soapenv:Header>
-      <lib:AuthHeader>
-         <lib:Username>{authHeader.Username}</lib:Username>
-         <lib:Password>{authHeader.Password}</lib:Password>
-      </lib:AuthHeader>
-   </soapenv:Header>
-   <soapenv:Body>
-      <lib:QryUserBasicBal>
-         <lib:QryUserBasicBalReqDto>
-            <lib:MSISDN>{qryUserBasicBalSoap.MSISDN}</lib:MSISDN>
-         </lib:QryUserBasicBalReqDto>
-      </lib:QryUserBasicBal>
-   </soapenv:Body>
-</soapenv:Envelope>
-";
-
-            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
-
-        }
-
-        public string CreateXmlDirectDebitUnit(DirectDebitUnitReqSoap directDebitUnitReqSoap)
-        {
-            var authHeader = new AuthHeader();
-
-            var xmlSoap = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:lib='http://libya.customization.ws.bss.zsmart.ztesoft.com'>
-<soapenv:Header>
-     <lib:AuthHeader>
-        <lib:Username>{authHeader.Username}</lib:Username>
-        <lib:Password>{authHeader.Password}</lib:Password>
-     </lib:AuthHeader>
-  </soapenv:Header>
-<soapenv:Body>
-     <lib:DirectDebitUnit>
-        <lib:DirectDebitUnitReqDto>
-           <lib:ConversationID>{directDebitUnitReqSoap.ConversationID}</lib:ConversationID>
-           <lib:TransactionID>{directDebitUnitReqSoap.TransactionID} </lib:TransactionID>
-           <lib:ServiceName>{directDebitUnitReqSoap.ServiceName}</lib:ServiceName>
-           <lib:ProviderName>{directDebitUnitReqSoap.ProviderName}</lib:ProviderName>
-           <lib:OriginatingAddress>{directDebitUnitReqSoap.OriginatingAddress}</lib:OriginatingAddress>
-           <lib:DestinationAddress>{directDebitUnitReqSoap.DestinationAddress}</lib:DestinationAddress>
-           <lib:ChargingAddress>{directDebitUnitReqSoap.ChargingAddress}</lib:ChargingAddress>
-           <lib:Amount>{directDebitUnitReqSoap.Amount}</lib:Amount>
-        </lib:DirectDebitUnitReqDto>
-     </lib:DirectDebitUnit>
-  </soapenv:Body>
-</soapenv:Envelope>";
-
-
-
-            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
-        }
-
-        public string CreateXmlDebitRollback(DebitRollbackReqSoap debitRollbackReqSoap)
-        {
-            var authHeader = new AuthHeader();
-
-            var xmlSoap = $@"<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:lib='http://libya.customization.ws.bss.zsmart.ztesoft.com'>
-<soapenv:Header>
-     <lib:AuthHeader>
-        <lib:Username>{authHeader.Username}</lib:Username>
-        <lib:Password>{authHeader.Password}</lib:Password>
-     </lib:AuthHeader>
-  </soapenv:Header>
-<soapenv:Body>
-     <lib:DebitRollbackUnit>
-        <lib:DebitRollbackUnitReqDto>
-           <lib:ConversationID>{debitRollbackReqSoap.ConversationID}</lib:ConversationID>
-           <lib:TransactionID>{debitRollbackReqSoap.TransactionID}</lib:TransactionID>
-           <lib:ServiceName>{debitRollbackReqSoap.ServiceName}</lib:ServiceName>
-           <lib:ProviderName>{debitRollbackReqSoap.ProviderName}</lib:ProviderName>
-           <lib:OriginatingAddress>{debitRollbackReqSoap.OriginatingAddress}</lib:OriginatingAddress>
-           <lib:DestinationAddress>{debitRollbackReqSoap.DestinationAddress}</lib:DestinationAddress>
-           <lib:ChargingAddress>{debitRollbackReqSoap.ChargingAddress}</lib:ChargingAddress>
-           <lib:Amount>{debitRollbackReqSoap.Amount}</lib:Amount>
-        </lib:DebitRollbackUnitReqDto>
-     </lib:DebitRollbackUnit>
-  </soapenv:Body>
-</soapenv:Envelope>";
-
-
-
-            return xmlSoap.Replace("'", "\"");
-        }
 
 
     }

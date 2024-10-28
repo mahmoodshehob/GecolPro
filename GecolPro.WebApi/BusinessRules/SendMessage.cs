@@ -1,7 +1,9 @@
 ﻿using GecolPro.Models.Models;
+using GecolPro.Models.SMPP;
 using GecolPro.Services.IServices;
 using GecolPro.WebApi.Interfaces;
 using Newtonsoft.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GecolPro.WebApi.BusinessRules
 {
@@ -9,17 +11,26 @@ namespace GecolPro.WebApi.BusinessRules
 
     {
         private ILoggers _loggerG;
+        private readonly SmppInfo _smppInfo;
 
         /* Send SMS API to SMPP Client  :*/
 
 
-        public SendMessage(ILoggers loggerG)
+        public SendMessage(IConfiguration _config,ILoggers loggerG)
         {
             _loggerG = loggerG;
+            _smppInfo = new SmppInfo()
+            {
+                Sender  =    _config.GetValue<string>("SmmpInfo:Sender"),
+                Url     =    _config.GetValue<string>("SmmpInfo:url"),
+                Profile =   _config.GetValue<string>("SmmpInfo:Profile")
 
+            };
+            if (_smppInfo.Profile == "" || string.IsNullOrEmpty(_smppInfo.Profile))
+                _smppInfo.Profile = null;
         }
 
-        public  async Task SendGecolMessage(string? sender, string receiver, string message, string ConversationID)
+        public  async Task SendGecolMessage(string receiver, string message, string ConversationID)
         {
             try
             {
@@ -27,13 +38,14 @@ namespace GecolPro.WebApi.BusinessRules
                 if (!string.IsNullOrEmpty(message))
                 {
                     var client = new HttpClient();
-                    var request = new HttpRequestMessage(HttpMethod.Post, "http://172.16.31.17:8086/api/Messages");
+                    var request = new HttpRequestMessage(HttpMethod.Post, _smppInfo.Url);
 
                     SmsMessage jsonObject = new SmsMessage()
                     {
-                        Sender = "2188997772",
+                        Sender = _smppInfo.Sender,
                         Receiver = receiver,
-                        Message = message
+                        Message = message,
+                        Profile = _smppInfo.Profile
                     };
 
 

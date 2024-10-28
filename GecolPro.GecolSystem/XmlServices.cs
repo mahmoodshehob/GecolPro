@@ -59,6 +59,130 @@ namespace GecolPro.GecolSystem
             return stringBuilder.ToString();
         }
 
+
+
+
+        // Request
+
+        public string CreateXmlLoginRequest()
+        {
+
+            CommonParameters login = new()
+            {
+                Username = _authCred.Username, 
+                Password = _authCred.Password,
+                Url = _authCred.Url,
+                EANDeviceID = _authCred.EANDeviceID,
+                GenericDeviceID = _authCred.GenericDeviceID,
+
+            };
+
+
+
+
+            var xmlSoap = $@"<s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/'>
+<s:Body xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+<loginReq xmlns='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema'>
+<clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='{login.EANDeviceID}' />
+<terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='{login.GenericDeviceID}'/>
+<msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='{login.DateTimeReq}' uniqueNumber='{login.UniqueNumber}'/>
+<authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
+<opName>{login.Username}</opName>
+<password>{login.Password}</password>
+</authCred>
+</loginReq>
+</s:Body>
+</s:Envelope>";
+
+
+            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
+        }
+
+        public string CreateXmlCustomerRequest(string meterNumber)
+        {
+            var confirmCusReq = new ConfirmCustomerReq
+            {
+                Username= _authCred.Username, 
+                Password= _authCred.Password,
+                EANDeviceID= _authCred.EANDeviceID,
+                GenericDeviceID= _authCred.GenericDeviceID,
+                MeterNumber = meterNumber
+            };
+
+            var xmlSoap = $@"
+    <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>
+        <soapenv:Body>
+            <ns2:confirmCustomerReq xmlns:ns2='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='ns2:ConfirmCustomerReq'>
+            <clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='{confirmCusReq.EANDeviceID}'/>
+            <terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='{confirmCusReq.GenericDeviceID}'/>
+            <msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='{confirmCusReq.DateTimeReq}' uniqueNumber='{confirmCusReq.UniqueNumber}'/>
+            <authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
+                <opName>{confirmCusReq.Username}</opName>
+                <password>{confirmCusReq.Password}</password>
+                <newPassword/>
+            </authCred>
+            <ns2:idMethod xmlns:ns1='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='ns1:VendIDMethod'>
+            <ns1:meterIdentifier xsi:type='ns1:MeterNumber' msno='{confirmCusReq.MeterNumber}'/>
+            </ns2:idMethod>
+            </ns2:confirmCustomerReq>
+        </soapenv:Body>
+    </soapenv:Envelope>";
+
+            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
+        }
+
+        public string CreateXmlCreditVendRequest(string meterNumber, string uniqueNumber, int purchaseValue)
+        {
+            CreditVendReq creditVendReq = new()
+            {
+                Username = _authCred.Username,
+                Password = _authCred.Password,
+                EANDeviceID = _authCred.EANDeviceID,
+                GenericDeviceID = _authCred.GenericDeviceID,
+
+                UniqueNumber = uniqueNumber,
+                MeterNumber = meterNumber,
+                PurchaseValue = purchaseValue
+            };
+
+            var xmlSoap = $@"
+            <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>
+            <soapenv:Body>
+            <ns2:creditVendReq xmlns:ns2='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='ns2:CreditVendReq'>
+            <clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='{creditVendReq.EANDeviceID}'>
+            </clientID>
+            <terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='{creditVendReq.GenericDeviceID}'>
+            </terminalID>
+            <msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='{creditVendReq.DateTimeReq}' uniqueNumber='{creditVendReq.UniqueNumber}'>
+            </msgID>
+            <authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
+            <opName>{creditVendReq.Username}</opName>
+            <password>{creditVendReq.Password}</password>
+            </authCred>
+            <resource xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='Electricity'>
+            </resource>
+            <idMethod xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='VendIDMethod'>
+            <meterIdentifier xsi:type='MeterNumber' msno='{creditVendReq.MeterNumber}'></meterIdentifier>
+            </idMethod>
+            <ns2:purchaseValue xsi:type='ns2:PurchaseValueCurrency'>
+            <ns2:amt value='{creditVendReq.PurchaseValue}' symbol='LYD'></ns2:amt>
+            </ns2:purchaseValue>
+            </ns2:creditVendReq>
+            </soapenv:Body>
+            </soapenv:Envelope>";
+
+
+
+
+
+
+            string checkbody = OrganizeXmlString(xmlSoap.Replace("'", "\""));
+
+            return xmlSoap.Replace("'", "\"");
+        }
+
+        // Responce
+
         public async Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse)
         {
             LoginRspXml.LoginRsp loginRsp = new();
@@ -77,7 +201,41 @@ namespace GecolPro.GecolSystem
 
             return loginRsp;
         }
-        
+
+        public async Task<ConfirmCustomerRespBody> ToCreateXmlCustomerCRsp(string xmlSoapResponse) => await Task.Run(() =>
+        {
+            // Parse the XML using XDocument
+            XDocument xdoc = XDocument.Parse(xmlSoapResponse);
+
+            // Query the XML document
+
+            var confirmCustResult = xdoc.Descendants(ns3 + "meterDetail").FirstOrDefault();
+
+            // Meter Detail
+
+            string meterDetail_krn = confirmCustResult.Attribute("krn")?.Value;
+            string meterDetail_msno = confirmCustResult.Attribute("msno")?.Value;
+            string meterDetail_sgc = confirmCustResult.Attribute("sgc")?.Value;
+            string meterDetail_ti = confirmCustResult.Attribute("ti")?.Value;
+
+            // Meter Type
+
+            string meterType_At = confirmCustResult.Element(ns2 + "meterType")?.Attribute("at")?.Value;
+            string meterType_Tt = confirmCustResult.Element(ns2 + "meterType")?.Attribute("tt")?.Value;
+
+            ConfirmCustomerRespBody confirmCustomerResp = new()
+            {
+                CustomerNumber = meterDetail_msno,
+                AT = meterType_At,
+                TT = meterType_Tt,
+            };
+
+
+
+            return confirmCustomerResp;
+
+        }).ConfigureAwait(false);
+
         public async Task<CreditVendRespBody.CreditVendResp> ToCreditVendCRsp(string xmlSoapResponse) => await Task.Run(() =>
         {
             // Parse the XML using XDocument
@@ -105,6 +263,9 @@ namespace GecolPro.GecolSystem
             creditVendResp.DispHeader = xdoc.Descendants(ns2 + "dispHeader").FirstOrDefault()?.Value;
 
             creditVendResp.ClientStatus = xdoc.Descendants(ns2 + "availCredit").FirstOrDefault()?.Attribute("value")?.Value;
+
+            creditVendResp.CustVendAccNo = xdoc.Descendants(ns2 + "custVendDetail").FirstOrDefault()?.Attribute("accNo")?.Value;
+
 
             creditVendResp.CreditVendReceipt = xdoc.Descendants(ns3 + "creditVendReceipt").FirstOrDefault()?.Attribute("receiptNo")?.Value;
 
@@ -244,7 +405,6 @@ namespace GecolPro.GecolSystem
 
         }).ConfigureAwait(false);
 
-
         public async Task<FaultModel.xmlvendFaultRespFault> ToFaultRsp(string xmlSoapResponse)
         {
 
@@ -283,129 +443,14 @@ namespace GecolPro.GecolSystem
                 };
             }
         }
-
-
-
-        
-
-        public string CreateXmlLoginRequest()
-        {
-
-            CommonParameters login = new()
-            {
-                Username = _authCred.Username, 
-                Password = _authCred.Password,
-                Url = _authCred.Url,
-                EANDeviceID = _authCred.EANDeviceID,
-                GenericDeviceID = _authCred.GenericDeviceID,
-
-            };
-
-
-
-
-            var xmlSoap = $@"<s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/'>
-<s:Body xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
-<loginReq xmlns='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema'>
-<clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='{login.EANDeviceID}' />
-<terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='{login.GenericDeviceID}'/>
-<msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='{login.DateTimeReq}' uniqueNumber='{login.UniqueNumber}'/>
-<authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
-<opName>{login.Username}</opName>
-<password>{login.Password}</password>
-</authCred>
-</loginReq>
-</s:Body>
-</s:Envelope>";
-
-
-            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
-        }
-
-        public string CreateXmlCustomerRequest(string meterNumber)
-        {
-            var confirmCusReq = new ConfirmCustomerReq
-            {
-                MeterNumber = meterNumber
-            };
-
-            var xmlSoap = $@"
-    <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>
-        <soapenv:Body>
-            <ns2:confirmCustomerReq xmlns:ns2='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='ns2:ConfirmCustomerReq'>
-            <clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='{confirmCusReq.EANDeviceID}'/>
-            <terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='{confirmCusReq.GenericDeviceID}'/>
-            <msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='{confirmCusReq.DateTimeReq}' uniqueNumber='{confirmCusReq.UniqueNumber}'/>
-            <authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
-                <opName>{confirmCusReq.Username}</opName>
-                <password>{confirmCusReq.Password}</password>
-                <newPassword/>
-            </authCred>
-            <ns2:idMethod xmlns:ns1='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='ns1:VendIDMethod'>
-            <ns1:meterIdentifier xsi:type='ns1:MeterNumber' msno='{confirmCusReq.MeterNumber}'/>
-            </ns2:idMethod>
-            </ns2:confirmCustomerReq>
-        </soapenv:Body>
-    </soapenv:Envelope>";
-
-            return OrganizeXmlString(xmlSoap.Replace("'", "\""));
-        }
-
-        public string CreateXmlCreditVendRequest(string meterNumber, string uniqueNumber, int purchaseValue)
-        {
-            CreditVendReq creditVendReq = new()
-            {
-                UniqueNumber = uniqueNumber,
-                MeterNumber = meterNumber,
-                PurchaseValue = purchaseValue
-            };
-
-            var xmlSoap = $@"
-            <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>
-            <soapenv:Body>
-            <ns2:creditVendReq xmlns:ns2='http://www.nrs.eskom.co.za/xmlvend/revenue/2.1/schema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='ns2:CreditVendReq'>
-            <clientID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='EANDeviceID' ean='{creditVendReq.EANDeviceID}'>
-            </clientID>
-            <terminalID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='GenericDeviceID' id='{creditVendReq.GenericDeviceID}'>
-            </terminalID>
-            <msgID xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' dateTime='{creditVendReq.DateTimeReq}' uniqueNumber='{creditVendReq.UniqueNumber}'>
-            </msgID>
-            <authCred xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema'>
-            <opName>{creditVendReq.Username}</opName>
-            <password>{creditVendReq.Password}</password>
-            </authCred>
-            <resource xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='Electricity'>
-            </resource>
-            <idMethod xmlns='http://www.nrs.eskom.co.za/xmlvend/base/2.1/schema' xsi:type='VendIDMethod'>
-            <meterIdentifier xsi:type='MeterNumber' msno='{creditVendReq.MeterNumber}'></meterIdentifier>
-            </idMethod>
-            <ns2:purchaseValue xsi:type='ns2:PurchaseValueCurrency'>
-            <ns2:amt value='{creditVendReq.PurchaseValue}' symbol='LYD'></ns2:amt>
-            </ns2:purchaseValue>
-            </ns2:creditVendReq>
-            </soapenv:Body>
-            </soapenv:Envelope>";
-
-
-
-
-
-
-            string checkbody = OrganizeXmlString(xmlSoap.Replace("'", "\""));
-
-            return xmlSoap.Replace("'", "\"");
-        }
-
-
-
     }
-
 
     public interface IGecolCreateResponse
     {
+        Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse);
+        Task<ConfirmCustomerRespBody> ToCreateXmlCustomerCRsp(string xmlSoapResponse);
         Task<CreditVendRespBody.CreditVendResp?> ToCreditVendCRsp(string xmlSoapResponse);
         Task<FaultModel.xmlvendFaultRespFault> ToFaultRsp(string xmlSoapResponse);
-        Task<LoginRspXml.LoginRsp> ToLoginRsp(string xmlSoapResponse);
     }
 
     public interface IGecolCreateXml
