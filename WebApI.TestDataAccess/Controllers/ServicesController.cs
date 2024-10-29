@@ -71,7 +71,7 @@ namespace WebApI.TestDataAccess.Controllers
 
 
 
-        [HttpGet("CreateNewIssueToken/{conversationId}, {msisdn}, {dateTimeReq}, {uniqueNumber}, {meterNumber}, {amount}")]
+        [HttpGet("CreateNewIssueToken/{conversationId}/{msisdn}/{dateTimeReq}/{uniqueNumber}/{meterNumber}/{amount}")]
         public async Task<IActionResult> CreateNewIssueToken(string? conversationId, string? msisdn, string? dateTimeReq, string? uniqueNumber, string? meterNumber, int amount)
         {
             var result = await _issueTokenServices.CreateNew(conversationId, msisdn, dateTimeReq, uniqueNumber, meterNumber, amount);

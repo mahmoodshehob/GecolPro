@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClassLibrary.DataAccess.Services
 {
-    internal class IssueTokenServices : IIssueTokenServices
+    public class IssueTokenServices : IIssueTokenServices
     {
 
         private readonly AppDbContext _context;
@@ -16,8 +16,18 @@ namespace ClassLibrary.DataAccess.Services
 
         private async Task<bool> AddIssueToken(IssueTkn token  )
         {
-            _context.IssueTkns?.Add(token);
-            return await _context.SaveChangesAsync() > 0;
+            try
+            {
+                _context.IssueTkns?.Add(token);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+
+                return false;
+            }
+
+            
         }
 
         public async Task<ServiceResult> CreateNew(string? conversationId, string? msisdn, string? dateTimeReq, string? uniqueNumber, string? meterNumber, int amount)
@@ -49,6 +59,12 @@ namespace ClassLibrary.DataAccess.Services
                     return new ServiceResult(false, "The MeterNumber must be a 12-digit.");
                 }
 
+
+                if (amount < 3)
+                {
+                    return new ServiceResult(false, "The Amount must be at least 3.");
+                }
+
                 var newToken = new IssueTkn
                 {
                     ConversationID = conversationId  ,
@@ -57,6 +73,7 @@ namespace ClassLibrary.DataAccess.Services
                     Amount = amount,
                     UniqueNumber = uniqueNumber,
                     MeterNumber = meterNumber,
+
                 };
                 var result = await AddIssueToken(newToken);
 
