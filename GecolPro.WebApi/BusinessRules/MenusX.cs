@@ -199,7 +199,7 @@ namespace GecolPro.WebApi.BusinessRules
                             break;
 
                         case "VD.01010014":
-                            msgContent.UssdCont = string.Format("This meter removed");
+                            msgContent.UssdCont = string.Format("The meter removed");
                             break;
                         
                         
@@ -214,12 +214,12 @@ namespace GecolPro.WebApi.BusinessRules
 
 
                         case "VD.01010018":
-                            msgContent.UssdCont = string.Format("Customer does not exist or unbound meter.");
+                            msgContent.UssdCont = string.Format("Please check Tax center to finish Tariff data.");
                             break;
 
 
                         case "VD.01010019":
-                            msgContent.UssdCont = string.Format("Metering point does not exist.");
+                            msgContent.UssdCont = string.Format("the meter installation not finished yet.");
                             break;
 
                         case "timeout":
@@ -241,17 +241,9 @@ namespace GecolPro.WebApi.BusinessRules
 
 
                         case "10000":
-                            msgContent.UssdCont = string.Format("The meter has no tariff.");
+                            msgContent.UssdCont = string.Format("The meter has no tariff,Please check the Tax centers.");
                             break;
 
-
-                        case "VD.xxxx1":
-                            msgContent.UssdCont = string.Format("The service under maintenance.");
-                            break;
-
-                        case "VD.xxxx2":
-                            msgContent.UssdCont = string.Format("The service under maintenance.");
-                            break;
                         default:
 
                             msgContent.UssdCont = string.Format("The service under maintenance.");
@@ -280,12 +272,12 @@ namespace GecolPro.WebApi.BusinessRules
                             break;
 
                         case "VD.01010017":
-                            msgContent.UssdCont = string.Format("رقم العداد غير موجود او غير مفعل.");
+                            msgContent.UssdCont = string.Format("ارجو استكمال بيانات التعرفة الخاصة بالعداد.");
 
                             break;
 
                         case "VD.01010018":
-                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح او غير موجود.");
+                            msgContent.UssdCont = string.Format("ارجو استكمال بيانات التعرفة الخاصة بالعداد.");
 
                             break;
 
@@ -300,7 +292,7 @@ namespace GecolPro.WebApi.BusinessRules
                             break;
 
                         case "VD.01010008":
-                            msgContent.UssdCont = string.Format("هذا العداد فوتر ,ل ايمكن شحنة ارجو متابعة مركز الجباية.");
+                            msgContent.UssdCont = string.Format("هذا العداد فوتر لا يمكن شحنه,ارجو متابعة مركز الجباية.");
                             break;
 
                         case "VD.13020116":
@@ -314,16 +306,7 @@ namespace GecolPro.WebApi.BusinessRules
 
 
                         case "10000":
-                            msgContent.UssdCont = string.Format("العداد ليس لديه تعريفة.");
-                            break;
-
-
-                        case "VD.xxxx1":
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة.");
-                            break;
-
-                        case "VD.xxxx2":
-                            msgContent.UssdCont = string.Format("الخدمة تحت الصيانة.");
+                            msgContent.UssdCont = string.Format("العداد ليس لديه تعريفة ,ارجو متابعة مركز الجباية.");
                             break;
 
                         default:

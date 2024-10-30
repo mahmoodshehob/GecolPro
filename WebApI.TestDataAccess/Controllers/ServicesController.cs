@@ -32,7 +32,15 @@ namespace WebApI.TestDataAccess.Controllers
         public async Task<IActionResult> CreateNew(string meterNumber, string at, string tt)
         {
             var result = await _meterService.CreateNew(meterNumber,at,tt);
-            return Ok(result);
+
+            if (result.Status)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(result);
+            }
         }
 
 
