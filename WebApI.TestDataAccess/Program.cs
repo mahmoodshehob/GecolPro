@@ -16,6 +16,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IMeterService, MeterService>();
 builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IIssueTokenServices, IssueTokenServices>();
 
 
 builder.Services.AddSwaggerGen(c =>

@@ -11,11 +11,13 @@ namespace WebApI.TestDataAccess.Controllers
 
         private readonly IMeterService _meterService;
         private readonly IRequestService _requestService;
+        private readonly IIssueTokenServices _issueTokenServices;
 
-        public ServicesController(IMeterService meterService, IRequestService requestService)
+        public ServicesController(IMeterService meterService, IRequestService requestService, IIssueTokenServices issueTokenServices)
         {
             _meterService = meterService;
             _requestService = requestService;
+            _issueTokenServices = issueTokenServices;
         }
 
         [HttpGet("IsMeterExist/{meterNumber}")]
@@ -67,6 +69,22 @@ namespace WebApI.TestDataAccess.Controllers
         }
 
 
+
+
+        [HttpGet("CreateNewIssueToken/{conversationId}/{msisdn}/{dateTimeReq}/{uniqueNumber}/{meterNumber}/{amount}")]
+        public async Task<IActionResult> CreateNewIssueToken(string? conversationId, string? msisdn, string? dateTimeReq, string? uniqueNumber, string? meterNumber, int amount)
+        {
+            var result = await _issueTokenServices.CreateNew(conversationId, msisdn, dateTimeReq, uniqueNumber, meterNumber, amount);
+            return Ok(result);
+        }
+
+
+        [HttpGet("GetAllIssueTokens")]
+        public async Task<IActionResult> GetAllIssueTokens()
+        {
+            var result = await _issueTokenServices.GetAll();
+            return Ok(result);
+        }
 
     }
 }

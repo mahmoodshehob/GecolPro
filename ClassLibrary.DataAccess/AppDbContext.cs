@@ -11,10 +11,9 @@ namespace ClassLibrary.DataAccess
         {
         }
 
-        private const string Schema = "dbo";
-
         public virtual DbSet<Meter>? Meters { get; set; } = null;
         public virtual DbSet<Request>? Requests { get; set; } = null;
+        public virtual DbSet<IssueTkn>? IssueTkns { get; set; } = null;
 
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
