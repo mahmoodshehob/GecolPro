@@ -11,6 +11,7 @@ using GecolPro.DCBSystem;
 using GecolPro.Models.DCB;
 using GecolPro.Models.Gecol;
 using GecolPro.Models.SMPP;
+using GecolPro.Models.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<AuthHeader>(builder.Configuration.GetSection("AuthHeaderOfDCB"));
 builder.Services.Configure<AuthCred>(builder.Configuration.GetSection("AuthHeaderOfGecol"));
 builder.Services.Configure<SmppInfo>(builder.Configuration.GetSection("SmmpInfo"));
+builder.Services.Configure<DbApiConnection>(builder.Configuration.GetSection("DbApiConnection"));
 
 
 builder.Services.AddScoped<IGecolCreateResponse , GecolPro.GecolSystem.XmlServices>();
@@ -48,6 +50,7 @@ builder.Services.AddScoped<IBlackListFun,BlackListFun>();
 builder.Services.AddScoped<IMenusX,MenusX>();
 builder.Services.AddScoped<IUssdProcess, UssdProcess>();
 
+builder.Services.AddScoped<IDatabaseAPIs, DatabaseAPIs>();
 
 
 

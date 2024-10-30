@@ -1,5 +1,5 @@
-﻿using GecolPro.Models.Models;
-using GecolPro.Models.SMPP;
+﻿using GecolPro.Models.SMPP;
+using GecolPro.Models.Models;
 using GecolPro.Services.IServices;
 using GecolPro.WebApi.Interfaces;
 using Newtonsoft.Json;

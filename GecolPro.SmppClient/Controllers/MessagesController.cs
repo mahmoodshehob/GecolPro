@@ -87,20 +87,20 @@ namespace GecolPro.SmppClient.Controllers
 
         [HttpPost]
         [Route("api/[controller]/DLR")]
-        public async Task<IActionResult> DLR(dynamic arg)
+        public async Task<IActionResult> DLR([FromQuery] string id, [FromQuery] string status, [FromQuery] string timestamp, [FromQuery] string destination)
         {
             try
             {
-                await _loggers.LogInfoAsync($"DLR|status:{arg}");
+                // Log the received delivery report
+                await _loggers.LogInfoAsync($"DLR|ID:{id}, Status:{status}, Timestamp:{timestamp}, Destination:{destination}");
 
-
+                return Ok(); // Respond with a success message
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in MessagesController: {ex.Message}");
+                await _loggers.LogErrorAsync($"Error in MessagesController: {ex.Message}");
+                return StatusCode(500, "Internal server error.");
             }
-            return Ok();
-
         }
     }
 }

@@ -218,12 +218,16 @@ namespace GecolPro.GecolSystem
                 }
                 else
                 {
+                    FaultModel.xmlvendFaultRespFault failuerRsp = await _createResponse.ToFaultRsp(soapRsp.Response);
+
                     FailureResponse failureResponse = new FailureResponse()
                     {
-                        Failure = "",
-                        StatusCode = "Excp99",
+
+                        Failure = failuerRsp.Desc,
+                        StatusCode = failuerRsp.FaultCode,
                         IsSuccessStatusCode = false
                     };
+
 
                     return Result<SuccessResponseLogin, FailureResponse>.FailureResult(failureResponse);
                 }
@@ -290,12 +294,16 @@ namespace GecolPro.GecolSystem
                 }
                 else
                 {
+                    FaultModel.xmlvendFaultRespFault failuerRsp = await _createResponse.ToFaultRsp(soapRsp.Response);
+
                     FailureResponse failureResponse = new FailureResponse()
                     {
-                        Failure = "",
-                        StatusCode = "Excp99",
+
+                        Failure = failuerRsp.Desc,
+                        StatusCode = failuerRsp.FaultCode,
                         IsSuccessStatusCode = false
                     };
+
 
                     return Result<SuccessResponseConfirmCustomer, FailureResponse>.FailureResult(failureResponse);
                 }
@@ -363,10 +371,14 @@ namespace GecolPro.GecolSystem
                 }
                 else
                 {
+
+                    FaultModel.xmlvendFaultRespFault failuerRsp =await _createResponse.ToFaultRsp(soapRsp.Response);
+
                     FailureResponse failureResponse = new FailureResponse()
                     {
-                        Failure = "",
-                        StatusCode = "Excp99",
+
+                        Failure = failuerRsp.Desc,
+                        StatusCode = failuerRsp.FaultCode,
                         IsSuccessStatusCode = false
                     };
 

@@ -10,13 +10,4 @@ namespace GecolPro.WebApi.Interfaces
         public Task<bool> CheckDcbExist();
 
     }
-
-
-    public interface IUssdProcessx
-    {
-        //public Task<MultiResponseUSSD> ServiceProcessingx(MultiRequest multiRequest, string Lang);
-        public Task<bool> CheckServiceExistx();
-        //public Task<bool> CheckDcbExistx();
-
-    }
 }

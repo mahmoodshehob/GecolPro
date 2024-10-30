@@ -260,7 +260,7 @@ namespace GecolPro.GecolSystem
 
             creditVendResp.RespDateTime = xdoc.Descendants(ns2 + "respDateTime").FirstOrDefault()?.Value;
 
-            creditVendResp.DispHeader = xdoc.Descendants(ns2 + "dispHeader").FirstOrDefault()?.Value;
+            creditVendResp.DispHeader = xdoc.Descendants(ns2 + "dispHeader").FirstOrDefault()?.Value.Split('|')[0];
 
             creditVendResp.ClientStatus = xdoc.Descendants(ns2 + "availCredit").FirstOrDefault()?.Attribute("value")?.Value;
 

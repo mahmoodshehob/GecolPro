@@ -16,16 +16,16 @@ namespace GecolPro.SmppClient.Services
 
 
         private readonly ConnectionFactory _factory;
-        private readonly HttpClient _client;
-        private readonly string _queueName;
 
+        private readonly HttpClient _client;
+
+        private readonly string _queueName;
 
         private Loggers _loggers = new Loggers();
 
         private readonly KannelModel _kannelModel;
+
         private readonly RabbitMsgQ rabbitMQ;
-
-
 
         public MessageWorker(IConfiguration config )
         {
@@ -55,8 +55,6 @@ namespace GecolPro.SmppClient.Services
             _client = new HttpClient();
         }
 
- 
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
 
@@ -79,7 +77,7 @@ namespace GecolPro.SmppClient.Services
 
 
 
-                        var url = $"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to={message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&dlr-mask=31&dlr-url=http://{_kannelModel.HostName}:8089/dlr?status=%d&msgid=%k";
+                        var url = $"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&dlr-mask=31&dlr-url=http://{_kannelModel.HostName}:8089/dlr?status=%d&msgid=%k";
                         try
                         {
                             var response = await _client.GetAsync(url);
@@ -125,8 +123,6 @@ namespace GecolPro.SmppClient.Services
 
         }
 
-
-
         protected async Task CheckAsync(CancellationToken stoppingToken)
         {
             using (var connection = _factory.CreateConnection())
@@ -146,7 +142,7 @@ namespace GecolPro.SmppClient.Services
 
         }
 
-        private void Error ()
+        private void Error()
         {
             try
             {

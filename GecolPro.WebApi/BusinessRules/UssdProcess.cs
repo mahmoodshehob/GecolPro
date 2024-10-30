@@ -35,6 +35,8 @@ namespace GecolPro.WebApi.BusinessRules
         private IGecolServices? _gecolServices;
         private IMenusX? _menus;
         private ISendMessage? _sendMessage;
+        private IDatabaseAPIs? _dbContects;
+
 
 
         private MsgContent msgContentResult = new MsgContent();
@@ -58,13 +60,15 @@ namespace GecolPro.WebApi.BusinessRules
             ILoggers        loggerG,
             IMenusX          menus,
             ISendMessage    sendMessage,
-            IConfiguration _config)
+            IConfiguration _config,
+            IDatabaseAPIs dbContects)
         {
             _dcbServices = dcbServices;
             _gecolServices = gecolServices;
             _loggerG = loggerG;
             _menus = menus;
             _sendMessage = sendMessage;
+            _dbContects = dbContects;
             _authHeader = new AuthHeader()
             {
                 Username = _config.GetValue<string>("AuthHeaderOfDCB:username"),
@@ -86,6 +90,10 @@ namespace GecolPro.WebApi.BusinessRules
             public const string True = "True";
             public const string False = "False";  
         }
+
+
+
+
 
         /*Chech if Msisdn Blocked or Not :
          */
@@ -142,17 +150,28 @@ namespace GecolPro.WebApi.BusinessRules
         {
             try
             {
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolCheck|{conversationId}|Check Service Connectivity");
+                string convID;
+
+                if (string.IsNullOrWhiteSpace(conversationId))
+                {
+                    convID = "ChkLog";
+                }
+                else 
+                {
+                    convID = conversationId;
+                }
+
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolCheck|{convID}|Check Service Connectivity");
 
                 var loginOp = await _gecolServices.LoginReqOpx();
 
                 if (loginOp.IsSuccess)
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{conversationId}|Service Connected");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Connected");
                     return true;
                 }
 
-                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{conversationId}|Service Not Connected");
+                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Not Connected");
                 return false;
 
 
@@ -169,38 +188,6 @@ namespace GecolPro.WebApi.BusinessRules
 
 
 
-
-        //        /*Chech if Gecol System Reachable or Not :
-
-        //*/
-
-        //        public async Task<bool> CheckDcbExist()
-        //        {
-        //            try
-        //            {
-        //                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DcbCheck|{conversationId}|Check Service Connectivity");
-
-        //                DcbSystemResponse loginOp = await _dcbServices.QryUserBasicBalOp("218947776156");
-
-        //                if (loginOp.IsSuccessStatusCode)
-        //                {
-        //                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Connected");
-        //                    return true;
-        //                }
-
-        //                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Not Connected");
-        //                return false;
-
-
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                await ExceptionLogs(ex);
-        //                return false;
-        //            }
-
-
-        //        }
 
         /*Chech if Gecol System Reachable or Not :
 
@@ -241,6 +228,8 @@ namespace GecolPro.WebApi.BusinessRules
 
 
 
+
+
         /* API to check if Tirmenated Meter in Gecol Avaiable or not also check if Meter Working :
         //
         // Chech if Meter Exist or not :
@@ -255,41 +244,46 @@ namespace GecolPro.WebApi.BusinessRules
 
         private async Task<bool> CheckMeterExist(string MeterNumber)
         {
+            string meterNumber = subProService.MeterNumber;
+
             try
             {
+                // Check Meter in DB
 
-                string meterNumber = subProService.MeterNumber;
-
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{meterNumber}");
-
-                // Query in DB
-                // Uncomment and implement DB query logic here
-                // if (condition)
-                // {
-                // }
-                // else if (otherCondition)
-                // {
-                // }
-
-                var gecolSystem = await _gecolServices.ConfirmCustomerOpx(MeterNumber);
-
-                if (gecolSystem.IsSuccess)
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DB|{conversationId}|Check The Meter|{MeterNumber}");
+                if (await _dbContects.IsMeterExist(MeterNumber))
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{meterNumber}");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Req_DB|{conversationId}|The Meter Connected|{MeterNumber}");
                     return true;
                 }
+                else
+                {
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DB|{conversationId}|The Meter Connected|{MeterNumber}");
+                }
 
-                await _loggerG.LogInfoAsync($"{logPrefix}<==|Rsp_GecolMeter|{conversationId}|The Meter Number Not Exist or has Issue|{meterNumber}");
-                return false;
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{MeterNumber}");
+
+
+                // Check Meter in Gecol
+
+                var CheckGecolMeter = await _gecolServices.ConfirmCustomerOpx(MeterNumber);
+
+                if (CheckGecolMeter.IsSuccess)
+                {
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{MeterNumber}");
+                    return true;
+                }
+                else
+                {
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolMeter|{conversationId}|The Meter Issued|{MeterNumber}|ErrorCode|{CheckGecolMeter.Failure.StatusCode}|Error Desc:|{CheckGecolMeter.Failure.Failure}");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
                 await ExceptionLogs(ex);
                 return false;
             }
-
-
-
         }
 
 
@@ -321,11 +315,11 @@ namespace GecolPro.WebApi.BusinessRules
 
                 if (subProServiceResp.IsSuccess)
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.Success.IsSuccessStatusCode}|{subProServiceResp.Success.Response}");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.Success.IsSuccessStatusCode}|TransactionID|{subProServiceResp.Success.Response.TransactionID}|Amount|{subProServiceResp.Success.Response.Amount}");
                 }
                 else
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.Failure.IsSuccessStatusCode}|{subProServiceResp.Failure.Failure}");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.Failure.IsSuccessStatusCode}|ErrorCode:{subProServiceResp.Failure.StatusCode}|ErrorDesc:{subProServiceResp.Failure.Failure}");
                 }
 
 
@@ -452,15 +446,7 @@ namespace GecolPro.WebApi.BusinessRules
                 if (subProServiceResp.IsSuccess)
                 {
                     await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccess}|{uniqeNumber}|token|{subProServiceResp.Success.Response.CreditVendTx.STS1Token}");
-                }
-                else 
-                {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccess}|{subProServiceResp.Failure.StatusCode}|{uniqeNumber}|error|{subProServiceResp.Failure.Failure}");
-                }
 
-
-                if (subProServiceResp.IsSuccess)
-                {
                     /*here ConncetionString to saveing in DB in success case : 
                     */
 
@@ -468,6 +454,8 @@ namespace GecolPro.WebApi.BusinessRules
                 }
                 else
                 {
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccess}|uniqeNumber : {uniqeNumber}|ErrorCode:{subProServiceResp.Failure.StatusCode}|ErrorDesc:{subProServiceResp.Failure.Failure}");
+
                     /*here ConncetionString to saveing in DB in Failed case :
                      * */
 
