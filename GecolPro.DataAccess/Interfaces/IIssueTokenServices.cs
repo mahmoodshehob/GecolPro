@@ -1,12 +1,12 @@
-﻿//using GecolPro.Models.DbEntity;
+﻿using GecolPro.Models.DbEntity;
 
-//namespace GecolPro.DataAccess.Interfaces;
+namespace GecolPro.DataAccess.Interfaces;
 
-//public interface IIssueTokenServices
-//{
-//    Task<ServiceResult> CreateNew(string? conversationId, string? msisdn, string? dateTimeReq,string? uniqueNumber,string? meterNumber,int amount);
+public interface IIssueTokenServices
+{
+    Task<ServiceResult> CreateNew(string? conversationId, string? msisdn, string? dateTimeReq, string? uniqueNumber, string? meterNumber, int amount);
 
 
-//    Task<List<IssueTkn>> GetAll();
+    Task<List<IssueTkn>> GetAll();
 
-//}
+}

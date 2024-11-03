@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using GecolPro.Services.IServices;
 
@@ -9,7 +8,7 @@ using GecolPro.Services.IServices;
 using GecolPro.WebApi.BusinessRules;
 using static GecolPro.Models.Models.MultiRequestUSSD;
 using GecolPro.Models.Models;
-using GecolPro.Services;
+using GecolPro.DataAccess.Interfaces;
 using GecolPro.WebApi.Interfaces;
 
 namespace GecolPro.WebApi.Controllers
@@ -26,6 +25,7 @@ namespace GecolPro.WebApi.Controllers
 
 
 
+
         private MultiRequest multiRequestRE = new MultiRequest();
         private readonly string contentType = "text/xml";
         //private ServiceProcess.SendMessage sendMessage = new ServiceProcess.SendMessage();
@@ -36,7 +36,11 @@ namespace GecolPro.WebApi.Controllers
 
 
 
-        public UssdGecolController(IUssdConverter ussdConverter, IResponses responses, ILoggers loggerG, IUssdProcess ussdProcess)
+        public UssdGecolController(
+            IUssdConverter ussdConverter,
+            IResponses responses,
+            ILoggers loggerG,
+            IUssdProcess ussdProcess)
         {
             _ussdConverter = ussdConverter;
             _responses = responses;

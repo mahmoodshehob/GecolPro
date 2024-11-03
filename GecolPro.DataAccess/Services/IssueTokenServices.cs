@@ -1,94 +1,94 @@
-﻿//using GecolPro.DataAccess.Interfaces;
-//using GecolPro.Models.DbEntity;
-//using Microsoft.EntityFrameworkCore;
+﻿using GecolPro.DataAccess.Interfaces;
+using GecolPro.Models.DbEntity;
+using Microsoft.EntityFrameworkCore;
 
-//namespace GecolPro.DataAccess.Services
-//{
-//    public class IssueTokenServices : IIssueTokenServices
-//    {
+namespace GecolPro.DataAccess.Services
+{
+    public class IssueTokenServices : IIssueTokenServices
+    {
 
-//        private readonly AppDbContext _context;
+        private readonly AppDbContext _context;
 
-//        public IssueTokenServices(AppDbContext context)
-//        {
-//            _context = context;
-//        }
+        public IssueTokenServices(AppDbContext context)
+        {
+            _context = context;
+        }
 
-//        private async Task<bool> AddIssueToken(IssueTkn token  )
-//        {
-//            try
-//            {
-//                _context.IssueTkns?.Add(token);
-//                return await _context.SaveChangesAsync() > 0;
-//            }
-//            catch (Exception ex)
-//            {
+        private async Task<bool> AddIssueToken(IssueTkn token)
+        {
+            try
+            {
+                _context.IssueTkns?.Add(token);
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
 
-//                return false;
-//            }
-
-            
-//        }
-
-//        public async Task<ServiceResult> CreateNew(string? conversationId, string? msisdn, string? dateTimeReq, string? uniqueNumber, string? meterNumber, int amount)
-//        {
-//            try
-//            {
-
-//                if (string.IsNullOrEmpty(conversationId))
-//                {
-//                    return new ServiceResult(false, "ConversationId  is Required");
-//                }
-//                if (string.IsNullOrEmpty(msisdn))
-//                {
-//                    return new ServiceResult(false, "MSISDN  is Required");
-//                }
-
-//                if (string.IsNullOrEmpty(dateTimeReq))
-//                {
-//                    return new ServiceResult(false, "DateTimeReq  is Required");
-//                }
-
-//                if (string.IsNullOrEmpty(meterNumber))
-//                {
-//                    return new ServiceResult(false, "Meter Number  is Required");
-//                }
-
-//                if (meterNumber.Length!=12)
-//                {
-//                    return new ServiceResult(false, "The MeterNumber must be a 12-digit.");
-//                }
+                return false;
+            }
 
 
-//                if (amount < 3)
-//                {
-//                    return new ServiceResult(false, "The Amount must be at least 3.");
-//                }
+        }
 
-//                var newToken = new IssueTkn
-//                {
-//                    ConversationID = conversationId  ,
-//                    MSISDN = msisdn,
-//                    DateTimeReq = dateTimeReq,
-//                    Amount = amount,
-//                    UniqueNumber = uniqueNumber,
-//                    MeterNumber = meterNumber,
+        public async Task<ServiceResult> CreateNew(string? conversationId, string? msisdn, string? dateTimeReq, string? uniqueNumber, string? meterNumber, int amount)
+        {
+            try
+            {
 
-//                };
-//                var result = await AddIssueToken(newToken);
+                if (string.IsNullOrEmpty(conversationId))
+                {
+                    return new ServiceResult(false, "ConversationId  is Required");
+                }
+                if (string.IsNullOrEmpty(msisdn))
+                {
+                    return new ServiceResult(false, "MSISDN  is Required");
+                }
 
-//                return new ServiceResult(result, result ? "The saving process was successful." : "Unknown error");
+                if (string.IsNullOrEmpty(dateTimeReq))
+                {
+                    return new ServiceResult(false, "DateTimeReq  is Required");
+                }
 
-//            }
-//            catch (Exception e)
-//            {
-//                return new ServiceResult(false, e.Message);
-//            }
-//        }
+                if (string.IsNullOrEmpty(meterNumber))
+                {
+                    return new ServiceResult(false, "Meter Number  is Required");
+                }
 
-//        public async Task<List<IssueTkn>> GetAll()
-//        {
-//            return await _context.IssueTkns.ToListAsync();
-//        }
-//    }
-//}
+                if (meterNumber.Length != 12)
+                {
+                    return new ServiceResult(false, "The MeterNumber must be a 12-digit.");
+                }
+
+
+                if (amount < 3)
+                {
+                    return new ServiceResult(false, "The Amount must be at least 3.");
+                }
+
+                var newToken = new IssueTkn
+                {
+                    ConversationID = conversationId,
+                    MSISDN = msisdn,
+                    DateTimeReq = dateTimeReq,
+                    Amount = amount,
+                    UniqueNumber = uniqueNumber,
+                    MeterNumber = meterNumber,
+
+                };
+                var result = await AddIssueToken(newToken);
+
+                return new ServiceResult(result, result ? "The saving process was successful." : "Unknown error");
+
+            }
+            catch (Exception e)
+            {
+                return new ServiceResult(false, e.Message);
+            }
+        }
+
+        public async Task<List<IssueTkn>> GetAll()
+        {
+            return await _context.IssueTkns.ToListAsync();
+        }
+    }
+}

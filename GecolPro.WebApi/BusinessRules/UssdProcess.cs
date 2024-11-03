@@ -16,6 +16,9 @@ using GecolPro.DCBSystem;
 using GecolPro.GecolSystem;
 using GecolPro.Services.IServices;
 using GecolPro.WebApi.Interfaces;
+using GecolPro.DataAccess.Interfaces;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using NuGet.Packaging;
 
 
 
@@ -35,7 +38,7 @@ namespace GecolPro.WebApi.BusinessRules
         private IGecolServices? _gecolServices;
         private IMenusX? _menus;
         private ISendMessage? _sendMessage;
-        private IDatabaseAPIs? _dbContects;
+        private readonly IUnitOfWork? _unitOfWork;
 
 
 
@@ -61,14 +64,14 @@ namespace GecolPro.WebApi.BusinessRules
             IMenusX          menus,
             ISendMessage    sendMessage,
             IConfiguration _config,
-            IDatabaseAPIs dbContects)
+            IUnitOfWork? unitOfWork)
         {
             _dcbServices = dcbServices;
             _gecolServices = gecolServices;
             _loggerG = loggerG;
             _menus = menus;
             _sendMessage = sendMessage;
-            _dbContects = dbContects;
+            _unitOfWork = unitOfWork;
             _authHeader = new AuthHeader()
             {
                 Username = _config.GetValue<string>("AuthHeaderOfDCB:username"),
@@ -148,9 +151,11 @@ namespace GecolPro.WebApi.BusinessRules
 
         public async Task<bool> CheckServiceExist()
         {
+            string convID;
+
             try
             {
-                string convID;
+                
 
                 if (string.IsNullOrWhiteSpace(conversationId))
                 {
@@ -178,6 +183,9 @@ namespace GecolPro.WebApi.BusinessRules
             }
             catch (Exception ex)
             {
+                convID=ex.GetType().Name;
+                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Not Connected");
+
                 await ExceptionLogs(ex);
                 return false;
             }
@@ -244,14 +252,14 @@ namespace GecolPro.WebApi.BusinessRules
 
         private async Task<bool> CheckMeterExist(string MeterNumber)
         {
-            string meterNumber = subProService.MeterNumber;
 
             try
             {
                 // Check Meter in DB
 
                 await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DB|{conversationId}|Check The Meter|{MeterNumber}");
-                if (await _dbContects.IsMeterExist(MeterNumber))
+
+                if ((await _unitOfWork.Meter.IsExist(MeterNumber)).Status)
                 {
                     await _loggerG.LogInfoAsync($"{logPrefix}|<==|Req_DB|{conversationId}|The Meter Connected|{MeterNumber}");
                     return true;
@@ -263,14 +271,19 @@ namespace GecolPro.WebApi.BusinessRules
 
                 await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{MeterNumber}");
 
-
                 // Check Meter in Gecol
 
                 var CheckGecolMeter = await _gecolServices.ConfirmCustomerOpx(MeterNumber);
 
                 if (CheckGecolMeter.IsSuccess)
                 {
+                    if ((await _unitOfWork.Meter.CreateNew(MeterNumber, CheckGecolMeter.Success.Response.AT, CheckGecolMeter.Success.Response.TT)).Status)
+                    {
+                        await _loggerG.LogInfoAsync($"{logPrefix}|+++|Add_Meter_ToDB|{conversationId}|The Meter Connected|{MeterNumber}");
+                    }
+
                     await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{MeterNumber}");
+
                     return true;
                 }
                 else
@@ -435,7 +448,7 @@ namespace GecolPro.WebApi.BusinessRules
                 int amount = subProService.Amount;
                 string uniqeNumber = subProService.UniqueNumber;
 
-                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_GecolVnSys|{conversationId}|{subProService.MSISDN}|{subProService.Amount}");
+                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_GecolVnSys|{conversationId}|{subProService.MSISDN}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}");
 
                 var subProServiceResp = await 
                     _gecolServices.CreditVendOpx(
@@ -443,21 +456,59 @@ namespace GecolPro.WebApi.BusinessRules
                         subProService.UniqueNumber,
                         subProService.Amount);
 
+                  
+
+
                 if (subProServiceResp.IsSuccess)
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccess}|{uniqeNumber}|token|{subProServiceResp.Success.Response.CreditVendTx.STS1Token}");
+                    var succResp = subProServiceResp.Success.Response;
+
+
+                    string Tokens;
+                    if (!string.IsNullOrEmpty(succResp.CreditVendTx.Desc_KcToken))
+                    {
+                        Tokens = succResp.CreditVendTx.Set1stMeterKey + "#" + succResp.CreditVendTx.Set2ndMeterKey + "#" + succResp.CreditVendTx.STS1Token;
+                        
+                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|1ST|{succResp.CreditVendTx.Set1stMeterKey}|2ND|{succResp.CreditVendTx.Set2ndMeterKey}|token|{succResp.CreditVendTx.STS1Token}");
+                    }
+                    else
+                    {
+                        Tokens = succResp.CreditVendTx.STS1Token;
+
+                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|token|{succResp.CreditVendTx.STS1Token}");
+                    }
+
 
                     /*here ConncetionString to saveing in DB in success case : 
                     */
+
+                    await _unitOfWork.Request.SaveGecolRequest(
+                        subProService.ConversationID,
+                        subProService.MSISDN,
+                        subProService.Amount.ToString(),
+                        subProServiceResp.IsSuccess,
+                        Tokens.Split('#'),
+                        subProService.UniqueNumber,
+                        succResp.CreditVendTx.Amout);
 
                     return Result <SuccessResponseCreditVend, FailureResponse>.SuccessResult(subProServiceResp.Success);
                 }
                 else
                 {
+
+
+                    
                     await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.IsSuccess}|uniqeNumber : {uniqeNumber}|ErrorCode:{subProServiceResp.Failure.StatusCode}|ErrorDesc:{subProServiceResp.Failure.Failure}");
 
                     /*here ConncetionString to saveing in DB in Failed case :
                      * */
+                    await _unitOfWork.IssueToken.CreateNew(
+                        subProService.ConversationID,
+                        subProService.MSISDN,
+                        DateTime.Now.ToString(),
+                        subProService.UniqueNumber,
+                        subProService.MeterNumber,
+                        subProService.Amount);
 
                     return Result<SuccessResponseCreditVend, FailureResponse>.FailureResult(subProServiceResp.Failure);
 

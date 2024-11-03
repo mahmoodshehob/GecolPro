@@ -3,6 +3,10 @@ using GecolPro.WebApi.UssdService;
 using GecolPro.WebApi.Interfaces;
 using GecolPro.WebApi.BusinessRules;
 using GecolPro.DataAccess;
+using GecolPro.DataAccess.Interfaces;
+using GecolPro.DataAccess.Services;
+
+
 
 using GecolPro.Services;
 using GecolPro.Services.IServices;
@@ -28,6 +32,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(option =>
 option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -59,7 +65,12 @@ builder.Services.Configure<DbApiConnection>(builder.Configuration.GetSection("Db
 //});
 
 
+// Database Interface
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+//
 
 builder.Services.AddScoped<IGecolCreateResponse , GecolPro.GecolSystem.XmlServices>();
 builder.Services.AddScoped<IGecolCreateXml      , GecolPro.GecolSystem.XmlServices>();
@@ -79,8 +90,6 @@ builder.Services.AddScoped<ISendMessage, SendMessage>();
 builder.Services.AddScoped<IBlackListFun,BlackListFun>();
 builder.Services.AddScoped<IMenusX,MenusX>();
 builder.Services.AddScoped<IUssdProcess, UssdProcess>();
-
-builder.Services.AddScoped<IDatabaseAPIs, DatabaseAPIs>();
 
 
 

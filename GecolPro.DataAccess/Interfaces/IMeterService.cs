@@ -1,12 +1,12 @@
-﻿//using GecolPro.Models.DbEntity;
+﻿using GecolPro.Models.DbEntity;
 
-//namespace GecolPro.DataAccess.Interfaces
-//{
-//    public interface IMeterService
-//    { 
-//        Task<ServiceResult> CreateNew(string? meterNumber,string at,string tt); 
-//        Task<ServiceResult> IsExist(string? meterNumber);
+namespace GecolPro.DataAccess.Interfaces
+{
+    public interface IMeterService
+    {
+        Task<ServiceResult> CreateNew(string? meterNumber, string at, string tt);
+        Task<ServiceResult> IsExist(string? meterNumber);
 
-//        Task<List<Meter>> GetAll();
-//    }
-//}
+        Task<List<Meter>> GetAll();
+    }
+}
