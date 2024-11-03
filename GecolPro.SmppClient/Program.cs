@@ -13,19 +13,31 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<HttpClient>();
 
 
-
-
 //register mq in DI
 builder.Services.AddHostedService<MessageWorker>();
 
 var app = builder.Build();
 
+//// Configure the HTTP request pipeline.
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+bool enableSwagger = app.Environment.IsDevelopment() ||
+                     builder.Configuration.GetValue<bool>("EnableSwaggerInProduction");
+
+if (enableSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseHttpsRedirection();
 

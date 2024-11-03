@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using GecolPro.WebApi.UssdService;
 using GecolPro.WebApi.Interfaces;
 using GecolPro.WebApi.BusinessRules;
+using GecolPro.DataAccess;
 
 using GecolPro.Services;
 using GecolPro.Services.IServices;
@@ -13,11 +15,21 @@ using GecolPro.Models.Gecol;
 using GecolPro.Models.SMPP;
 using GecolPro.Models.Models;
 
+
+using System.Globalization;
+using System.Threading.RateLimiting;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+
+builder.Services.AddDbContext<AppDbContext>(option =>
+option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -29,6 +41,24 @@ builder.Services.Configure<AuthHeader>(builder.Configuration.GetSection("AuthHea
 builder.Services.Configure<AuthCred>(builder.Configuration.GetSection("AuthHeaderOfGecol"));
 builder.Services.Configure<SmppInfo>(builder.Configuration.GetSection("SmmpInfo"));
 builder.Services.Configure<DbApiConnection>(builder.Configuration.GetSection("DbApiConnection"));
+
+
+
+
+
+//builder.Services.AddRateLimiter(options =>
+//{
+//    options.AddPolicy("192.168.75.170", httpContext =>
+//        RateLimitPartition.GetFixedWindowLimiter(
+//            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+//            factory: _ => new FixedWindowRateLimiterOptions
+//            {
+//                PermitLimit = 10,
+//                Window = TimeSpan.FromMinutes(1)
+//            }));
+//});
+
+
 
 
 builder.Services.AddScoped<IGecolCreateResponse , GecolPro.GecolSystem.XmlServices>();
@@ -85,6 +115,7 @@ if (enableSwagger)
 
 
 
+//app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 

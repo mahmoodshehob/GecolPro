@@ -76,8 +76,10 @@ namespace GecolPro.SmppClient.Services
 
 
 
+                        //var url = $"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&dlr-mask=31&dlr-url=http://{_kannelModel.HostName}:8086/api/Messages/DLR?msgid=%k&status=%d";
 
-                        var url = $"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&dlr-mask=31&dlr-url=http://{_kannelModel.HostName}:8089/dlr?status=%d&msgid=%k";
+                        Uri dlr_uri = new Uri("http://172.16.31.118:8086/api/Messages/DLR?msgid=%k&status=%d");
+                        var url = $"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&dlr-mask=31&dlr-url={dlr_uri}";
                         try
                         {
                             var response = await _client.GetAsync(url);

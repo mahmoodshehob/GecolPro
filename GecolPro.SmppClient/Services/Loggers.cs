@@ -6,7 +6,7 @@ namespace GecolPro.SmppClient.Services
     public class Loggers : ILoggers
     {
         private string baseDirectory;
-        private string logDirectory = "Logs_sms";
+        private string logDirectory = "logs";
 
 
         public Loggers() 
