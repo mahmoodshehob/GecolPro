@@ -194,32 +194,28 @@ namespace GecolPro.WebApi.BusinessRules
                     {
  
                         case "VD.01010004":
-                            msgContent.UssdCont = string.Format("Meter Number Not right.");
+                            msgContent.UssdCont = string.Format("Incorrect meter number.");
 
                             break;
 
                         case "VD.01010014":
-                            msgContent.UssdCont = string.Format("The meter removed");
-                            break;
-                        
+                            msgContent.UssdCont = string.Format("Incorrect meter number.");
+                            break;                        
                         
                         case "VD.01010015":
-                            msgContent.UssdCont = string.Format("The meter is not installed completely");
+                            msgContent.UssdCont = string.Format("Incorrect meter number.");
                             break;
-
 
                         case "VD.01010017":
-                            msgContent.UssdCont = string.Format("Customer does not exist or unbound meter");
+                            msgContent.UssdCont = string.Format("Incorrect meter number.");
                             break;
-
 
                         case "VD.01010018":
-                            msgContent.UssdCont = string.Format("Please check Tax center to finish Tariff data.");
+                            msgContent.UssdCont = string.Format("Please visit the nearest billing center to update your subscriber information.");
                             break;
 
-
                         case "VD.01010019":
-                            msgContent.UssdCont = string.Format("the meter installation not finished yet.");
+                            msgContent.UssdCont = string.Format("Incorrect meter number.");
                             break;
 
                         case "timeout":
@@ -227,21 +223,19 @@ namespace GecolPro.WebApi.BusinessRules
                             break;
 
                         case "VD.01010008":
-                            msgContent.UssdCont = string.Format("The PrePaid meter, and can't charge with this service,Please check the Tax centers.");
+                            msgContent.UssdCont = string.Format("This is a postpaid meter and can't be recharged, Please visit the nearest billing center.");
                             break;
 
                         case "VD.13020116":
-                            msgContent.UssdCont = string.Format("The Amount Value less than minimum allowed value");
+                            msgContent.UssdCont = string.Format("The amount Value less than minimum allowed value.");
                             break;
-
 
                         case "VD.15010021":
-                            msgContent.UssdCont = string.Format("The Meter Number Not right");
+                            msgContent.UssdCont = string.Format("Incorrect meter number.");
                             break;
 
-
                         case "10000":
-                            msgContent.UssdCont = string.Format("The meter has no tariff,Please check the Tax centers.");
+                            msgContent.UssdCont = string.Format("Please visit the nearest billing center to update your subscriber information.");
                             break;
 
                         default:
@@ -256,7 +250,7 @@ namespace GecolPro.WebApi.BusinessRules
                     switch (FaultCode)
                     {
                         case "VD.01010004":
-                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح");
+                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح.");
 
                             break;
 
@@ -267,22 +261,22 @@ namespace GecolPro.WebApi.BusinessRules
 
 
                         case "VD.01010015":
-                            msgContent.UssdCont = string.Format("لم يتم تركيب العداد بشكل كامل");
+                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح.");
 
                             break;
 
                         case "VD.01010017":
-                            msgContent.UssdCont = string.Format("ارجو استكمال بيانات التعرفة الخاصة بالعداد.");
+                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح.");
 
                             break;
 
                         case "VD.01010018":
-                            msgContent.UssdCont = string.Format("ارجو استكمال بيانات التعرفة الخاصة بالعداد.");
+                            msgContent.UssdCont = string.Format("نرجو منكم التوجه لأقرب مركز جباية لإستكمال بيانات المشترك.");
 
                             break;
 
                         case "VD.01010019":
-                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح او غير موجود.");
+                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح.");
 
                             break;
 
@@ -292,11 +286,11 @@ namespace GecolPro.WebApi.BusinessRules
                             break;
 
                         case "VD.01010008":
-                            msgContent.UssdCont = string.Format("هذا العداد فوتر لا يمكن شحنه,ارجو متابعة مركز الجباية.");
+                            msgContent.UssdCont = string.Format("هذا العداد فوتر ,لا يمكن شحنة ارجو متابعة مركز الجباية.");
                             break;
 
                         case "VD.13020116":
-                            msgContent.UssdCont = string.Format("القيمة المطلوب الحشن بها اقل من الحد الادنى.");
+                            msgContent.UssdCont = string.Format("القيمة المدخلة اقل من الحد الأدنى للشحن.");
 
                             break;
 
@@ -306,7 +300,7 @@ namespace GecolPro.WebApi.BusinessRules
 
 
                         case "10000":
-                            msgContent.UssdCont = string.Format("العداد ليس لديه تعريفة ,ارجو متابعة مركز الجباية.");
+                            msgContent.UssdCont = string.Format("نرجو منكم التوجه لأقرب مركز جباية لإستكمال بيانات المشترك.");
                             break;
 
                         default:

@@ -10,6 +10,8 @@ namespace GecolPro.Services.IServices
     {
         public Task LogInfoAsync(string message);
 
+        public Task LogConnectionsStatusAsync(string message);
+        
         public Task LogErrorAsync(string message);
         
         public Task LogDebugAsync(string message);

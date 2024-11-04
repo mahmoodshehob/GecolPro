@@ -149,35 +149,49 @@ namespace GecolPro.WebApi.BusinessRules
          
         */
 
-        public async Task<bool> CheckServiceExist()
+        public async Task<bool> CheckServiceExist(string? convID =null)
         {
-            string convID;
-
             try
             {
-                
+                Result<SuccessResponseLogin, FailureResponse> loginOp;
 
-                if (string.IsNullOrWhiteSpace(conversationId))
+                if (!string.IsNullOrWhiteSpace(conversationId))
                 {
-                    convID = "ChkLog";
-                }
-                else 
-                {
+                    // this log for normal request
+
                     convID = conversationId;
+
+                    await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolCheck|{convID}|Check Service Connectivity");
+
+                    loginOp = await _gecolServices.LoginReqOpx();
+
+                    if (loginOp.IsSuccess)
+                    {
+                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Connected");
+                        return true;
+                    }
+
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Not Connected");
+                    return false;
                 }
-
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolCheck|{convID}|Check Service Connectivity");
-
-                var loginOp = await _gecolServices.LoginReqOpx();
-
-                if (loginOp.IsSuccess)
+                else
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Connected");
-                    return true;
-                }
 
-                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Not Connected");
-                return false;
+                    //this to check status by API
+
+                    await _loggerG.LogConnectionsStatusAsync($"{logPrefix}==>|Req_GecolCheck|{convID}|Check Service Connectivity");
+
+                    loginOp = await _gecolServices.LoginReqOpx();
+
+                    if (loginOp.IsSuccess)
+                    {
+                        await _loggerG.LogConnectionsStatusAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Connected");
+                        return true;
+                    }
+
+                    await _loggerG.LogConnectionsStatusAsync($"{logPrefix}|<==|Rsp_GecolCheck|{convID}|Service Not Connected");
+                    return false;
+                }
 
 
             }
@@ -201,25 +215,25 @@ namespace GecolPro.WebApi.BusinessRules
 
 */
 
-        public async Task<bool> CheckDcbExist()
+        public async Task<bool> CheckDcbExist(string? convID = null)
         {
             string conversationId = DateTime.Now.ToString($"yyyyMMddHHmmssfff");
 
             try
             {
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DcbCheck|{conversationId}|Check Service Connectivity");
+                await _loggerG.LogConnectionsStatusAsync($"{logPrefix}==>|Req_DcbCheck|{conversationId}|Check Service Connectivity");
 
                 Result<SuccessResponseQryUserBasicBal, FailureResponse> subProServiceResp = await _dcbServices.QryUserBasicBalOpX("218947776156");
 
 
                 if (subProServiceResp.IsSuccess)
                 {
-                    await _loggerG.LogInfoAsync(($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Connected"));
+                    await _loggerG.LogConnectionsStatusAsync(($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Connected"));
                     return true;
                 }
                 else
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Not Connected");
+                    await _loggerG.LogConnectionsStatusAsync($"{logPrefix}|<==|Rsp_DcbCheck|{conversationId}|Service Not Connected");
                     return false;
                 }              
 
@@ -464,16 +478,19 @@ namespace GecolPro.WebApi.BusinessRules
                     var succResp = subProServiceResp.Success.Response;
 
 
-                    string Tokens;
+                    string[] Tokens;
                     if (!string.IsNullOrEmpty(succResp.CreditVendTx.Desc_KcToken))
                     {
-                        Tokens = succResp.CreditVendTx.Set1stMeterKey + "#" + succResp.CreditVendTx.Set2ndMeterKey + "#" + succResp.CreditVendTx.STS1Token;
+                        Tokens = [
+                            succResp.CreditVendTx.Set1stMeterKey ,
+                            succResp.CreditVendTx.Set2ndMeterKey ,
+                            succResp.CreditVendTx.STS1Token];
                         
                         await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|1ST|{succResp.CreditVendTx.Set1stMeterKey}|2ND|{succResp.CreditVendTx.Set2ndMeterKey}|token|{succResp.CreditVendTx.STS1Token}");
                     }
                     else
                     {
-                        Tokens = succResp.CreditVendTx.STS1Token;
+                        Tokens = [succResp.CreditVendTx.STS1Token];
 
                         await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|token|{succResp.CreditVendTx.STS1Token}");
                     }
@@ -487,7 +504,7 @@ namespace GecolPro.WebApi.BusinessRules
                         subProService.MSISDN,
                         subProService.Amount.ToString(),
                         subProServiceResp.IsSuccess,
-                        Tokens.Split('#'),
+                        Tokens,
                         subProService.UniqueNumber,
                         succResp.CreditVendTx.Amout);
 

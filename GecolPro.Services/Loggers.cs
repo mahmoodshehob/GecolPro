@@ -15,8 +15,10 @@ namespace GecolPro.Services
             // Check operating system
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            //string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            string desktopPath = $"D:\\OneDrive\\Loggers\\";
 
+            
                 baseDirectory = Path.Combine(desktopPath, "Logs");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -33,6 +35,7 @@ namespace GecolPro.Services
 
             // Create sub-directories for different types of logs
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "Info"));
+            CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "Status"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "Error"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "Debug"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "UssdTrans"));
@@ -62,6 +65,11 @@ namespace GecolPro.Services
         public async Task LogInfoAsync(string message)
         {
             await WriteLogAsync(message, "Info");
+        }
+
+        public async Task LogConnectionsStatusAsync(string message)
+        {
+            await WriteLogAsync(message, "Status");
         }
 
         public async Task LogErrorAsync(string message)

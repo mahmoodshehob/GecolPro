@@ -23,7 +23,11 @@ namespace GecolPro.WebApi.Controllers
 
         public async Task<IActionResult> VendService()
         {
-            bool Status = await _ussdProcess.CheckServiceExist();
+
+
+            string? remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            bool Status = await _ussdProcess.CheckServiceExist(remoteIpAddress);
 
             string responseTime = "| " +DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
