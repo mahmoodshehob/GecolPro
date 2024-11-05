@@ -52,7 +52,7 @@ namespace GecolPro.WebApi.BusinessRules
                                 $"Transaction Dept: {ArgR.RecoveryTx.Balance}\n\n"; 
                     }
 
-                    if (ArgR.ServiceChrgTx.Count > 0)
+                    if (ArgR.ServiceChrgTx != null)
                     {
                         msgContent.MessageCont += "Taxs Service Charge\n\n";
                         foreach (var argR in ArgR.ServiceChrgTx)

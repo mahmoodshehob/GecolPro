@@ -283,9 +283,11 @@ namespace GecolPro.WebApi.BusinessRules
                     await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DB|{conversationId}|The Meter Connected|{MeterNumber}");
                 }
 
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{MeterNumber}");
+
 
                 // Check Meter in Gecol
+
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{MeterNumber}");
 
                 var CheckGecolMeter = await _gecolServices.ConfirmCustomerOpx(MeterNumber);
 

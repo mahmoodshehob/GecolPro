@@ -27,6 +27,12 @@ namespace GecolPro.WebApi.Controllers
 
             string? remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
+            if (remoteIpAddress == "127.0.0.1" || remoteIpAddress == "::1")
+            {
+                // Get the original IP from the X-Forwarded-For header
+                remoteIpAddress = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            }
+
             bool Status = await _ussdProcess.CheckServiceExist(remoteIpAddress);
 
             string responseTime = "| " +DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
