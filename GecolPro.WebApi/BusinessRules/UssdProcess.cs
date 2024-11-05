@@ -19,6 +19,7 @@ using GecolPro.WebApi.Interfaces;
 using GecolPro.DataAccess.Interfaces;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using NuGet.Packaging;
+using Microsoft.Data.SqlClient;
 
 
 
@@ -264,55 +265,80 @@ namespace GecolPro.WebApi.BusinessRules
         //
         */
 
-        private async Task<bool> CheckMeterExist(string MeterNumber)
+        private async Task<bool> CheckMeterExist(string meterNumber)
         {
-
             try
             {
-                // Check Meter in DB
+                // Log the start of the DB check
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DB|{conversationId}|Check The Meter|{meterNumber}");
 
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DB|{conversationId}|Check The Meter|{MeterNumber}");
-
-                if ((await _unitOfWork.Meter.IsExist(MeterNumber)).Status)
+                var meterCheckResult = await _unitOfWork.Meter.IsExist(meterNumber);
+                if (meterCheckResult.Status)
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Req_DB|{conversationId}|The Meter Connected|{MeterNumber}");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DB|{conversationId}|The Meter Connected|{meterNumber}");
+                    return true;
+                }
+
+                // Log and check meter in Gecol
+                return await CheckMeterInGecol(meterNumber);
+            }
+            catch (SqlException sqlEx)
+            {
+                // Handle SQL exception: Attempt to check in Gecol
+                await _loggerG.LogErrorAsync($"{logPrefix}|xxx|SqlException|{conversationId}|Error|{sqlEx.Message}");
+                return await CheckMeterInGecol(meterNumber);
+            }
+            catch (Exception ex)
+            {
+                await _loggerG.LogErrorAsync($"{logPrefix}|xxx|GeneralException|{conversationId}|Error|{ex.Message}");
+                await ExceptionLogs(ex);
+                return false;
+            }
+        }
+
+        /* check in Gecol by API.
+*/
+
+        private async Task<bool> CheckMeterInGecol(string meterNumber)
+        {
+            try
+            {
+                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{meterNumber}");
+
+                var gecolResponse = await _gecolServices.ConfirmCustomerOpx(meterNumber);
+
+                if (gecolResponse.IsSuccess)
+                {
+                    await AddMeterToDB(meterNumber, gecolResponse.Success);
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{meterNumber}");
                     return true;
                 }
                 else
                 {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DB|{conversationId}|The Meter Connected|{MeterNumber}");
-                }
-
-
-
-                // Check Meter in Gecol
-
-                await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{MeterNumber}");
-
-                var CheckGecolMeter = await _gecolServices.ConfirmCustomerOpx(MeterNumber);
-
-                if (CheckGecolMeter.IsSuccess)
-                {
-                    if ((await _unitOfWork.Meter.CreateNew(MeterNumber, CheckGecolMeter.Success.Response.AT, CheckGecolMeter.Success.Response.TT)).Status)
-                    {
-                        await _loggerG.LogInfoAsync($"{logPrefix}|+++|Add_Meter_ToDB|{conversationId}|The Meter Connected|{MeterNumber}");
-                    }
-
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{MeterNumber}");
-
-                    return true;
-                }
-                else
-                {
-                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolMeter|{conversationId}|The Meter Issued|{MeterNumber}|ErrorCode|{CheckGecolMeter.Failure.StatusCode}|Error Desc:|{CheckGecolMeter.Failure.Failure}");
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolMeter|{conversationId}|The Meter Issued|{meterNumber}|ErrorCode|{gecolResponse.Failure.StatusCode}|Error Desc:|{gecolResponse.Failure.Failure}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
+                await _loggerG.LogErrorAsync($"{logPrefix}|xxx|CheckMeterInGecol|{conversationId}|Error|{ex.Message}");
                 await ExceptionLogs(ex);
                 return false;
             }
+        }
+
+        /* Add Meter to DataBase.
+         */
+
+        private async Task AddMeterToDB(string MeterNumber , SuccessResponseConfirmCustomer CheckGecolMeter)
+        {
+      
+                if ((await _unitOfWork.Meter.CreateNew(MeterNumber, CheckGecolMeter.Response.AT, CheckGecolMeter.Response.TT)).Status)
+                {
+                    await _loggerG.LogInfoAsync($"{logPrefix}|+++|Add_Meter_ToDB|{conversationId}|The Meter Saved|{MeterNumber}");
+                }
+
+
         }
 
 
@@ -344,6 +370,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                 if (subProServiceResp.IsSuccess)
                 {
+                    subProService.TransactionID = subProServiceResp.Success.Response.TransactionID;
                     await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_BillingSys|{conversationId}|{msisdn}|{amount}|{subProServiceResp.Success.IsSuccessStatusCode}|TransactionID|{subProServiceResp.Success.Response.TransactionID}|Amount|{subProServiceResp.Success.Response.Amount}");
                 }
                 else
@@ -353,17 +380,51 @@ namespace GecolPro.WebApi.BusinessRules
 
 
 
-
-
-
                 if (subProServiceResp.IsSuccess)
                 {
                     //here ConncetionString to saveing in DB in success case :
+                    if ((await _unitOfWork.Request.SaveDcblRequest(
+                        conversationId: subProService.ConversationID,
+                        MSISDN: subProService.MSISDN,
+                        amount: subProService.Amount.ToString(),
+                        status: subProServiceResp.IsSuccess,
+                        transactionId: subProService.TransactionID))
+                        .Status)
+                    {
+                        await _loggerG.LogRequstDbAsync("DCB" + "|" +
+                        subProService.ConversationID + "|" +
+                        subProService.MSISDN + "|" +
+                        subProService.Amount.ToString() + "|" +
+                        subProServiceResp.IsSuccess + "|" +
+                        subProService.TransactionID);
+                    }
+
+
+
 
                     return Result<SuccessResponseDirectDebit, FailureResponse>.SuccessResult(subProServiceResp.Success);
                 }
 
                 //*here ConncetionString to saveing in DB in Failed case :
+
+                if (!(await _unitOfWork.IssueToken.CreateNew(
+                    conversationId: subProService.ConversationID,
+                    msisdn: subProService.MSISDN,
+                    dateTimeReq: DateTime.Now.ToString("yyyy/MM/dd HH:MM:ss"),
+                    uniqueNumber: subProService.UniqueNumber,
+                    meterNumber: subProService.MeterNumber,
+                    amount: subProService.Amount)).Status)
+                {
+                    await _loggerG.LogIssuedTokenAsync(
+                        "conversationId : " + subProService.ConversationID
+                        + "|" + "msisdn : " + subProService.MSISDN
+                        + "|" + "dateTimeReq : " + DateTime.Now.ToString("yyyy/MM/dd HH:MM:ss")
+                        + "|" + "uniqueNumber : " + subProService.UniqueNumber
+                        + "|" + "meterNumber : " + subProService.MeterNumber
+                        + "|" + "amount : " + subProService.Amount);
+                }
+
+
 
 
                 return Result<SuccessResponseDirectDebit, FailureResponse>.FailureResult(subProServiceResp.Failure);
@@ -372,6 +433,27 @@ namespace GecolPro.WebApi.BusinessRules
             catch (Exception ex)
             {
                 await ExceptionLogs(ex);
+
+                try
+                {
+                    await _unitOfWork.IssueToken.CreateNew(
+                        conversationId: subProService.ConversationID,
+                        msisdn: subProService.MSISDN,
+                        dateTimeReq: DateTime.Now.ToString("yyyy/MM/dd HH:MM:ss"),
+                        uniqueNumber: subProService.UniqueNumber,
+                        meterNumber: subProService.MeterNumber,
+                        amount: subProService.Amount);
+                }
+                catch
+                {
+                    await _loggerG.LogIssuedTokenAsync(
+                        "conversationId : " + subProService.ConversationID
+                        + "|" + "msisdn : " + subProService.MSISDN
+                        + "|" + "dateTimeReq : " + DateTime.Now.ToString("yyyy/MM/dd HH:MM:ss")
+                        + "|" + "uniqueNumber : " + subProService.UniqueNumber
+                        + "|" + "meterNumber : " + subProService.MeterNumber
+                        + "|" + "amount : " + subProService.Amount);
+                }
 
                 FailureResponse subProServiceResp = new FailureResponse()
                 {
@@ -488,27 +570,55 @@ namespace GecolPro.WebApi.BusinessRules
                             succResp.CreditVendTx.Set2ndMeterKey ,
                             succResp.CreditVendTx.STS1Token];
                         
-                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|1ST|{succResp.CreditVendTx.Set1stMeterKey}|2ND|{succResp.CreditVendTx.Set2ndMeterKey}|token|{succResp.CreditVendTx.STS1Token}");
+                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|1ST|{Tokens[0]}|2ND|{Tokens[1]}|token|{Tokens[2]}");
                     }
                     else
                     {
                         Tokens = [succResp.CreditVendTx.STS1Token];
 
-                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|token|{succResp.CreditVendTx.STS1Token}");
+                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolVnSys|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|token|{Tokens[0]}");
                     }
 
 
                     /*here ConncetionString to saveing in DB in success case : 
                     */
 
-                    await _unitOfWork.Request.SaveGecolRequest(
-                        subProService.ConversationID,
-                        subProService.MSISDN,
-                        subProService.Amount.ToString(),
-                        subProServiceResp.IsSuccess,
-                        Tokens,
-                        subProService.UniqueNumber,
-                        succResp.CreditVendTx.Amout);
+                    var SaveGecolRequest = await _unitOfWork.Request.SaveGecolRequest(
+                            subProService.ConversationID,
+                            subProService.MSISDN,
+                            subProService.Amount.ToString(),
+                            subProServiceResp.IsSuccess,
+                            Tokens,
+                            subProService.UniqueNumber,
+                            succResp.CreditVendTx.Amout);
+                     
+                    string logToken = "";
+                    foreach (var tkn in Tokens){ logToken += tkn + ";"; }
+                    
+                    await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_Save_Trans|{conversationId}|{msisdn}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}|{subProServiceResp.IsSuccess}|token|{Tokens[0]}");
+                    
+                    
+
+                    if (SaveGecolRequest.Status)
+                    {                      
+                
+                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_Save_Trans|{conversationId}|{SaveGecolRequest.Status}");
+                    }
+                    else
+                    {
+                        await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_Save_Trans|{conversationId}|{SaveGecolRequest.Status}");
+
+                        await _loggerG.LogRequstDbAsync("Gecol"
+                            + "|" + subProService.ConversationID
+                            + "|" + subProService.MSISDN
+                            + "|" + subProService.Amount.ToString()
+                            + "|" + subProServiceResp.IsSuccess
+                            + "|" + logToken
+                            + "|" + subProService.UniqueNumber
+                            + "|" + succResp.CreditVendTx.Amout);
+
+                    }
+
 
                     return Result <SuccessResponseCreditVend, FailureResponse>.SuccessResult(subProServiceResp.Success);
                 }
@@ -738,9 +848,6 @@ namespace GecolPro.WebApi.BusinessRules
 
                 if (await CheckMeterExist(subProService.MeterNumber))
                 {
-                    //
-                    //
-
                     /* Create Ussd and SMS Contents:*/
 
                     try
@@ -750,7 +857,6 @@ namespace GecolPro.WebApi.BusinessRules
                         if (GecolOrderResult.IsSuccess)
                         {
                             var DcbOrderResult = await ProcessChargeByDCB(subProService);
-
 
                             if (DcbOrderResult.IsSuccess)
                             {

@@ -41,7 +41,9 @@ namespace GecolPro.Services
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "UssdTrans"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "DcbTrans"));
             CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "GecolTrans"));
-            CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "IssuedTrans"));
+            CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "IssuedToken"));
+            CreateDirectoryIfNotExists(Path.Combine(baseDirectory, "DbRequstErr"));
+
 
         }
 
@@ -101,5 +103,11 @@ namespace GecolPro.Services
         {
             await WriteLogAsync(message, "IssuedToken");
         }
+
+        public async Task LogRequstDbAsync(string message)
+        {
+            await WriteLogAsync(message, "DbRequstErr");
+        }
+
     }
 }

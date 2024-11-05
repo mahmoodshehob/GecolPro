@@ -23,5 +23,8 @@ namespace GecolPro.Services.IServices
         public Task LogGecolTransAsync(string message);
 
         public Task LogIssuedTokenAsync(string message);
+
+        public Task LogRequstDbAsync(string message);
+
     }
 }
