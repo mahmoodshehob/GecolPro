@@ -23,11 +23,13 @@ namespace GecolPro.WebApi.BusinessRules
                     msgContent.UssdCont =
                         $"Invoice: {ArgR.CreditVendReceipt}\n" +
                         $"Token: {ArgR.CreditVendTx.STS1Token}\n" +
-                        $"Amount: {ArgR.CreditVendTx.Amout} LYD\n";
+                        $"Amount: {ArgR.TenderAmount} LYD\n"+
+                        $"Charged: {ArgR.CreditVendTx.Amout} LYD\n";
+
 
                     msgContent.MessageCont =
                         $"Credit Vend Receipt: {ArgR.CreditVendReceipt}\n\n" +
-                        $"Total Transactions Amount: {ArgR.TenderAmount} LYD\n\n" +
+                        $"Total Transaction fee: {ArgR.TenderAmount} LYD\n\n" +
                         $"Credit Token Issue Desc : {ArgR.DispHeader}\n\n\n";
 
                     if (!string.IsNullOrEmpty(ArgR.CreditVendTx.Desc_KcToken))
@@ -71,40 +73,37 @@ namespace GecolPro.WebApi.BusinessRules
                     //msgContent.MessageCont = string.Format("تم شحن العداد {0} بي {1} دينار \n  كرت الشحن  {2} \n   رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
 
                     msgContent.UssdCont =
-                        $"Invoice: {ArgR.CreditVendReceipt}\n" +
-                        $" Token: {ArgR.CreditVendTx.STS1Token}\n" +
-                        $"Amount: {ArgR.CreditVendTx.Amout} LYD\n\n";
+                        $"{ArgR.CreditVendReceipt}فاتورة :\n" +
+                        $"{ArgR.CreditVendTx.STS1Token}رمز :\n" +
+                        $"ل.د{ArgR.CreditVendTx.Amout}رسوم المعاملة :\n\n";
 
-                    msgContent.UssdCont =
-                       $"Invoice: {ArgR.CreditVendReceipt}\n" +
-                       $"Token: {ArgR.CreditVendTx.STS1Token}\n" +
-                       $"Amount: {ArgR.CreditVendTx.Amout} LYD\n";
+        
 
                     msgContent.MessageCont =
-                        $"Credit Vend Receipt: {ArgR.CreditVendReceipt}\n\n" +
-                        $"Total Transactions Amount: {ArgR.TenderAmount} LYD\n\n" +
-                        $"Credit Token Issue Desc : {ArgR.DispHeader}\n\n\n";
+                        $"{ArgR.CreditVendReceipt}فاتورة :\n\n" +
+                        $"{ArgR.CreditVendTx.STS1Token}رمز :\n\n" +
+                        $"ل.د{ArgR.CreditVendTx.Amout}المبلغ المدفوع :\n\n\n";
 
                     if (!string.IsNullOrEmpty(ArgR.CreditVendTx.Desc_KcToken))
                     {
                         msgContent.MessageCont +=
-                       "Set these before Token : \n\n" +
-                       $"Set 1st Meter Key: {ArgR.CreditVendTx.Set1stMeterKey}\n" +
-                       $"Set 2nd Meter Key: {ArgR.CreditVendTx.Set2ndMeterKey}\n\n";
+                       "أدخل هذه الرموز اولا : \n\n" +
+                       $"الاول : {ArgR.CreditVendTx.Set1stMeterKey}\n" +
+                       $"الثاني : {ArgR.CreditVendTx.Set2ndMeterKey}\n\n";
                     }
 
                     msgContent.MessageCont +=
-                        $"Credit Issued Token: {ArgR.CreditVendTx.STS1Token}\n\n" +
-                        $"Transaction Amount: {ArgR.CreditVendTx.Amout} LYD\n\n\n";
+                        $"رمز الشحن : {ArgR.CreditVendTx.STS1Token}\n\n" +
+                        $"صافي قيمة الشحن : {ArgR.CreditVendTx.Amout} دينار\n\n\n";
 
                     if (ArgR.RecoveryTx != null)
                     {
-                        msgContent.MessageCont += "Taxs Recovery\n\n";
+                        msgContent.MessageCont += "الضرائب المستردة\n\n";
 
                         msgContent.MessageCont +=
-                                $"Transaction Account Desc: {ArgR.RecoveryTx.AccDesc}\n" +
-                                $"Transaction Amount: {ArgR.RecoveryTx.Amout}\n" +
-                                $"Transaction Dept: {ArgR.RecoveryTx.Balance}\n\n";
+                                //$"اسم المعاملة: {Translater(ArgR.RecoveryTx.AccDesc,Lang)}\n" +
+                                $"الرسوم : {ArgR.RecoveryTx.Amout}\n" +
+                                $"باقي الديون : {ArgR.RecoveryTx.Balance}\n\n";
                     }
 
                     if (ArgR.ServiceChrgTx.Count > 0)
@@ -113,7 +112,7 @@ namespace GecolPro.WebApi.BusinessRules
                         foreach (var argR in ArgR.ServiceChrgTx)
                         {
                             msgContent.MessageCont +=
-                                $"Transaction Account Desc: {argR.AccDesc}\n" +
+                                $"Transaction Account Desc: {Translater(argR.AccDesc, Lang)}\n" +
                                 $"Transaction Amount: {argR.Amout}\n\n";
                         }
                     }
@@ -121,7 +120,6 @@ namespace GecolPro.WebApi.BusinessRules
             }
             return (msgContent);
         }
-
 
         public  async Task<MsgContent> BlockedResponseAsync(string Lang)
         {
@@ -393,6 +391,54 @@ namespace GecolPro.WebApi.BusinessRules
 
             return msgContent;
         }
+
+
+        private string Translater(string Message, string Lang)
+        {
+            string msgContent = "";
+
+
+            switch (Lang)
+            {
+                case "Ar":
+                    switch (Message)
+                    {
+                        case "GECOL":
+                            msgContent = "رسوم المعاملة";
+                            break;
+
+                        case "everymonth":
+                            msgContent = "الرسوم الشهرية";
+                            break;
+
+                        default:
+                            msgContent = "رسوم إضافية";
+                            break;
+                    }
+                    break;
+
+                default:
+
+                    switch (Message)
+                    {
+                        case "GECOL":
+                            msgContent = "Transaction fees";
+                            break;
+
+                        case "everymonth":
+                            msgContent = "Monthly fees";
+                            break;
+
+                        default:
+                            msgContent = "Extra Fees";
+                            break;
+                    }
+                    break;
+
+            }
+            return msgContent;
+        }
+
     }
 }
 

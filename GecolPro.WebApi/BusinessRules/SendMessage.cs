@@ -72,8 +72,8 @@ namespace GecolPro.WebApi.BusinessRules
             await _loggerG.LogDebugAsync(
                   $"excp" +
                   $"\n{ConversationID}|{ex.Message}" +
-                  $"\n{ConversationID}|{ex.InnerException}" +
-                  $"\n{ConversationID}|{ex.StackTrace.ToString()}"
+$"\n{ConversationID}|{ex.InnerException}" +
+$"\n{ConversationID}|{ex.StackTrace.ToString()}"
                   );
         }
 
