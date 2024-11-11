@@ -2,7 +2,7 @@
 
 namespace GecolPro.DataAccess.Interfaces
 {
-    public interface IUnitOfWork
+    public interface IDbUnitOfWork
     {
         IMeterService Meter { get; }
 

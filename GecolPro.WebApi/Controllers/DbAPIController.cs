@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GecolPro.WebApi.Controllers
 {
-    partial class DbAPIController : ControllerBase
+    public class DbAPIController : ControllerBase
     {
 
-        private readonly IUnitOfWork? _unitOfWork;
+        private readonly IDbUnitOfWork? _unitOfWork;
 
-        public DbAPIController(IUnitOfWork unitOfWork)
+        public DbAPIController(IDbUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -17,7 +17,12 @@ namespace GecolPro.WebApi.Controllers
         public async Task<IActionResult> IsMeterExist(string meterNumber)
         {
             var result = await _unitOfWork.Meter.IsExist(meterNumber);
-            return Ok(result);
+
+            if (result.Status)
+                return Ok(result);
+            
+            return BadRequest(result);
+            
         }
 
 

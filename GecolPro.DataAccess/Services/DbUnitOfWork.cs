@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GecolPro.DataAccess.Services
 {
-    public class UnitOfWork : IUnitOfWork
+    public class DbUnitOfWork : IDbUnitOfWork
     {
         private AppDbContext _db;
 
@@ -17,7 +17,7 @@ namespace GecolPro.DataAccess.Services
 
         public IIssueTokenServices IssueToken { get; private set; }
 
-        public UnitOfWork(AppDbContext db)
+        public DbUnitOfWork(AppDbContext db)
         {
             _db = db;
 

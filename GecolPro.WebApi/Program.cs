@@ -67,28 +67,31 @@ builder.Services.Configure<DbApiConnection>(builder.Configuration.GetSection("Db
 
 // Database Interface
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IDbUnitOfWork, DbUnitOfWork>();
 
 
-//
+// Gecol Interface
 
 builder.Services.AddScoped<IGecolCreateResponse , GecolPro.GecolSystem.XmlServices>();
-builder.Services.AddScoped<IGecolCreateXml      , GecolPro.GecolSystem.XmlServices>();
-
-builder.Services.AddScoped<IDcbCreateResponse   , GecolPro.DCBSystem.XmlServices>();
-builder.Services.AddScoped<IDcbCreateXml        , GecolPro.DCBSystem.XmlServices>();
-
-
-builder.Services.AddScoped<IDcbServices, DcbServices>();
+builder.Services.AddScoped<IGecolCreateXml , GecolPro.GecolSystem.XmlServices>();
 builder.Services.AddScoped<IGecolServices, GecolServices>();
+
+
+// DCB Interface 
+
+builder.Services.AddScoped<IDcbCreateResponse, GecolPro.DCBSystem.XmlServices>();
+builder.Services.AddScoped<IDcbCreateXml, GecolPro.DCBSystem.XmlServices>();
+builder.Services.AddScoped<IDcbServices, DcbServices>();
+
 
 
 builder.Services.AddScoped<IUssdConverter, UssdConverter>();
 builder.Services.AddScoped<IResponses, Responses>();
-builder.Services.AddScoped<ILoggers,Loggers>();
 builder.Services.AddScoped<ISendMessage, SendMessage>();
 builder.Services.AddScoped<IBlackListFun,BlackListFun>();
 builder.Services.AddScoped<IMenusX,MenusX>();
+
+builder.Services.AddScoped<ILoggers, Loggers>();
 builder.Services.AddScoped<IUssdProcess, UssdProcess>();
 
 
@@ -96,20 +99,6 @@ builder.Services.AddScoped<IUssdProcess, UssdProcess>();
 
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-//else
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-
 
 
 // Configure the HTTP request pipeline.

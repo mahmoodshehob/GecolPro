@@ -39,7 +39,7 @@ namespace GecolPro.WebApi.BusinessRules
         private IGecolServices? _gecolServices;
         private IMenusX? _menus;
         private ISendMessage? _sendMessage;
-        private readonly IUnitOfWork? _unitOfWork;
+        private readonly IDbUnitOfWork? _dbunitOfWork;
 
 
 
@@ -65,14 +65,14 @@ namespace GecolPro.WebApi.BusinessRules
             IMenusX          menus,
             ISendMessage    sendMessage,
             IConfiguration _config,
-            IUnitOfWork? unitOfWork)
+            IDbUnitOfWork? dbunitOfWork)
         {
             _dcbServices = dcbServices;
             _gecolServices = gecolServices;
             _loggerG = loggerG;
             _menus = menus;
             _sendMessage = sendMessage;
-            _unitOfWork = unitOfWork;
+            _dbunitOfWork = dbunitOfWork;
             _authHeader = new AuthHeader()
             {
                 Username = _config.GetValue<string>("AuthHeaderOfDCB:username"),
@@ -164,7 +164,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                     await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolCheck|{convID}|Check Service Connectivity");
 
-                    loginOp = await _gecolServices.LoginReqOpx();
+                    loginOp = await _gecolServices.LoginReqOp();
 
                     if (loginOp.IsSuccess)
                     {
@@ -182,7 +182,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                     await _loggerG.LogConnectionsStatusAsync($"{logPrefix}==>|Req_GecolCheck|{convID}|Check Service Connectivity");
 
-                    loginOp = await _gecolServices.LoginReqOpx();
+                    loginOp = await _gecolServices.LoginReqOp();
 
                     if (loginOp.IsSuccess)
                     {
@@ -272,7 +272,7 @@ namespace GecolPro.WebApi.BusinessRules
                 // Log the start of the DB check
                 await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_DB|{conversationId}|Check The Meter|{meterNumber}");
 
-                var meterCheckResult = await _unitOfWork.Meter.IsExist(meterNumber);
+                var meterCheckResult = await _dbunitOfWork.Meter.IsExist(meterNumber);
                 if (meterCheckResult.Status)
                 {
                     await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_DB|{conversationId}|The Meter Connected|{meterNumber}");
@@ -305,7 +305,7 @@ namespace GecolPro.WebApi.BusinessRules
             {
                 await _loggerG.LogInfoAsync($"{logPrefix}==>|Req_GecolMeter|{conversationId}|Check The Meter|{meterNumber}");
 
-                var gecolResponse = await _gecolServices.ConfirmCustomerOpx(meterNumber);
+                var gecolResponse = await _gecolServices.ConfirmCustomerOp(meterNumber);
 
                 if (gecolResponse.IsSuccess)
                 {
@@ -333,7 +333,7 @@ namespace GecolPro.WebApi.BusinessRules
         private async Task AddMeterToDB(string MeterNumber , SuccessResponseConfirmCustomer CheckGecolMeter)
         {
       
-                if ((await _unitOfWork.Meter.CreateNew(MeterNumber, CheckGecolMeter.Response.AT, CheckGecolMeter.Response.TT)).Status)
+                if ((await _dbunitOfWork.Meter.CreateNew(MeterNumber, CheckGecolMeter.Response.AT, CheckGecolMeter.Response.TT)).Status)
                 {
                     await _loggerG.LogInfoAsync($"{logPrefix}|+++|Add_Meter_ToDB|{conversationId}|The Meter Saved|{MeterNumber}");
                 }
@@ -383,7 +383,7 @@ namespace GecolPro.WebApi.BusinessRules
                 if (subProServiceResp.IsSuccess)
                 {
                     //here ConncetionString to saveing in DB in success case :
-                    if ((await _unitOfWork.Request.SaveDcblRequest(
+                    if ((await _dbunitOfWork.Request.SaveDcblRequest(
                         conversationId: subProService.ConversationID,
                         MSISDN: subProService.MSISDN,
                         amount: subProService.Amount.ToString(),
@@ -407,7 +407,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                 //*here ConncetionString to saveing in DB in Failed case :
 
-                if (!(await _unitOfWork.IssueToken.CreateNew(
+                if (!(await _dbunitOfWork.IssueToken.CreateNew(
                     conversationId: subProService.ConversationID,
                     msisdn: subProService.MSISDN,
                     dateTimeReq: DateTime.Now.ToString("yyyy/MM/dd HH:MM:ss"),
@@ -436,7 +436,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                 try
                 {
-                    await _unitOfWork.IssueToken.CreateNew(
+                    await _dbunitOfWork.IssueToken.CreateNew(
                         conversationId: subProService.ConversationID,
                         msisdn: subProService.MSISDN,
                         dateTimeReq: DateTime.Now.ToString("yyyy/MM/dd HH:MM:ss"),
@@ -549,7 +549,7 @@ namespace GecolPro.WebApi.BusinessRules
                 await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_GecolVnSys|{conversationId}|{subProService.MSISDN}|Amount|{subProService.Amount}|MeterNumber|{subProService.MeterNumber}|UniqeNumber|{uniqeNumber}");
 
                 var subProServiceResp = await 
-                    _gecolServices.CreditVendOpx(
+                    _gecolServices.CreditVendOp(
                         subProService.MeterNumber,
                         subProService.UniqueNumber,
                         subProService.Amount);
@@ -583,7 +583,7 @@ namespace GecolPro.WebApi.BusinessRules
                     /*here ConncetionString to saveing in DB in success case : 
                     */
 
-                    var SaveGecolRequest = await _unitOfWork.Request.SaveGecolRequest(
+                    var SaveGecolRequest = await _dbunitOfWork.Request.SaveGecolRequest(
                             subProService.ConversationID,
                             subProService.MSISDN,
                             subProService.Amount.ToString(),
@@ -631,7 +631,7 @@ namespace GecolPro.WebApi.BusinessRules
 
                     /*here ConncetionString to saveing in DB in Failed case :
                      * */
-                    await _unitOfWork.IssueToken.CreateNew(
+                    await _dbunitOfWork.IssueToken.CreateNew(
                         subProService.ConversationID,
                         subProService.MSISDN,
                         DateTime.Now.ToString(),

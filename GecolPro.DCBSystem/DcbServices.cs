@@ -405,8 +405,6 @@ namespace GecolPro.DCBSystem
     }
     public interface IDcbServices
     {
-        //public Task<DcbSystemResponse> QryUserBasicBalOp(string msisdn);
-
         public Task<Result<SuccessResponseQryUserBasicBal, FailureResponse>> QryUserBasicBalOpX(string msisdn);
 
         public Task<Result<SuccessResponseDirectDebit, FailureResponse>> DirectDebitUnitOp(string conversationId, string msisdn, int amount);

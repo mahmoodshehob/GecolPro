@@ -23,8 +23,6 @@ namespace GecolPro.WebApi.Controllers
 
         public async Task<IActionResult> VendService()
         {
-
-
             string? remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
             if (remoteIpAddress == "127.0.0.1" || remoteIpAddress == "::1")

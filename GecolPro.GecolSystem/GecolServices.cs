@@ -32,150 +32,7 @@ namespace GecolPro.GecolSystem
             ConfirmCustomerReq
         }
 
-        public async Task<GecolSystemResponse> LoginReqOp()
-        {
-            try
-            {
-                var body = OrganizeXmlString(_createXml.CreateXmlLoginRequest());
-
-                var soapRsp = await SendSoapRequest(body, SoapAction.LoginReq.ToString());
-
-                if (soapRsp.IsSuccessStatusCode)
-                {
-                    //  here the response of Success Case
-                    var accountWallet = "Exception"; //?
-
-                    try
-                    {
-                        var loginRsp = await _createResponse.ToLoginRsp(soapRsp.Response);
-
-                        await Console.Out.WriteLineAsync(
-                            loginRsp.ID + "\n" +
-                            loginRsp.TID + "\n" +
-                            loginRsp.CDUID + "\n" +
-                            loginRsp.CDUName + "\n" +
-                            loginRsp.CDUBalance + "\n" +
-                            loginRsp.MinVendAmt + "\n" +
-                            loginRsp.MaxVendAmt + "\n" +
-                            loginRsp.LoginTime + "\n");
-
-                        accountWallet = loginRsp.CDUBalance.ToString();
-                        // Success Case;
-
-                        //return (SoapRsp.Responce, SoapRsp.StatusCode, SoapRsp.state);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogException(ex);
-
-                        accountWallet = "Exception";
-                    }
-
-                    return new GecolSystemResponse(accountWallet, soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-                }
-                else
-                {
-                    return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-                }
-            }
-            catch (Exception ex)
-            {
-
-                LogException(ex);
-
-                return new GecolSystemResponse("Fault", ex.Message, false);
-            }
-        }
-
-        public async Task<GecolSystemResponse> ConfirmCustomerOp(string meterNumber)
-        {
-            try
-            {
-                var body = _createXml.CreateXmlCustomerRequest(meterNumber);
-
-                var soapRsp = await SendSoapRequest(body, SoapAction.ConfirmCustomerReq.ToString());
-
-                if (soapRsp.IsSuccessStatusCode)
-                {
-
-                    var MeterDetails = await _createResponse.ToCreateXmlCustomerCRsp(soapRsp.Response);
-
-                    string meterExisting;
-                    try
-                    {
-                        meterExisting = "Meter Exist";
-                    }
-                    catch (Exception ex)
-                    {
-                        LogException(ex);
-                        meterExisting = "Exception";
-
-                    }
-
-                    return new GecolSystemResponse(meterExisting, soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-                }
-                else
-                {
-                    return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-
-                return new GecolSystemResponse("Fault", ex.Message, false);
-            }
-        }
-
-        public async Task<GecolSystemResponse> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue)
-        {
-            CreditVendRespBody.CreditVendResp creditVendResp = new CreditVendRespBody.CreditVendResp();
-
-            try
-            {
-
-                var body = _createXml.CreateXmlCreditVendRequest(meterNumber, uniqeNumber, purchaseValue);
-
-                var soapRsp = await SendSoapRequest(body, SoapAction.CreditVendReq.ToString());
-
-                if (soapRsp.IsSuccessStatusCode)
-                {
-                    string? creditToken;
-                    try
-                    {
-                        // Response in Json formate
-                        creditToken = JsonSerializer.Serialize(await _createResponse.ToCreditVendCRsp(soapRsp.Response));
-
-
-                    }
-                    catch (Exception ex)
-                    {
-                        LogException(ex);
-                        creditToken = "Exception";
-                    }
-
-                    return new GecolSystemResponse(creditToken!, soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-                }
-                else
-                {
-                    return new GecolSystemResponse(await FailedCase(soapRsp.Response), soapRsp.StatusCode, soapRsp.IsSuccessStatusCode);
-
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-                return new GecolSystemResponse("Fault", ex.Message, false);
-            }
-        }
-
-
-
-
-        public async Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOpx()
+        public async Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOp()
         {
             try
             {
@@ -251,7 +108,7 @@ namespace GecolPro.GecolSystem
             }
         }
 
-        public async Task<Result<SuccessResponseConfirmCustomer, FailureResponse>> ConfirmCustomerOpx(string meterNumber)
+        public async Task<Result<SuccessResponseConfirmCustomer, FailureResponse>> ConfirmCustomerOp(string meterNumber)
         {
             try
             {
@@ -327,7 +184,7 @@ namespace GecolPro.GecolSystem
             }
         }
 
-        public async Task<Result<SuccessResponseCreditVend, FailureResponse>> CreditVendOpx(string meterNumber, string uniqeNumber, int purchaseValue)
+        public async Task<Result<SuccessResponseCreditVend, FailureResponse>> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue)
         {
             CreditVendRespBody.CreditVendResp creditVendResp = new CreditVendRespBody.CreditVendResp();
 
@@ -496,18 +353,10 @@ namespace GecolPro.GecolSystem
     }
     public interface IGecolServices
     {
-        //public Task<GecolSystemResponse> LoginReqOp();
-        
-        //public Task<GecolSystemResponse> ConfirmCustomerOp(string meterNumber);
-       
-        //public  Task<GecolSystemResponse> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue);
+        public Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOp();
 
+        public Task<Result<SuccessResponseConfirmCustomer, FailureResponse>> ConfirmCustomerOp(string meterNumber);
 
-
-        public Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOpx();
-
-        public Task<Result<SuccessResponseConfirmCustomer, FailureResponse>> ConfirmCustomerOpx(string meterNumber);
-
-        public Task<Result<SuccessResponseCreditVend, FailureResponse>> CreditVendOpx(string meterNumber, string uniqeNumber, int purchaseValue);
+        public Task<Result<SuccessResponseCreditVend, FailureResponse>> CreditVendOp(string meterNumber, string uniqeNumber, int purchaseValue);
     }
 }
