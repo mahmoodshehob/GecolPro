@@ -20,6 +20,8 @@ using GecolPro.DataAccess.Interfaces;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using NuGet.Packaging;
 using Microsoft.Data.SqlClient;
+using GecolPro.WebApi.UssdService;
+using Microsoft.AspNetCore.Mvc;
 
 
 
@@ -31,13 +33,20 @@ namespace GecolPro.WebApi.BusinessRules
     public class UssdProcess : IUssdProcess
     {
 
+        private const string contentType = "text/xml";
+
         private readonly AuthHeader _authHeader;
         private readonly Random random = new Random();
 
+      
+        private IMenusX? _menus;
         private ILoggers _loggerG ;
         private IDcbServices? _dcbServices;
         private IGecolServices? _gecolServices;
-        private IMenusX? _menus;
+        private IUssdConverter _ussdConverter;
+        private IResponses _responses;
+
+
         private ISendMessage? _sendMessage;
         private readonly IDbUnitOfWork? _dbunitOfWork;
 
@@ -65,6 +74,8 @@ namespace GecolPro.WebApi.BusinessRules
             IMenusX          menus,
             ISendMessage    sendMessage,
             IConfiguration _config,
+            IUssdConverter ussdConverter,
+            IResponses responses,
             IDbUnitOfWork? dbunitOfWork)
         {
             _dcbServices = dcbServices;
@@ -73,6 +84,8 @@ namespace GecolPro.WebApi.BusinessRules
             _menus = menus;
             _sendMessage = sendMessage;
             _dbunitOfWork = dbunitOfWork;
+            _ussdConverter = ussdConverter;
+            _responses = responses;
             _authHeader = new AuthHeader()
             {
                 Username = _config.GetValue<string>("AuthHeaderOfDCB:username"),
@@ -85,15 +98,14 @@ namespace GecolPro.WebApi.BusinessRules
         {
             public const string request = "request";
             public const string end = "end";
-
         }
 
 
-        private class Respresponse
-        {
-            public const string True = "True";
-            public const string False = "False";  
-        }
+        //private class Respresponse
+        //{
+        //    public const string True = "True";
+        //    public const string False = "False";  
+        //}
 
 
 
@@ -224,7 +236,7 @@ namespace GecolPro.WebApi.BusinessRules
             {
                 await _loggerG.LogConnectionsStatusAsync($"{logPrefix}==>|Req_DcbCheck|{conversationId}|Check Service Connectivity");
 
-                Result<SuccessResponseQryUserBasicBal, FailureResponse> subProServiceResp = await _dcbServices.QryUserBasicBalOpX("218947776156");
+                Result<SuccessResponseQryUserBasicBal, FailureResponse> subProServiceResp = await _dcbServices.QryUserBasicBalOp("218947776156");
 
 
                 if (subProServiceResp.IsSuccess)
@@ -765,7 +777,7 @@ namespace GecolPro.WebApi.BusinessRules
         /* Main Class (Service Start here)
          */
 
-        public async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
+        private async Task<MultiResponseUSSD> ServiceProcessing(MultiRequest multiRequest, string Lang)
         {
             /* Service start here
 
@@ -827,7 +839,7 @@ namespace GecolPro.WebApi.BusinessRules
                     MSISDN = multiRequest.MSISDN,
                     USSDServiceCode = "0",
                     USSDResponseString = msgContentResult.UssdCont,
-                    Action = RespActions.end.ToString(),
+                    Action = RespActions.end,
                     ResponseCode = 9988
                 };
             }
@@ -921,10 +933,60 @@ namespace GecolPro.WebApi.BusinessRules
                 MSISDN = multiRequest.MSISDN,
                 USSDServiceCode = "0",
                 USSDResponseString = msgContentResult.UssdCont,
-                Action = RespActions.end.ToString(),
+                Action = RespActions.end,
             };
 
             return multiResponse;
+        }
+
+
+
+
+
+
+        public async Task<ContentResult> GetResponse(string xmlContent, string lang)
+        {
+            ContentResult response = new ContentResult();
+
+            MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
+
+
+            MultiResponseUSSD multiResponse = await ServiceProcessing(multiRequest, lang);
+
+            await _loggerG.LogUssdTransAsync($"{xmlContent}");
+
+
+
+
+            if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
+            {
+                string respContetn = _responses.Resp(multiResponse);
+
+                await _loggerG.LogUssdTransAsync($"{respContetn}");
+
+                response = new ContentResult
+                {
+                    ContentType = contentType,
+                    Content = respContetn,
+                    StatusCode = 200
+                };
+                return response;
+
+            }
+            else
+            {
+                string respContetn = _responses.Fault_Response(multiResponse);
+
+                await _loggerG.LogDcbTransAsync($"{respContetn}");
+
+                response = new ContentResult
+                {
+                    ContentType = contentType,
+                    Content = respContetn,
+                    StatusCode = 400
+                };
+                return response;
+            }
         }
     }
 }

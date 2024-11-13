@@ -9,5 +9,7 @@ namespace GecolPro.DataAccess.Interfaces
         IRequestService Request { get; }
 
         IIssueTokenServices IssueToken { get; }
+
+        IDatabaseConnection DatabaseConnection { get; }
     }
 }

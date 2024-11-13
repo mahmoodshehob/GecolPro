@@ -19,92 +19,47 @@ namespace GecolPro.WebApi.Controllers
     {
 
         private ILoggers _loggerG;
-        private IUssdConverter _ussdConverter;
-        private IResponses _responses;
         private IUssdProcess _ussdProcess;
 
 
 
 
         private MultiRequest multiRequestRE = new MultiRequest();
-        private readonly string contentType = "text/xml";
-        //private ServiceProcess.SendMessage sendMessage = new ServiceProcess.SendMessage();
-
-
-  
-
-
+        private const string contentType = "text/xml";
 
 
         public UssdGecolController(
-            IUssdConverter ussdConverter,
-            IResponses responses,
             ILoggers loggerG,
             IUssdProcess ussdProcess)
         {
-            _ussdConverter = ussdConverter;
-            _responses = responses;
-            _loggerG = loggerG;
+             _loggerG = loggerG;
             _ussdProcess = ussdProcess;
         }
 
 
-        private async Task<ContentResult> GetResponseV1(string xmlContent, string lang)
+
+        private async Task<string> RemoteIpAddress()
         {
-            ContentResult response = new ContentResult();
+            string? remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-            MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
-
-
-            MultiResponseUSSD multiResponse = await _ussdProcess.ServiceProcessing(multiRequest, lang);
-
-            await _loggerG.LogUssdTransAsync($"{xmlContent}");
-
-
-
-
-            if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
+            if (remoteIpAddress == "127.0.0.1" || remoteIpAddress == "::1")
             {
-                string respContetn = _responses.Resp(multiResponse);
-
-                await _loggerG.LogUssdTransAsync($"{respContetn}");
-
-                response = new ContentResult
-                {
-                    ContentType = contentType,
-                    Content = respContetn,
-                    StatusCode = 200
-                };
-                return response;
-
+                // Get the original IP from the X-Forwarded-For header
+                remoteIpAddress = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
             }
-            else
-            {
-                string respContetn = _responses.Fault_Response(multiResponse);
 
-                await _loggerG.LogDcbTransAsync($"{respContetn}");
+            remoteIpAddress = remoteIpAddress == null ? "127.0.0.1" : "127.11.11.1";
 
-                response = new ContentResult
-                {
-                    ContentType = contentType,
-                    Content = respContetn,
-                    StatusCode = 400
-                };
-                return response;
-            }
+            return remoteIpAddress;
         }
-
-
 
 
         #region API Region 
 
-        // Version 1
-
         //English
 
         [HttpPost]
-        [Consumes("text/xml")]
+        [Consumes(contentType)]
         [Route("api/[Controller]/creditVendReq/V1/En")]
         public async Task<ContentResult> PostV1En()
         {
@@ -114,7 +69,7 @@ namespace GecolPro.WebApi.Controllers
 
                 string xmlContent = await reader.ReadToEndAsync();
 
-                response = await GetResponseV1(xmlContent, "En");
+                response = await _ussdProcess.GetResponse(xmlContent, "En");
 
                 return response;
             }
@@ -124,7 +79,7 @@ namespace GecolPro.WebApi.Controllers
         //Arabic
 
         [HttpPost]
-        [Consumes("text/xml")]
+        [Consumes(contentType)]
         [Route("api/[Controller]/creditVendReq/V1/Ar")]
         public async Task<ContentResult> PostV1Ar()
         {
@@ -134,15 +89,12 @@ namespace GecolPro.WebApi.Controllers
 
                 string xmlContent = await reader.ReadToEndAsync();
 
-                MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
-
-                response = await GetResponseV1(xmlContent, "Ar");
-
-
+                response = await _ussdProcess.GetResponse(xmlContent, "Ar");
 
                 return response;
             }
         }
+
         #endregion
 
     }

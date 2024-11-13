@@ -17,6 +17,8 @@ namespace GecolPro.DataAccess.Services
 
         public IIssueTokenServices IssueToken { get; private set; }
 
+        public IDatabaseConnection DatabaseConnection { get; private set; }
+
         public DbUnitOfWork(AppDbContext db)
         {
             _db = db;
@@ -26,6 +28,8 @@ namespace GecolPro.DataAccess.Services
             Request = new RequestService(_db);
 
             IssueToken = new IssueTokenServices(_db);
+
+            DatabaseConnection = new DatabaseConnection(_db);
         }
     }
 }

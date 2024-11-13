@@ -58,56 +58,7 @@ namespace GecolPro.DCBSystem
             return stringBuilder.ToString();
         }
 
-        public async Task<DcbSystemResponse> QryUserBasicBalOp(string msisdn)
-        {
-            var statusCode = "";
-            try
-            {
-
-
-                QryUserBasicBalRsp qryUserBasicBalRsp = new();
-                QryUserBasicBalSoap qryUserBasicBalSoap = new()
-                {
-                    MSISDN = msisdn,
-                };
-
-                qryUserBasicBalRsp.MSISDN = msisdn;
-
-                var body = _createXml.CreateXmlQryUserBal(qryUserBasicBalSoap);
-
-                var soapRsp = await SendSoapRequest(body, SoapAction.QryUserBasicBal);
-
-                statusCode = soapRsp.StatusCode;
-
-                if (soapRsp.IsSuccessStatusCode)
-                {
-                    qryUserBasicBalRsp = await _createResponse.ToQryUserBasicRsp(soapRsp.Response);
-
-                    var balance = (int.Parse(qryUserBasicBalRsp.BalanceDto.BalanceValue) / 100000).ToString();
-
-                    return new DcbSystemResponse(balance, statusCode, true);
-                }
-
-                string faultCode;
-                if (soapRsp.Response.ToLower() != "timeout")
-                {
-                    faultCode = await FailedCase(soapRsp.Response);
-                }
-                else
-                {
-                    faultCode = "timeout";
-                }
-
-                return new DcbSystemResponse(faultCode, statusCode, false);
-            }
-            catch (Exception e)
-            {
-                LogException(e);
-                return new DcbSystemResponse(e.Message, statusCode, false);
-            }
-        }
-
-        public async Task<Result<SuccessResponseQryUserBasicBal, FailureResponse>> QryUserBasicBalOpX(string msisdn)
+        public async Task<Result<SuccessResponseQryUserBasicBal, FailureResponse>> QryUserBasicBalOp(string msisdn)
         {
             try
             {
@@ -405,7 +356,7 @@ namespace GecolPro.DCBSystem
     }
     public interface IDcbServices
     {
-        public Task<Result<SuccessResponseQryUserBasicBal, FailureResponse>> QryUserBasicBalOpX(string msisdn);
+        public Task<Result<SuccessResponseQryUserBasicBal, FailureResponse>> QryUserBasicBalOp(string msisdn);
 
         public Task<Result<SuccessResponseDirectDebit, FailureResponse>> DirectDebitUnitOp(string conversationId, string msisdn, int amount);
 

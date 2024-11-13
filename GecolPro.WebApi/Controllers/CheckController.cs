@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GecolPro.WebApi.Interfaces;
+using GecolPro.DataAccess.Interfaces;
+using GecolPro.Models.DbEntity;
 
 namespace GecolPro.WebApi.Controllers
 {
@@ -7,21 +9,18 @@ namespace GecolPro.WebApi.Controllers
     [Route("api/[Controller]/")]
     public class CheckController : ControllerBase
     {
-        private IUssdProcess _ussdProcess;
+        private readonly IUssdProcess _ussdProcess;
+        private readonly IDbUnitOfWork _dbUnitOfWork;
 
 
-        public CheckController(IUssdProcess ussdProcess) 
+        public CheckController(IUssdProcess ussdProcess , IDbUnitOfWork dbUnitOfWork) 
         {
             _ussdProcess = ussdProcess;
+            _dbUnitOfWork = dbUnitOfWork;
         }
 
 
-
-        #region API Region 
-
-        [HttpGet("VendService", Name = "VendService")]
-
-        public async Task<IActionResult> VendService()
+        private async Task<string> RemoteIpAddress()
         {
             string? remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
@@ -30,37 +29,95 @@ namespace GecolPro.WebApi.Controllers
                 // Get the original IP from the X-Forwarded-For header
                 remoteIpAddress = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
             }
+            return remoteIpAddress;
+        }
 
-            bool Status = await _ussdProcess.CheckServiceExist(remoteIpAddress);
 
-            string responseTime = "| " +DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+        #region API Region 
+
+
+        [HttpGet("VendService", Name = "VendService")]
+
+        public async Task<IActionResult> VendService()
+        {
+
+            bool Status = await _ussdProcess.CheckServiceExist(await RemoteIpAddress());
+
+            string responseTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
             if (Status)
             {
-                return Ok(new { Status = $"Service Connected {responseTime}" });
+                return Ok(new
+                {
+                    ResponseTime = responseTime,
+                    Status = "Service Connected"
+                });
             }
             else
             {
-                return BadRequest(new { Status = $"Service Down {responseTime}" });
+                return BadRequest(new
+                {
+                    ResponseTime = responseTime,
+                    Status = "Service Down"
+                });
             }
         }
+
+        //
 
         [HttpGet("DcbService",Name = "DcbService")]
         public async Task<IActionResult> DcbService()
         {
             bool Status = await _ussdProcess.CheckDcbExist();
 
-            string responseTime = "| " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string responseTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 
             if (Status)
             {
-                return Ok(new { Status = $"Service Connected {responseTime}" });
+                return Ok(new
+                {
+                    ResponseTime = responseTime,
+                    Status = "Service Connected"
+                });
             }
             else
             {
-                return BadRequest(new { Status = $"Service Down {responseTime}" });
+                return BadRequest(new
+                {
+                    ResponseTime = responseTime,
+                    Status = "Service Down"
+                });
             }
         }
+
+        //
+
+        [HttpGet("DatabaseService", Name = "DatabaseService")]
+        public async Task<IActionResult> DatabaseService()
+        {
+            var serviceResult = await _dbUnitOfWork.DatabaseConnection.CheckConnection();
+
+            string responseTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+            if (serviceResult.Status)
+            {
+                return Ok(new {
+                    ResponseTime = responseTime,
+                    Status = "Service Connected" });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    ResponseTime = responseTime,
+                    Status = "Service Down",
+                    Reason = serviceResult.Message
+                });
+            }
+        }
+
+
         #endregion
 
     }

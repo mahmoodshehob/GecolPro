@@ -31,7 +31,10 @@ builder.Services.AddControllers();
 
 
 builder.Services.AddDbContext<AppDbContext>(option =>
-option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+{
+    sqlOptions.CommandTimeout(5); // Sets the command timeout to 5 seconds
+}));
 
 
 

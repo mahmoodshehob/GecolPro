@@ -7,6 +7,8 @@ using GecolPro.Models.Models;
 using Microsoft.Extensions.Configuration;
 using static GecolPro.Models.Gecol.LoginRspXml;
 using System.Windows.Markup;
+using System.Net.Http;
+using System.Net.Cache;
 
 namespace GecolPro.GecolSystem
 {
@@ -34,6 +36,7 @@ namespace GecolPro.GecolSystem
 
         public async Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOp()
         {
+            var oo = "";
             try
             {
                 var body = OrganizeXmlString(_createXml.CreateXmlLoginRequest());
