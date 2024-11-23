@@ -1,33 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-	<TargetFramework>net8.0</TargetFramework>
-	<Nullable>enable</Nullable>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<SatelliteResourceLanguages></SatelliteResourceLanguages>	  <!-- Add this line to remove language files -->
-	<PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
-	  <PrivateAssets>all</PrivateAssets>
-	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	</PackageReference>
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
-	  <PrivateAssets>all</PrivateAssets>
-	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	</PackageReference>
-	<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.10" />
-	<PackageReference Include="StackExchange.Redis" Version="2.8.16" />
-	<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.10" />
+		<PackageReference Include="StackExchange.Redis" Version="2.8.16" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-	<ProjectReference Include="..\GecolPro.DataAccess\GecolPro.DataAccess.csproj" />
-	<ProjectReference Include="..\GecolPro.DCBSystem\GecolPro.DCBSystem.csproj" />
-	<ProjectReference Include="..\GecolPro.GecolSystem\GecolPro.GecolSystem.csproj" />
-	<ProjectReference Include="..\GecolPro.Models\GecolPro.Models.csproj" />
-	<ProjectReference Include="..\GecolPro.Services\GecolPro.Services.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\GecolPro.DataAccess\GecolPro.DataAccess.csproj" />
+		<ProjectReference Include="..\GecolPro.DCBSystem\GecolPro.DCBSystem.csproj" />
+		<ProjectReference Include="..\GecolPro.GecolSystem\GecolPro.GecolSystem.csproj" />
+		<ProjectReference Include="..\GecolPro.Models\GecolPro.Models.csproj" />
+		<ProjectReference Include="..\GecolPro.Services\GecolPro.Services.csproj" />
+	</ItemGroup>
 
 </Project>

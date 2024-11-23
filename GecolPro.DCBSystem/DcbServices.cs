@@ -286,7 +286,84 @@ namespace GecolPro.DCBSystem
             }
         }
 
-        private async Task<DcbSystemResponse> SendSoapRequest(string Body, string soapAction)
+        private async Task<DcbSystemResponse> SendSoapRequest(string body, string soapAction)
+        {
+            string? statusCode = "";
+            int maxRetries = 3;  // Total attempts, including the initial attempt
+            int retryCount = 0;
+            TimeSpan timeout = TimeSpan.FromMilliseconds(5000);
+
+            while (retryCount < maxRetries)
+            {
+                try
+                {
+                    using (var client = new HttpClient { Timeout = timeout })
+                    {
+                        var request = new HttpRequestMessage(HttpMethod.Post, _authHeader.Url)
+                        {
+                            Content = new StringContent(body, Encoding.UTF8, "text/xml")
+                        };
+                        request.Headers.Add("SOAPAction", soapAction);
+
+                        await LoggerG.LogDcbTransAsync($"{body}");
+
+                        var response = await client.SendAsync(request);
+
+                        await LoggerG.LogDcbTransAsync($"{OrganizeXmlString(await response.Content.ReadAsStringAsync())}");
+
+                        statusCode = response.StatusCode.ToString();
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            return new DcbSystemResponse(await response.Content.ReadAsStringAsync(), response.StatusCode.ToString(), true);
+                        }
+                        else
+                        {
+                            // Log and return on failure
+                            return new DcbSystemResponse(await response.Content.ReadAsStringAsync(), response.StatusCode.ToString(), false);
+                        }
+                    }
+                }
+                catch (TaskCanceledException ex) when (ex.CancellationToken == CancellationToken.None)
+                {
+                    LogException(ex);
+                    statusCode = "timeout";
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                    {
+                        return new DcbSystemResponse(ex.Message, statusCode, false);
+                    }
+                }
+                catch (HttpRequestException ex)
+                {
+                    LogException(ex);
+                    statusCode = ex.GetType().Name;
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                    {
+                        return new DcbSystemResponse(ex.Message, statusCode, false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogException(ex);
+                    statusCode = ex.GetType().Name;
+                    retryCount++;
+                    if (retryCount >= maxRetries)
+                    {
+                        return new DcbSystemResponse(ex.Message, statusCode, false);
+                    }
+                }
+
+                // Optional delay before retrying (e.g., 1 second delay)
+                await Task.Delay(1000);
+            }
+
+            // Fallback if no response could be successfully received after retries
+            return new DcbSystemResponse("Request failed after retries", statusCode, false);
+        }
+
+        private async Task<DcbSystemResponse> SendSoapRequest1(string Body, string soapAction)
         {
             string? statusCode ="";
             try

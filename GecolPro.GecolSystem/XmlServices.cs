@@ -209,28 +209,57 @@ namespace GecolPro.GecolSystem
 
             // Query the XML document
 
-            var confirmCustResult = xdoc.Descendants(ns3 + "meterDetail").FirstOrDefault();
+            var confirmCustResultCustVendDetail = xdoc.Descendants(ns3 + "custVendDetail").FirstOrDefault();
+            var confirmCustResultMeterDetail = xdoc.Descendants(ns3 + "meterDetail").FirstOrDefault();
+
+
+
 
             // Meter Detail
 
-            string meterDetail_krn = confirmCustResult.Attribute("krn")?.Value;
-            string meterDetail_msno = confirmCustResult.Attribute("msno")?.Value;
-            string meterDetail_sgc = confirmCustResult.Attribute("sgc")?.Value;
-            string meterDetail_ti = confirmCustResult.Attribute("ti")?.Value;
+            string meterDetail_krn = confirmCustResultMeterDetail.Attribute("krn")?.Value;
+            string meterDetail_msno = confirmCustResultMeterDetail.Attribute("msno")?.Value;
+            string meterDetail_sgc = confirmCustResultMeterDetail.Attribute("sgc")?.Value;
+            string meterDetail_ti = confirmCustResultMeterDetail.Attribute("ti")?.Value;
+
+
 
             // Meter Type
 
-            string meterType_At = confirmCustResult.Element(ns2 + "meterType")?.Attribute("at")?.Value;
-            string meterType_Tt = confirmCustResult.Element(ns2 + "meterType")?.Attribute("tt")?.Value;
+            string meterType_At = confirmCustResultMeterDetail.Element(ns2 + "meterType")?.Attribute("at")?.Value;
+            string meterType_Tt = confirmCustResultMeterDetail.Element(ns2 + "meterType")?.Attribute("tt")?.Value;
+
 
             ConfirmCustomerRespBody confirmCustomerResp = new()
             {
                 CustomerNumber = meterDetail_msno,
                 AT = meterType_At,
-                TT = meterType_Tt,
+                TT = meterType_Tt
             };
 
+            if (float.TryParse(confirmCustResultMeterDetail.Element(ns2 + "minVendAmt")?.Value, out float meterType_Min))
+                confirmCustomerResp.MinVendAmt = meterType_Min;
 
+            if (float.TryParse(confirmCustResultMeterDetail.Element(ns2 + "maxVendAmt")?.Value, out float meterType_Max))
+                confirmCustomerResp.MaxVendAmt = meterType_Max;
+
+
+            // Cutomer Details
+
+            confirmCustomerResp.CustVendDetail = new()
+            {
+                AccNo = confirmCustResultCustVendDetail.Attribute("accNo")?.Value,
+
+                Address = confirmCustResultCustVendDetail.Attribute("address")?.Value,
+
+                ContactNo = confirmCustResultCustVendDetail.Attribute("contactNo")?.Value,
+
+                DaysLastPurchase = confirmCustResultCustVendDetail.Attribute("daysLastPurchase")?.Value,
+                
+                LocRef = confirmCustResultCustVendDetail.Attribute("locRef")?.Value,
+                
+                Name = confirmCustResultCustVendDetail.Attribute("name")?.Value,
+            };
 
             return confirmCustomerResp;
 
@@ -385,7 +414,7 @@ namespace GecolPro.GecolSystem
                     };
 
 
-                    if (serviceChrgTx.AccDesc.Contains("everymonth * "))
+                    if (serviceChrgTx.AccDesc.Contains("resident fee * "))
                     {
                         var getNumOfMonth = serviceChrgTx.AccDesc.Split('*');
 
@@ -393,7 +422,7 @@ namespace GecolPro.GecolSystem
 
                         serviceChrgTx.Amout = (int.Parse(serviceChrgTx.Amout) * NumOfMonthExpLastMonth).ToString();
 
-                        serviceChrgTx.AccDesc = "Monthly Tax for old (" + NumOfMonthExpLastMonth + ") months";
+                        serviceChrgTx.AccDesc = "resident fee historical";
                     }
 
                     creditVendResp.ServiceChrgTx.Add(serviceChrgTx);

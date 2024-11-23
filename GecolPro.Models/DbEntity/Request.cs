@@ -16,6 +16,7 @@
         public string? TransactionId { get; set; }//Dcb
 
 
+        public string? MeterNumber { get; set; }        
         public string? UniqueNumber { get; set; }
 
         public string FromSystem { get; set; } //Gecol Or Dcb

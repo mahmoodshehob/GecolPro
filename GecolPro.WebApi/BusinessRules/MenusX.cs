@@ -21,16 +21,13 @@ namespace GecolPro.WebApi.BusinessRules
                 case "En":
                     
                     msgContent.UssdCont =
-                        $"Invoice: {ArgR.CreditVendReceipt}\n" +
-                        $"Token: {ArgR.CreditVendTx.STS1Token}\n" +
-                        $"Amount: {ArgR.TenderAmount} LYD\n"+
-                        $"Charged: {ArgR.CreditVendTx.Amout} LYD\n";
+                        $"You successfully recharged your meter.";
 
 
                     msgContent.MessageCont =
                         $"Credit Vend Receipt: {ArgR.CreditVendReceipt}\n\n" +
-                        $"Total Transaction fee: {ArgR.TenderAmount} LYD\n\n" +
-                        $"Credit Token Issue Desc : {ArgR.DispHeader}\n\n\n";
+                        $"Total Transaction fee: {ArgR.TenderAmount} LYD\n\n\n";
+
 
                     if (!string.IsNullOrEmpty(ArgR.CreditVendTx.Desc_KcToken))
                     {
@@ -50,18 +47,17 @@ namespace GecolPro.WebApi.BusinessRules
                         
                         msgContent.MessageCont +=
                                 $"Transaction Account Desc: {ArgR.RecoveryTx.AccDesc}\n" +
-                                $"Transaction Amount: {ArgR.RecoveryTx.Amout}\n"+
-                                $"Transaction Dept: {ArgR.RecoveryTx.Balance}\n\n"; 
+                                $"Transaction Amount: {ArgR.RecoveryTx.Amout} LYD\n" +
+                                $"Transaction Dept: {ArgR.RecoveryTx.Balance} LYD\n\n"; 
                     }
 
                     if (ArgR.ServiceChrgTx != null)
                     {
-                        msgContent.MessageCont += "Taxs Service Charge\n\n";
                         foreach (var argR in ArgR.ServiceChrgTx)
                         {
                             msgContent.MessageCont +=
                                 $"Transaction Account Desc: {argR.AccDesc}\n" +
-                                $"Transaction Amount: {argR.Amout}\n\n";
+                                $"Transaction Amount: {argR.Amout} LYD\n\n";
                         }
                     }
                     break;
@@ -72,48 +68,43 @@ namespace GecolPro.WebApi.BusinessRules
 
                     //msgContent.MessageCont = string.Format("تم شحن العداد {0} بي {1} دينار \n  كرت الشحن  {2} \n   رقم عملية الشحن  {3}", Arg[0], Arg[1], Arg[2], Arg[3]);
 
-                    msgContent.UssdCont =
-                        $"{ArgR.CreditVendReceipt}فاتورة :\n" +
-                        $"{ArgR.CreditVendTx.STS1Token}رمز :\n" +
-                        $"ل.د{ArgR.CreditVendTx.Amout}رسوم المعاملة :\n\n";
+                    msgContent.UssdCont = "تمت عملية شحن عدادك بنجاح.";
 
         
 
                     msgContent.MessageCont =
-                        $"{ArgR.CreditVendReceipt}فاتورة :\n\n" +
-                        $"{ArgR.CreditVendTx.STS1Token}رمز :\n\n" +
-                        $"ل.د{ArgR.CreditVendTx.Amout}المبلغ المدفوع :\n\n\n";
+                        $"فاتورة رقم: {ArgR.CreditVendReceipt}\n" +
+                        $"المبلغ المدفوع: {ArgR.TenderAmount} دينار\n\n";
 
                     if (!string.IsNullOrEmpty(ArgR.CreditVendTx.Desc_KcToken))
                     {
                         msgContent.MessageCont +=
-                       "أدخل هذه الرموز اولا : \n\n" +
-                       $"الاول : {ArgR.CreditVendTx.Set1stMeterKey}\n" +
-                       $"الثاني : {ArgR.CreditVendTx.Set2ndMeterKey}\n\n";
+                       "أدخل هذه الرموز اولا: \n" +
+                       $"الأول: {ArgR.CreditVendTx.Set1stMeterKey}\n" +
+                       $"الثاني: {ArgR.CreditVendTx.Set2ndMeterKey}\n\n";
                     }
 
                     msgContent.MessageCont +=
-                        $"رمز الشحن : {ArgR.CreditVendTx.STS1Token}\n\n" +
-                        $"صافي قيمة الشحن : {ArgR.CreditVendTx.Amout} دينار\n\n\n";
+                        $"رمز الشحن: {ArgR.CreditVendTx.STS1Token}\n" +
+                        $"صافي قيمة الشحن: {ArgR.CreditVendTx.Amout} دينار\n\n";
 
                     if (ArgR.RecoveryTx != null)
                     {
-                        msgContent.MessageCont += "الضرائب المستردة\n\n";
+                        //msgContent.MessageCont += "ديون مستحقة\n\n";
 
                         msgContent.MessageCont +=
                                 //$"اسم المعاملة: {Translater(ArgR.RecoveryTx.AccDesc,Lang)}\n" +
-                                $"الرسوم : {ArgR.RecoveryTx.Amout}\n" +
-                                $"باقي الديون : {ArgR.RecoveryTx.Balance}\n\n";
+                                $"ديون مستحقة : {ArgR.RecoveryTx.Amout} دينار\n";
+                                //$"باقي الديون : {ArgR.RecoveryTx.Balance} دينار\n\n";
                     }
 
                     if (ArgR.ServiceChrgTx.Count > 0)
                     {
-                        msgContent.MessageCont += "Taxs Service Charge\n\n";
+                        //msgContent.MessageCont += "الضرائب المخصومة :\n\n";
                         foreach (var argR in ArgR.ServiceChrgTx)
                         {
                             msgContent.MessageCont +=
-                                $"Transaction Account Desc: {Translater(argR.AccDesc, Lang)}\n" +
-                                $"Transaction Amount: {argR.Amout}\n\n";
+                                $"{Translater(argR.AccDesc, Lang)}: {argR.Amout} دينار\n\n";
                         }
                     }
                     break;
@@ -159,29 +150,6 @@ namespace GecolPro.WebApi.BusinessRules
             return (msgContent);
         }
 
-        //public static async Task<MsgContent> MeterNotExist(string Arg ,string Lang)
-        //{
-        //    string ussdCont;
-
-        //    //string messageCont = null;
-
-        //    switch (Lang)
-        //    {
-        //        case "En":
-        //            msgContent.UssdCont = string.Format("The Meter: {0} Not right or not exist", Arg);
-
-        //            break;
-
-        //        default:
-
-        //            msgContent.UssdCont = string.Format("رقم العداد {0} غير صحيح او غير موجود.", Arg); ;
-
-        //            break;
-        //    }
-        //    //return (ussdCont, messageCont);
-        //    return msgContent;
-        //}
-
         public  async Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang)
         {
             switch (Lang)
@@ -209,7 +177,7 @@ namespace GecolPro.WebApi.BusinessRules
                             break;
 
                         case "VD.01010018":
-                            msgContent.UssdCont = string.Format("Please visit the nearest billing center to update your subscriber information.");
+                            msgContent.UssdCont = string.Format("Incorrect meter number.");
                             break;
 
                         case "VD.01010019":
@@ -269,7 +237,7 @@ namespace GecolPro.WebApi.BusinessRules
                             break;
 
                         case "VD.01010018":
-                            msgContent.UssdCont = string.Format("نرجو منكم التوجه لأقرب مركز جباية لإستكمال بيانات المشترك.");
+                            msgContent.UssdCont = string.Format("رقم العداد غير صحيح.");
 
                             break;
 
@@ -392,7 +360,6 @@ namespace GecolPro.WebApi.BusinessRules
             return msgContent;
         }
 
-
         private string Translater(string Message, string Lang)
         {
             string msgContent = "";
@@ -401,14 +368,27 @@ namespace GecolPro.WebApi.BusinessRules
             switch (Lang)
             {
                 case "Ar":
+                    
                     switch (Message)
                     {
                         case "GECOL":
                             msgContent = "رسوم المعاملة";
                             break;
 
+                        case "chargefee":
+                            msgContent = "رسوم المعاملة";
+                            break;
+
                         case "everymonth":
-                            msgContent = "الرسوم الشهرية";
+                            msgContent = "أجرة العداد";
+                            break;
+
+                        case "resident fee":
+                            msgContent = "أجرة العداد";
+                            break;
+
+                        case "resident fee historical":
+                            msgContent = "ديون تراكمية";
                             break;
 
                         default:
@@ -425,8 +405,20 @@ namespace GecolPro.WebApi.BusinessRules
                             msgContent = "Transaction fees";
                             break;
 
+                        case "chargefee":
+                            msgContent = "Transaction fees";
+                            break;
+
                         case "everymonth":
                             msgContent = "Monthly fees";
+                            break;
+
+                        case "resident fee":
+                            msgContent = "Monthly fees";
+                            break;
+
+                        case "resident fee historical":
+                            msgContent = "historical fees";
                             break;
 
                         default:
@@ -441,4 +433,3 @@ namespace GecolPro.WebApi.BusinessRules
 
     }
 }
-

@@ -36,7 +36,7 @@ namespace GecolPro.GecolSystem
 
         public async Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOp()
         {
-            var oo = "";
+            
             try
             {
                 var body = OrganizeXmlString(_createXml.CreateXmlLoginRequest());

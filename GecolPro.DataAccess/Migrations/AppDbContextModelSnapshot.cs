@@ -114,6 +114,9 @@ namespace GecolPro.DataAccess.Migrations
                     b.Property<string>("MSISDN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MeterNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 

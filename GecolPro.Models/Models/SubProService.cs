@@ -36,6 +36,11 @@ namespace  GecolPro.Models.Models
 
         [Required]
         [Range(3, int.MaxValue, ErrorMessage = "The Amount must be at least 3.")]
-        public int Amount { set; get; }
+        public int AmountGecol { set; get; }
+
+
+        [Required]
+        [Range(3, int.MaxValue, ErrorMessage = "The Amount must be at least 3.")]
+        public int AmountDCB { set; get; }
     }
 }

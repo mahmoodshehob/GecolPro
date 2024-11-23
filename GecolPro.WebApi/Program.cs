@@ -31,10 +31,7 @@ builder.Services.AddControllers();
 
 
 builder.Services.AddDbContext<AppDbContext>(option =>
-option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
-{
-    sqlOptions.CommandTimeout(5); // Sets the command timeout to 5 seconds
-}));
+option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 
@@ -50,6 +47,7 @@ builder.Services.Configure<AuthHeader>(builder.Configuration.GetSection("AuthHea
 builder.Services.Configure<AuthCred>(builder.Configuration.GetSection("AuthHeaderOfGecol"));
 builder.Services.Configure<SmppInfo>(builder.Configuration.GetSection("SmmpInfo"));
 builder.Services.Configure<DbApiConnection>(builder.Configuration.GetSection("DbApiConnection"));
+builder.Services.Configure<MappingPKgs>(builder.Configuration.GetSection("MappingPKgs"));
 
 
 

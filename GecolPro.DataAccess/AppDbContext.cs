@@ -18,9 +18,6 @@ namespace GecolPro.DataAccess
 
 
 
-        //public  DbSet<Meter>? Meters { get; set; } ;
-        //public  DbSet<Request>? Requests { get; set; };
-        //public  DbSet<IssueTkn>? IssueTkns { get; set; };
 
     }
 }

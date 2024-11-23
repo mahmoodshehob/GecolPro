@@ -20,7 +20,8 @@ namespace GecolPro.DataAccess.Services
         }
 
 
-        public async Task<ServiceResult> SaveGecolRequest(string? conversationId, string? MSISDN, string amount, bool status, string[] token, string uniqueNumber, string totalTax)
+        public async Task<ServiceResult> SaveGecolRequest(string? conversationId, string? MSISDN, string meterNumber, string amount, bool status, string transactionId,
+            string[] token, string uniqueNumber, string totalTax)
         {
             try
             {
@@ -35,7 +36,8 @@ namespace GecolPro.DataAccess.Services
                     Status = status,
                     Token = tokens,
                     Amount = amount,
-                    TransactionId = "",
+                    TransactionId = transactionId,
+                    MeterNumber = meterNumber,
                     UniqueNumber = uniqueNumber,
                     FromSystem = "Gecol",
                     TotalTax = totalTax,
@@ -54,7 +56,7 @@ namespace GecolPro.DataAccess.Services
 
         }
 
-        public async Task<ServiceResult> SaveDcblRequest(string? conversationId, string? MSISDN, string amount, bool status, string transactionId)
+        public async Task<ServiceResult> SaveDcblRequest(string? conversationId, string? MSISDN, string meterNumber, string amount, bool status, string transactionId)
         {
             try
             {

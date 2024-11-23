@@ -51,19 +51,19 @@ namespace GecolPro.WebApi.Controllers
 
 
         [HttpGet("SaveDcblRequest/{conversationId}/{MSISDN}/{amount}/{status}/{transactionId}")]
-        public async Task<IActionResult> SaveDcblRequest(string? conversationId, string? MSISDN, string amount, bool status, string transactionId)
+        public async Task<IActionResult> SaveDcblRequest(string? conversationId, string? MSISDN, string meterNumber, string amount, bool status, string transactionId)
         {
-            var result = await _unitOfWork.Request.SaveDcblRequest(conversationId, MSISDN, amount, status, transactionId);
+            var result = await _unitOfWork.Request.SaveDcblRequest(conversationId, MSISDN, meterNumber, amount, status, transactionId);
             return Ok(result);
         }
 
 
         [HttpGet("SaveGecolRequest/{conversationId}/{MSISDN}/{amount}/{status}/{token}/{uniqueNumber}/{totalTax}")]
-        public async Task<IActionResult> SaveGecolRequest(string? conversationId, string? MSISDN, string amount,
-            bool status, [FromQuery] string[] token,
+        public async Task<IActionResult> SaveGecolRequest(string? conversationId, string? MSISDN, string? meterNumber, string amount,
+            bool status,string transactionId, [FromQuery] string[] token,
              string uniqueNumber, string totalTax)
         {
-            var result = await _unitOfWork.Request.SaveGecolRequest(conversationId, MSISDN, amount, status, token, uniqueNumber, totalTax);
+            var result = await _unitOfWork.Request.SaveGecolRequest(conversationId, MSISDN, meterNumber, amount, status, transactionId, token, uniqueNumber, totalTax);
             return Ok(result);
         }
 

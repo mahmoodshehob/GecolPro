@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GecolPro.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241103102217_addIssueTkns")]
-    partial class addIssueTkns
+    [Migration("20241113123104_InitialDB")]
+    partial class InitialDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,6 +115,9 @@ namespace GecolPro.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MSISDN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MeterNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Status")
