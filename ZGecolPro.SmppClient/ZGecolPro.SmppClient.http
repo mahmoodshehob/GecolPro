@@ -1,0 +1,6 @@
+@ZZGecolPro.SmppClient_HostAddress = http://localhost:5010
+
+GET {{ZZGecolPro.SmppClient_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

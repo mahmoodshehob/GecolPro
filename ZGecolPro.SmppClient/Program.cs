@@ -1,37 +1,30 @@
-using GecolPro.SmppClient.Services;
-using GecolPro.SmppClient.Services.IServices;
+using ZGecolPro.SmppClient.Services.IServices;
+using ZGecolPro.SmppClient.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
 
-
-builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddTransient<IGuidService, GuidService>();
 
-builder.Services.AddScoped<ILoggers,Loggers>();
-builder.Services.AddScoped<IServiceLogic, ServiceLogic>();
+builder.Services.AddScoped<ILoggers, Loggers>();
 
-
-
-
-//register mq in DI
-builder.Services.AddHostedService<MessageWorker>();
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+    options.LowercaseQueryStrings = true;
+    options.AppendTrailingSlash = true;
+});
 
 var app = builder.Build();
-
-//// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
 
 
 // Configure the HTTP request pipeline.
@@ -44,6 +37,14 @@ if (enableSwagger)
     app.UseSwaggerUI();
 }
 
+
+app.Use(async (context, next) =>
+{
+    var request = context.Request;
+    Console.WriteLine($"Path: {request.Path}");
+    Console.WriteLine($"QueryString: {request.QueryString}");
+    await next();
+});
 
 
 app.UseHttpsRedirection();

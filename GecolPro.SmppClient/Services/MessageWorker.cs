@@ -8,12 +8,14 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
+using GecolPro.SmppClient.Services.IServices;
 
 namespace GecolPro.SmppClient.Services
 {
     public class MessageWorker : BackgroundService
     {
 
+        private static DlrMessage dlrMessage = new DlrMessage();
 
         private readonly ConnectionFactory _factory;
 
@@ -29,8 +31,6 @@ namespace GecolPro.SmppClient.Services
 
         public MessageWorker(IConfiguration config )
         {
-
-
 
             _kannelModel = new KannelModel();
             config.GetSection("KannelPara").Bind(_kannelModel);
@@ -70,16 +70,20 @@ namespace GecolPro.SmppClient.Services
                     {
                         var body = ea.Body.ToArray();
                         var json = Encoding.UTF8.GetString(body);
-                        var message = JsonSerializer.Deserialize<SmsToKannel>(json);
+                        var message = JsonSerializer.Deserialize<MessageProfile>(json);
 
 
+                        dlrMessage.msgId = message.MsgID;
 
+                        string dlr_uri = $"dlr-mask={_kannelModel.DlrMask}&dlr-url={_kannelModel.DlrEndPoint}/Messages/DLR/{dlrMessage.Phone}/{dlrMessage.msgId}/{dlrMessage.Status}/%t/";
 
+                        Uri url = new Uri($"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&{dlr_uri}");
 
-                        //var url = $"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&dlr-mask=31&dlr-url=http://{_kannelModel.HostName}:8086/api/Messages/DLR?msgid=%k&status=%d";
+                        if (!String.IsNullOrEmpty(message.Profile) || !String.IsNullOrWhiteSpace(message.Profile))
+                        {  
+                            url = new Uri($"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&smsc={message.Profile}&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&{dlr_uri}");
+                        }
 
-                        Uri dlr_uri = new Uri("http://172.16.31.118:8086/api/Messages/DLR?msgid=%k&status=%d");
-                        var url = $"http://{_kannelModel.HostName}:{_kannelModel.Port}/cgi-bin/sendsms?username=kannel&password=kannel&from={message.Sender}&to=%2B{message.Receiver}&charset=UTF-8&coding=2&text={message.Message}&dlr-mask=31&dlr-url={dlr_uri}";
                         try
                         {
                             var response = await _client.GetAsync(url);
@@ -94,7 +98,7 @@ namespace GecolPro.SmppClient.Services
                             else
                             {
                                 // Log the failure but do not requeue automatically
-                                Console.WriteLine($"Failed to send SMS: {response.StatusCode}");
+                                await _loggers.LogInfoAsync($"Failed to send SMS: {response.StatusCode}");
                                 channel.BasicNack(deliveryTag: ea.DeliveryTag, multiple: false, requeue: true);
                             }
                         }
@@ -121,8 +125,6 @@ namespace GecolPro.SmppClient.Services
             {
                 await _loggers.LogInfoAsync($"Exception occurred: {ex.Message}");
             }
-
-
         }
 
         protected async Task CheckAsync(CancellationToken stoppingToken)
@@ -134,7 +136,7 @@ namespace GecolPro.SmppClient.Services
                 if (data != null)
                 {
                     var message = Encoding.UTF8.GetString(data.Body.ToArray());
-                    Console.WriteLine($"Received message: {message}");
+                    await _loggers.LogInfoAsync($"Received message: {message}");
 
                     // Acknowledge the message if needed
                     // channel.BasicAck(data.DeliveryTag, multiple: false);
@@ -144,7 +146,7 @@ namespace GecolPro.SmppClient.Services
 
         }
 
-        private void Error()
+        private async Task Error()
         {
             try
             {
@@ -156,11 +158,11 @@ namespace GecolPro.SmppClient.Services
             }
             catch (BrokerUnreachableException ex)
             {
-                Console.WriteLine("Could not reach the broker: " + ex.Message);
+                await _loggers.LogInfoAsync("Could not reach the broker: " + ex.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred: " + ex.Message);
+                await _loggers.LogInfoAsync("An error occurred: " + ex.Message);
             }
 
 

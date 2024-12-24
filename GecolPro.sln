@@ -17,6 +17,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.SmppClient", "Geco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.DataAccess", "GecolPro.DataAccess\GecolPro.DataAccess.csproj", "{0831EAF3-1397-4A47-8CC6-34E55971CCA2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GecolPro.BusinessRules", "GecolPro.BusinessRules\GecolPro.BusinessRules.csproj", "{283667DA-1169-4FFE-9261-2285F70AB9D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZGecolPro.SmppClient", "ZGecolPro.SmppClient\ZGecolPro.SmppClient.csproj", "{DFD9930E-2E3F-4338-B550-2168E8F52D7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{0831EAF3-1397-4A47-8CC6-34E55971CCA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0831EAF3-1397-4A47-8CC6-34E55971CCA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0831EAF3-1397-4A47-8CC6-34E55971CCA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{283667DA-1169-4FFE-9261-2285F70AB9D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{283667DA-1169-4FFE-9261-2285F70AB9D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{283667DA-1169-4FFE-9261-2285F70AB9D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{283667DA-1169-4FFE-9261-2285F70AB9D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFD9930E-2E3F-4338-B550-2168E8F52D7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFD9930E-2E3F-4338-B550-2168E8F52D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFD9930E-2E3F-4338-B550-2168E8F52D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFD9930E-2E3F-4338-B550-2168E8F52D7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

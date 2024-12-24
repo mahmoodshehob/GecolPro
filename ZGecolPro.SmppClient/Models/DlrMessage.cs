@@ -1,4 +1,4 @@
-﻿namespace GecolPro.SmppClient.Models
+﻿namespace ZGecolPro.SmppClient.Models
 {
     public class DlrMessage
     {

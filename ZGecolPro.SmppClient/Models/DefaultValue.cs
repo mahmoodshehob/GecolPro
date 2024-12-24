@@ -1,4 +1,4 @@
-﻿//namespace GecolPro.SmppClient.Models
+﻿//namespace ZGecolPro.SmppClient.Models
 //{
 //    internal class DefaultValue
 //    {

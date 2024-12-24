@@ -1,31 +1,35 @@
-﻿using System.Globalization;
-using Newtonsoft.Json;
-
-//Models
-
-using GecolPro.Models.Models;
-using GecolPro.Models.DCB;
-using GecolPro.Models.Gecol;
-
-
-using static GecolPro.Models.Models.MultiRequestUSSD;
+﻿using GecolPro.BusinessRules.Interfaces;
+using GecolPro.DataAccess.Interfaces;
 
 
 // Class Library
+
+
 using GecolPro.DCBSystem;
 using GecolPro.GecolSystem;
+using GecolPro.Models.DCB;
+using GecolPro.Models.Gecol;
+using static GecolPro.Models.Models.MultiRequestUSSD;
+
+
+//Models
+
+
+using GecolPro.Models.Models;
 using GecolPro.Services.IServices;
-using GecolPro.WebApi.Interfaces;
-using GecolPro.DataAccess.Interfaces;
 using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 
 
 
 
 
-namespace GecolPro.WebApi.BusinessRules
+
+namespace GecolPro.BusinessRules.BusinessRules
 {
     public class UssdProcess : IUssdProcess
     {

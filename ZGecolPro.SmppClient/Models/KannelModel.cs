@@ -1,6 +1,6 @@
 ﻿
 
-namespace GecolPro.SmppClient.Models
+namespace ZGecolPro.SmppClient.Models
 {
     public class KannelModel
     {
@@ -10,7 +10,6 @@ namespace GecolPro.SmppClient.Models
         public string Password { get; set; }
         public string DlrEndPoint { get; set; }
         public int? DlrMask { get; set; } = 7;
-
 
     }
 }
