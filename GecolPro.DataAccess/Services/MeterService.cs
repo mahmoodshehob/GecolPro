@@ -1,5 +1,6 @@
 ﻿using GecolPro.DataAccess.Interfaces;
 using GecolPro.Models.DbEntity;
+using GecolPro.Models.Gecol;
 using Microsoft.EntityFrameworkCore;
 
 namespace GecolPro.DataAccess.Services
@@ -24,7 +25,7 @@ namespace GecolPro.DataAccess.Services
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<ServiceResult> CreateNew(string? meterNumber, string? at, string? tt)
+        public async Task<ServiceResult> CreateNew(string? meterNumber, string? at, string? tt, CustVendDetail? custVendDetail=null)
         {
             try
             {
@@ -44,6 +45,16 @@ namespace GecolPro.DataAccess.Services
                     tt = tt,
                     Number = meterNumber,
                 };
+
+                if (custVendDetail != null)
+                {
+                    newMeter.AccNo = custVendDetail.AccNo;
+                    newMeter.Address = custVendDetail.Address;
+                    newMeter.ContactNo = custVendDetail.ContactNo;
+                    newMeter.DaysLastPurchase = custVendDetail.DaysLastPurchase;
+                    newMeter.LocRef = custVendDetail.LocRef;
+                    newMeter.Name = custVendDetail.Name;
+                }
                 var result = await AddMeter(newMeter);
 
                 return new ServiceResult(result, result ? "The saving process was successful." : "Unknown error");
