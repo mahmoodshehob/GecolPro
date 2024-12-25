@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using GecolPro.WebApi.Interfaces;
+using GecolPro.BusinessRules.Interfaces;
 using GecolPro.DataAccess.Interfaces;
 using GecolPro.Models.DbEntity;
 
@@ -63,7 +63,37 @@ namespace GecolPro.WebApi.Controllers
                 });
             }
         }
+        
+        //
 
+        [HttpGet()]
+        [Route("[Action]")]
+        public async Task<IActionResult> CheckMeter(string meter)
+        {
+
+           var MeterDet = await _ussdProcess.CheckMeterInGecolWithDet(meter);
+
+            string responseTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+            if (MeterDet.Item1)
+            {
+                return Ok(new
+                {
+                    ResponseTime = responseTime,
+                    Status = "Success",
+                    Result = MeterDet.Item2
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    ResponseTime = responseTime,
+                    Status = "Failed",
+                    Result = MeterDet.Item2
+                });
+            }
+        }
         //
 
         [HttpGet("DcbService",Name = "DcbService")]

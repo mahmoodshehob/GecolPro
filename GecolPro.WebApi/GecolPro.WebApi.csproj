@@ -21,6 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\GecolPro.BusinessRules\GecolPro.BusinessRules.csproj" />
 		<ProjectReference Include="..\GecolPro.DataAccess\GecolPro.DataAccess.csproj" />
 		<ProjectReference Include="..\GecolPro.DCBSystem\GecolPro.DCBSystem.csproj" />
 		<ProjectReference Include="..\GecolPro.GecolSystem\GecolPro.GecolSystem.csproj" />

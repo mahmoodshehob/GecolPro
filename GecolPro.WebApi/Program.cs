@@ -1,8 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 
-using GecolPro.WebApi.UssdService;
-using GecolPro.WebApi.Interfaces;
-using GecolPro.WebApi.BusinessRules;
+//using GecolPro.WebApi.UssdService;
+//using GecolPro.WebApi.Interfaces;
+//using GecolPro.WebApi.BusinessRules;
+
+
+using GecolPro.BusinessRules.UssdService;
+using GecolPro.BusinessRules.Interfaces;
+using GecolPro.BusinessRules.BusinessRules;
+
 
 using GecolPro.DataAccess;
 using GecolPro.DataAccess.Interfaces;

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GecolPro.Models.Models;
-using GecolPro.WebApi.BusinessRules;
-using GecolPro.WebApi.Interfaces;
+using GecolPro.BusinessRules.Interfaces;
 
 namespace GecolPro.WebApi.Controllers
 {

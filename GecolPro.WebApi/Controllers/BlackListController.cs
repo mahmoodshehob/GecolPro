@@ -1,4 +1,4 @@
-﻿using GecolPro.WebApi.BusinessRules;
+﻿using GecolPro.BusinessRules.BusinessRules;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Cryptography;

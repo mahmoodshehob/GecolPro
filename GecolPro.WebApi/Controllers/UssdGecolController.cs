@@ -5,11 +5,8 @@ using GecolPro.Services.IServices;
 
 //using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-using GecolPro.WebApi.BusinessRules;
 using static GecolPro.Models.Models.MultiRequestUSSD;
-using GecolPro.Models.Models;
-using GecolPro.DataAccess.Interfaces;
-using GecolPro.WebApi.Interfaces;
+using GecolPro.BusinessRules.Interfaces;
 
 namespace GecolPro.WebApi.Controllers
 {
