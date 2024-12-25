@@ -1,6 +1,8 @@
-﻿namespace GecolPro.Models.DbEntity
+﻿using GecolPro.Models.Gecol;
+
+namespace GecolPro.Models.DbEntity
 {
-    public class Meter
+    public class Meter : CustVendDetail
     {
         public int Id { get; set; }
         public string Number { get; set; }

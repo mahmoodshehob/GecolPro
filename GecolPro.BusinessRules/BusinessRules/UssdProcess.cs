@@ -24,11 +24,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
 
-
-
-
-
-
 namespace GecolPro.BusinessRules.BusinessRules
 {
     public class UssdProcess : IUssdProcess
@@ -356,13 +351,49 @@ namespace GecolPro.BusinessRules.BusinessRules
             }
         }
 
+
+        /* check in Gecol by API.
+*/
+
+        public async Task<(bool,string)> CheckMeterInGecolWithDet(string meterNumber)
+        {
+            try
+            {
+                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_GecolMeter|{conversationId}|Check The Meter|{meterNumber}");
+
+                var gecolResponse = await _gecolServices.ConfirmCustomerOp(meterNumber);
+
+                if (gecolResponse.IsSuccess)
+                {
+                    await AddMeterToDB(meterNumber, gecolResponse.Success);
+
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_GecolMeter|{conversationId}|The Meter Connected|{meterNumber}|MinAmount:{gecolResponse.Success.Response.MinVendAmt}");
+
+                    return (true,"Meter Owner : " +gecolResponse.Success.Response.CustVendDetail.Name);
+                }
+                else
+                {
+                    await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsq_GecolMeter|{conversationId}|The Meter Issued|{meterNumber}|ErrorCode|{gecolResponse.Failure.StatusCode}|Error Desc:|{gecolResponse.Failure.Failure}");
+
+                    return (false, gecolResponse.Failure.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                await _loggerG.LogErrorAsync($"{logPrefix}|xxx|CheckMeterInGecol|{conversationId}|Error|{ex.Message}");
+
+                await ExceptionLogs(ex);
+
+                return (false, ex.Message);
+            }
+        }
         /* Add Meter to DataBase.
          */
 
         private async Task AddMeterToDB(string MeterNumber , SuccessResponseConfirmCustomer CheckGecolMeter)
         {
       
-                if ((await _dbunitOfWork.Meter.CreateNew(MeterNumber, CheckGecolMeter.Response.AT, CheckGecolMeter.Response.TT)).Status)
+                if ((await _dbunitOfWork.Meter.CreateNew(MeterNumber, CheckGecolMeter.Response.AT, CheckGecolMeter.Response.TT, CheckGecolMeter.Response.CustVendDetail)).Status)
                 {
                     await _loggerG.LogInfoAsync($"{logPrefix}|+++|Add_Meter_ToDB|{conversationId}|The Meter Saved|{MeterNumber}");
                 }
@@ -595,9 +626,6 @@ namespace GecolPro.BusinessRules.BusinessRules
                     string[] Tokens;
                     if (!string.IsNullOrEmpty(succResp.CreditVendTx.Desc_KcToken))
                     {
-
-             
-
                         Tokens = [
                             succResp.CreditVendTx.Set1stMeterKey ,
                             succResp.CreditVendTx.Set2ndMeterKey ,

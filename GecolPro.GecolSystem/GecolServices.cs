@@ -27,11 +27,11 @@ namespace GecolPro.GecolSystem
             _createXml = createXml ?? throw new ArgumentNullException(nameof(createXml));
         }
 
-        private enum SoapAction
+        private class SoapAction
         {
-            LoginReq,
-            CreditVendReq,
-            ConfirmCustomerReq
+            public const string LoginReq = "LoginReq";
+            public const string CreditVendReq = "CreditVendReq";
+            public const string ConfirmCustomerReq = "ConfirmCustomerReq";
         }
 
         public async Task<Result<SuccessResponseLogin, FailureResponse>> LoginReqOp()
@@ -41,7 +41,7 @@ namespace GecolPro.GecolSystem
             {
                 var body = OrganizeXmlString(_createXml.CreateXmlLoginRequest());
 
-                var soapRsp = await SendSoapRequest(body, SoapAction.LoginReq.ToString());
+                var soapRsp = await SendSoapRequest(body, SoapAction.LoginReq);
 
                 if (soapRsp.IsSuccessStatusCode)
                 {
@@ -302,12 +302,32 @@ namespace GecolPro.GecolSystem
 
                 //string TransID = DateTime.Now.ToString("ffff");
 
-                await LoggerG.LogGecolTransAsync($"{body}");
+
+                // Logs pf Request
+                if (soapAction == SoapAction.LoginReq)
+                {
+                    await LoggerG.LogCheckAsync($"{body}");
+                }
+                else
+                {
+                    await LoggerG.LogGecolTransAsync($"{body}");
+                }
 
                 var response = await client.SendAsync(request);
 
-                await LoggerG.LogGecolTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
 
+
+
+                //Logs of Response
+
+                if (soapAction == SoapAction.LoginReq)
+                {
+                    await LoggerG.LogCheckAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
+                }
+                else
+                {
+                    await LoggerG.LogGecolTransAsync($"{OrganizeXmlString(response.Content.ReadAsStringAsync().Result)}");
+                }
                 statusCode = response.StatusCode.ToString();
 
                 return new GecolSystemResponse(await response.Content.ReadAsStringAsync(), statusCode,

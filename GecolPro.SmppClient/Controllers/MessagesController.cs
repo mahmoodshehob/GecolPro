@@ -358,12 +358,6 @@ using System.Numerics;
 
 
 
-
-
-
-
-
-
 namespace GecolPro.SmppClient.Controllers
 {
 
