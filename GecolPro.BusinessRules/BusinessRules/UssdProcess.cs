@@ -1,9 +1,7 @@
 ﻿using GecolPro.BusinessRules.Interfaces;
 using GecolPro.DataAccess.Interfaces;
 
-
 // Class Library
-
 
 using GecolPro.DCBSystem;
 using GecolPro.GecolSystem;
@@ -11,9 +9,7 @@ using GecolPro.Models.DCB;
 using GecolPro.Models.Gecol;
 using static GecolPro.Models.Models.MultiRequestUSSD;
 
-
 //Models
-
 
 using GecolPro.Models.Models;
 using GecolPro.Services.IServices;
@@ -24,13 +20,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
 
+
 namespace GecolPro.BusinessRules.BusinessRules
 {
     public class UssdProcess : IUssdProcess
     {
 
         private const string contentType = "text/xml";
-
         private readonly AuthHeader _authHeader;
         private readonly Random random = new Random();
         private readonly MappingPKgs _mappingPkgs;
@@ -48,15 +44,12 @@ namespace GecolPro.BusinessRules.BusinessRules
         private readonly IDbUnitOfWork? _dbunitOfWork;
 
 
-
         private MsgContent msgContentResult = new MsgContent();
         private SubProService subProService = new SubProService();
 
 
-
         //
         private const string logPrefix = "LynaGclsys";
-
 
 
         //
@@ -314,6 +307,10 @@ namespace GecolPro.BusinessRules.BusinessRules
                 return false;
             }
         }
+
+
+
+
 
         /* check in Gecol by API.
 */
@@ -726,48 +723,6 @@ namespace GecolPro.BusinessRules.BusinessRules
 
 
 
-
-
-        /* Send SMS API to SMPP Client  :
-        */
-
-        private async Task SendGecolMessage(string? sender, string receiver, string message)
-        {
-            try
-            {
-                HttpClient client = new HttpClient();
-                string msisdn = subProService.MSISDN;
-
-                var request = new HttpRequestMessage(HttpMethod.Post, "http://172.16.31.17:8086/api/Messages");
-
-                SmsMessage jsonObject = new()
-                {
-                    Receiver = receiver,
-                    Message = message
-                };
-
-                var content = new StringContent(JsonConvert.SerializeObject(jsonObject), null /*System.Text.Encoding.UTF8*/, "application/json");
-                request.Content = content;
-
-                var response = await client.SendAsync(request);
-
-                await _loggerG.LogInfoAsync($"{logPrefix}|==>|Req_SMSCSystem|Submet|To|{msisdn}");
-
-                response.EnsureSuccessStatusCode();
-                var messageResponse = await response.Content.ReadAsStringAsync();
-
-                await _loggerG.LogInfoAsync($"{logPrefix}|<==|Rsp_SMSCSystem|Response|{messageResponse}");
-            }
-            catch (Exception ex)
-            {
-                await ExceptionLogs(ex);
-            }
-        }
-
-
-
-
-
         /* Use this Model for Collect USSD, DCB & GECOL Parameters in one Object:
        */
 
@@ -847,8 +802,6 @@ namespace GecolPro.BusinessRules.BusinessRules
             
              - if not exist reply with false
             */
-
-
 
             /* Generate Sesstion ID :
 
@@ -1004,14 +957,11 @@ namespace GecolPro.BusinessRules.BusinessRules
         {
             ContentResult response = new ContentResult();
 
-            MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
-
-
-            MultiResponseUSSD multiResponse = await ServiceProcessing(multiRequest, lang);
-
             await _loggerG.LogUssdTransAsync($"{xmlContent}");
 
+            MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
 
+            MultiResponseUSSD multiResponse = await ServiceProcessing(multiRequest, lang);
 
 
             if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)

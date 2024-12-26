@@ -21,7 +21,7 @@ namespace GecolPro.WebApi.Controllers
 
         [HttpPut()]
         [Consumes("application/json")]
-        public async Task<IActionResult> DbToBlackList()
+        public IActionResult DbToBlackList()
         {
             return  Ok("no db now");
         }

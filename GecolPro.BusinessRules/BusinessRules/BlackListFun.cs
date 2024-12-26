@@ -66,9 +66,10 @@ namespace GecolPro.BusinessRules.BusinessRules
 
         public async Task SyncDeleteBlackList(string phoneNumber)
         {
-            string res;
             try
-            {
+            {            
+                string? res;
+
                 if (string.IsNullOrWhiteSpace(phoneNumber))
                 {
                     res = "Invalid phone number.";

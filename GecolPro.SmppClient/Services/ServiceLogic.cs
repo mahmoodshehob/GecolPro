@@ -158,7 +158,7 @@ namespace GecolPro.SmppClient.Services
                 {
                     MessageId = msgid,
                     Status = status,
-                    Timestamp = DateTime.UtcNow
+                    Timestamp = DateTime.Now
                 };
 
                 return new ResulteModel()

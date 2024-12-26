@@ -1,22 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RabbitMQ.Client;
-using System.Text.Json;
-using System.Text;
-using GecolPro.SmppClient.Models;
-using GecolPro.SmppClient.Services;
-using GecolPro.SmppClient.Services.IServices;
-using System.Text.RegularExpressions;
-using System.Numerics;
+﻿//using Microsoft.AspNetCore.Mvc;
+//using RabbitMQ.Client;
+//using System.Text.Json;
+//using System.Text;
+//using ZGecolPro.SmppClient.Models;
+//using ZGecolPro.SmppClient.Services;
+//using ZGecolPro.SmppClient.Services.IServices;
+//using System.Text.RegularExpressions;
 
-//namespace GecolPro.SmppClient.Controllers
+//namespace ZGecolPro.SmppClient.Services
 //{
-
-
-//    //[Route("api/[controller]")]
-//    [ApiController]
-//    public class MessagesController : ControllerBase
+//    public class ServiceLogic : IServiceLogic
 //    {
-//        //private readonly ConnectionFactory _factory;
 
 
 //        private IGuidService _msgID;
@@ -28,10 +22,9 @@ using System.Numerics;
 //        private ConnectionFactory _factory;
 //        private readonly string _queueName;
 //        private RabbitMsgQ rabbitMQ;
-//        private ILoggers _loggers ;
+//        private ILoggers _loggers;
 
-
-//        public MessagesController(IConfiguration config ,IGuidService msgID, ILoggers loggers)
+//        public ServiceLogic(IConfiguration config, IGuidService msgID, ILoggers loggers)
 //        {
 //            // Guid
 //            _msgID = msgID;
@@ -68,41 +61,32 @@ using System.Numerics;
 //        }
 
 
-
-
-
-//        [HttpPost]
-//        [Route("api/[controller]/Post")]
-//        public async Task<IActionResult> Post([FromBody] SmsToKannel message)
+//        public async Task<ResulteModel> Post(SmsToKannel message)
 //        {
 //            if (message.Profile.ToLower() == "string")
 //            {
-//                message.Profile=null;
+//                message.Profile = null;
 //            }
 
 //            if (!IsValidPositiveLong(message.Receiver))
 //            {
-//                return BadRequest("the phone Number not rigth.");
+//                return new ResulteModel()
+//                {
+//                    Status = false,
+//                    Resulte = "the phone Number not rigth."
+//                };
 //            }
-
-
-
 
 //            messageProfile = new MessageProfile()
 //            {
 //                MsgID = _msgID.GetGuid(),
 //                Sender = message.Sender,
 //                Receiver = message.Receiver,
-//                Message= message.Message,
+//                Message = message.Message,
 //                Profile = message.Profile
 //            };
 
-
-
-
-
 //            var json = JsonSerializer.Serialize(messageProfile);
-
 
 //            await _loggers.LogInfoAsync($"Submit|msgid:{messageProfile.MsgID}|{JsonSerializer.Serialize(message).ToString()}");
 
@@ -110,7 +94,7 @@ using System.Numerics;
 //            {
 //                using (var connection = _factory.CreateConnection())
 //                {
-//                    Console.WriteLine("Connection to RabbitMQ created.");
+//                    await _loggers.LogInfoAsync("Connection to RabbitMQ created.");
 //                    using (var channel = connection.CreateModel())
 //                    {
 //                        // Console.WriteLine("Channel created. Declaring queue in MessagesController.");
@@ -124,28 +108,49 @@ using System.Numerics;
 //            }
 //            catch (Exception ex)
 //            {
-//                return BadRequest(ex.Message);
+//                return new ResulteModel() 
+//                {
+//                    Status=  false,
+//                    Resulte= ex.Message 
+//                };
 
 //            }
-//            return Ok();
+//            return new ResulteModel()
+//            {
+//                Status = true,
+//                Resulte = "Success"
+//            };
 //        }
 
-
-
-
-//        [HttpGet("[controller]/DLR/{phone}/{msgid}/{status}/{deliveryDate}")]
-//        public async Task<IActionResult> DLR(string phone, string msgid, string status, string deliveryDate)
+//        public async Task<ResulteModel> DLR(string phone, string msgid, string status, string deliveryDate)
 //        {
 //            try
 //            {
 //                phone = phone.Replace("+", "");
 
+//                switch (status)
+//                {
+//                    case "1":
+//                        status = "Delievred";
+//                        break;
+//                    case "8":
+//                        status = "sent";
+//                        break;
+//                    default:
+//                        break;
+//                }
+                
+                
 //                await _loggers.LogInfoAsync($"Delivr|msgid:{msgid},phone:{phone},status:{status}, deliveryDate:{deliveryDate}");
 
 //                // Validate parameters
 //                if (string.IsNullOrEmpty(msgid))
 //                {
-//                    return BadRequest("Message ID (msgid) is required.");
+//                    return new ResulteModel()
+//                    {
+//                        Status = false,
+//                        Resulte = "Message ID (msgid) is required."
+//                    };
 //                }
 
 //                // Process the request (dummy response for demonstration)
@@ -153,26 +158,30 @@ using System.Numerics;
 //                {
 //                    MessageId = msgid,
 //                    Status = status,
-//                    Timestamp = DateTime.UtcNow
+//                    Timestamp = DateTime.Now
 //                };
 
-//                return Ok(response); // Return the response as JSON
+//                return new ResulteModel()
+//                {
+//                    Status = true,
+//                    Resulte = JsonSerializer.Serialize(response)  // Return the response as JSON
+//                };
 //            }
 //            catch (Exception ex)
 //            {
 //                await _loggers.LogInfoAsync($"exp|{ex.Message}");
 
-//                return BadRequest(ex.Message);
+//                return new ResulteModel()
+//                {
+//                    Status = false,
+//                    Resulte = ex.Message
+//                };
 
 //            }
 //        }
 
 
-
-
-//        [HttpGet()]
-//        [Route("[controller]/Status")]
-//        public async Task<IActionResult> KannelStatus()
+//        public async Task<ResulteModel> KannelStatus()
 //        {
 //            try
 //            {
@@ -186,30 +195,32 @@ using System.Numerics;
 //                {
 //                    string rrr = await response.Content.ReadAsStringAsync();
 
-//                    return Ok(JsonSerializer.Serialize(parcing(rrr))); // Return the response as JSON
-
+//                    return new ResulteModel()
+//                    {
+//                        Status = true,
+//                        Resulte = JsonSerializer.Serialize(parcing(rrr)) // Return the response as JSON
+//                    };
 //                }
 
-
-
-
-//                return BadRequest();
+//                return new ResulteModel()
+//                {
+//                    Status = false,
+//                    Resulte = null
+//                };
 
 //            }
 //            catch (Exception ex)
 //            {
 //                await _loggers.LogInfoAsync($"exp|{ex.Message}");
 
-//                return BadRequest(ex.Message);
+//                return new ResulteModel()
+//                {
+//                    Status = false,
+//                    Resulte = ex.Message
+//                };
 
 //            }
 //        }
-
-
-
-
-
-
 
 
 //        private bool IsValidPositiveLong(string input)
@@ -352,85 +363,6 @@ using System.Numerics;
 //            }
 
 //            return kannelStatus;
-//        }
-//    }
-//}
-
-
-
-//namespace GecolPro.SmppClient.Controllers
-//{
-
-
-//    //[Route("api/[controller]")]
-//    [ApiController]
-//    partial class MessagesController_backup : ControllerBase
-//    {
-//        //private readonly ConnectionFactory _factory;
-
-
-//        private IServiceLogic _serviceLogic;
-
-//        public MessagesController_backup(IServiceLogic serviceLogic)
-//        {
-//            _serviceLogic =  serviceLogic;
-//        }
-
-
-
-
-
-//        [HttpPost]
-//        [Route("api/[controller]/Post")]
-//        public async Task<IActionResult> Post([FromBody] SmsToKannel message)
-//        {
-
-//            var _result = await _serviceLogic.Post(message);
-            
-//            if (_result.Item1)
-//            { 
-//                return Ok(_result.Item2); 
-//            }
-//            else
-//            {
-//                return BadRequest(_result.Item2);
-//            }
-
-//        }
-
-
-//        [HttpGet("[controller]/DLR/{phone}/{msgid}/{status}/{deliveryDate}")]
-//        public async Task<IActionResult> DLR(string phone, string msgid, string status, string deliveryDate)
-//        {
-//            var _result = await _serviceLogic.DLR(phone , msgid , status, deliveryDate);
-
-//            if (_result.Item1)
-//            {
-//                return Ok(_result.Item2);
-//            }
-//            else
-//            {
-//                return BadRequest(_result.Item2);
-//            }
-//        }
-
-
-
-
-//        [HttpGet()]
-//        [Route("[controller]/Status")]
-//        public async Task<IActionResult> KannelStatus()
-//        {
-//            var _result = await _serviceLogic.KannelStatus();
-
-//            if (_result.Item1)
-//            {
-//                return Ok(_result.Item2);
-//            }
-//            else
-//            {
-//                return BadRequest(_result.Item2);
-//            }
 //        }
 
 //    }

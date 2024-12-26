@@ -50,7 +50,7 @@ namespace ZGecolPro.SmppClient.Services
         {
             try
             {
-                string filePath = Path.Combine(baseDirectory, category, $"{category.ToLower()}_sms_" + $"{DateTime.UtcNow:yyyyMMdd}.log");
+                string filePath = Path.Combine(baseDirectory, category, $"{category.ToLower()}_sms_" + $"{DateTime.Now:yyyyMMdd}.log");
                 using (StreamWriter writer = new StreamWriter(filePath, true))
                 {
                     await writer.WriteLineAsync($"{DateTime.Now.ToString("yyyyMMddHHmmss")}|{DateTime.Now.ToString("yyyy-MM-dd_HH:mm:ss")}|{message}");

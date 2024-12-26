@@ -98,13 +98,17 @@ namespace GecolPro.BusinessRules.BusinessRules
                                 //$"باقي الديون : {ArgR.RecoveryTx.Balance} دينار\n\n";
                     }
 
-                    if (ArgR.ServiceChrgTx.Count > 0)
+                    if (ArgR.ServiceChrgTx !=null )
                     {
-                        //msgContent.MessageCont += "الضرائب المخصومة :\n\n";
-                        foreach (var argR in ArgR.ServiceChrgTx)
+
+                        if (ArgR.ServiceChrgTx.Count > 0)
                         {
-                            msgContent.MessageCont +=
-                                $"{Translater(argR.AccDesc, Lang)}: {argR.Amout} دينار\n\n";
+                            //msgContent.MessageCont += "الضرائب المخصومة :\n\n";
+                            foreach (var argR in ArgR.ServiceChrgTx)
+                            {
+                                msgContent.MessageCont +=
+                                    $"{Translater(argR.AccDesc, Lang)}: {argR.Amout} دينار\n\n";
+                            }
                         }
                     }
                     break;

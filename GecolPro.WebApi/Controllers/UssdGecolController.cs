@@ -35,7 +35,7 @@ namespace GecolPro.WebApi.Controllers
 
 
 
-        private async Task<string> RemoteIpAddress()
+        private string RemoteIpAddress()
         {
             string? remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 

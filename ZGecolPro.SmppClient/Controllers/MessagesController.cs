@@ -100,7 +100,7 @@ namespace ZGecolPro.SmppClient.Controllers
                 {
                     MessageId = msgid,
                     Status = status,
-                    Timestamp = DateTime.UtcNow
+                    Timestamp = DateTime.Now
                 };
 
                 return Ok(response); // Return the response as JSON

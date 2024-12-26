@@ -77,5 +77,3 @@
         public string[] Rate { get; set; }
     }
 }
-
-

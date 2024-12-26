@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GecolPro.WebApi.Controllers
 {
-    public class DbAPIController : ControllerBase
+    partial class DbAPIController : ControllerBase
     {
 
         private readonly IDbUnitOfWork? _unitOfWork;

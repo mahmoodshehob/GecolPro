@@ -90,7 +90,7 @@ namespace GecolPro.DataAccess.Services
 
         public async Task<List<Request>> QueryTokenHistoryAll(string Msisdn, int previous = 30)
         {
-            var last30Days = DateTime.UtcNow.AddDays(-previous);
+            var last30Days = DateTime.Now.AddDays(-previous);
 
 
 
