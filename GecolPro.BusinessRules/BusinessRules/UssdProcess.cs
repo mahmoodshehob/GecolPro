@@ -1010,13 +1010,8 @@ namespace GecolPro.BusinessRules.BusinessRules
 
              the logic here use two condtions ,
             
-             - Generate Sesstion ID : for Subscriber Request
-            
-             - Check Meter DBs : Check Meter in database if exist  return with true
-            
-             - Check Meter API : if not in DB check by API if exist add to DB and return with true
-            
-             - if not exist reply with false
+             - Use MSISDN to query on token in last 30 days.
+
             */
 
 
@@ -1042,10 +1037,17 @@ namespace GecolPro.BusinessRules.BusinessRules
 
             try
             {
+                await _loggerG.LogInfoAsync($"DatabaseQry|==>|Req_{logPrefix}|Msisdn|{multiRequest.USSDRequestString}");
+
                 var _records = await _dbunitOfWork.Request.QueryTokenHistoryAll(multiRequest.USSDRequestString);
+
+
 
                 if (_records != null)
                 {
+
+                    await _loggerG.LogInfoAsync($"DatabaseQry|<==|Req_{logPrefix}|CountOfTokens|{_records.Count()}");
+
                     var recordHistory = await _menus.HistoryRecordsAsync(_records, Lang);
 
                     await _sendMessage.SendGecolMessage( multiRequest.MSISDN, recordHistory.MessageCont , conversationId);
@@ -1059,7 +1061,7 @@ namespace GecolPro.BusinessRules.BusinessRules
                         USSDServiceCode = "0",
                         USSDResponseString = recordHistory.UssdCont,
                         Action = RespActions.end,
-                        ResponseCode = 200
+                        ResponseCode = 0
                     };
                 }
 
@@ -1071,7 +1073,7 @@ namespace GecolPro.BusinessRules.BusinessRules
                     USSDServiceCode = "0",
                     USSDResponseString = "ليس لديك طلبات في اخر 30 يوم.",
                     Action = RespActions.end,
-                    ResponseCode = 200
+                    ResponseCode = 0
                 };
 
             }
@@ -1085,7 +1087,7 @@ namespace GecolPro.BusinessRules.BusinessRules
                     USSDServiceCode = "0",
                     USSDResponseString = ex.Message,
                     Action = RespActions.end,
-                    ResponseCode = 200
+                    ResponseCode = 400
                 };
             }
 
