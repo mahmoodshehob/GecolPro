@@ -61,7 +61,7 @@ namespace GecolPro.SmppClient.Services
         }
 
 
-        public async Task<(bool,string?)> Post(SmsToKannel message)
+        public async Task<ResulteModel> Post(SmsToKannel message)
         {
             if (message.Profile.ToLower() == "string")
             {
@@ -70,7 +70,11 @@ namespace GecolPro.SmppClient.Services
 
             if (!IsValidPositiveLong(message.Receiver))
             {
-                return (false,"the phone Number not rigth.");
+                return new ResulteModel()
+                {
+                    Status = false,
+                    Resulte = "the phone Number not rigth."
+                };
             }
 
             messageProfile = new MessageProfile()
@@ -104,24 +108,49 @@ namespace GecolPro.SmppClient.Services
             }
             catch (Exception ex)
             {
-                return (false,ex.Message);
+                return new ResulteModel() 
+                {
+                    Status=  false,
+                    Resulte= ex.Message 
+                };
 
             }
-            return (true,null);
+            return new ResulteModel()
+            {
+                Status = true,
+                Resulte = "Success"
+            };
         }
 
-        public async Task<(bool,string?)> DLR(string phone, string msgid, string status, string deliveryDate)
+        public async Task<ResulteModel> DLR(string phone, string msgid, string status, string deliveryDate)
         {
             try
             {
                 phone = phone.Replace("+", "");
 
+                switch (status)
+                {
+                    case "1":
+                        status = "Delievred";
+                        break;
+                    case "8":
+                        status = "sent";
+                        break;
+                    default:
+                        break;
+                }
+                
+                
                 await _loggers.LogInfoAsync($"Delivr|msgid:{msgid},phone:{phone},status:{status}, deliveryDate:{deliveryDate}");
 
                 // Validate parameters
                 if (string.IsNullOrEmpty(msgid))
                 {
-                    return (false, "Message ID (msgid) is required.");
+                    return new ResulteModel()
+                    {
+                        Status = false,
+                        Resulte = "Message ID (msgid) is required."
+                    };
                 }
 
                 // Process the request (dummy response for demonstration)
@@ -132,19 +161,27 @@ namespace GecolPro.SmppClient.Services
                     Timestamp = DateTime.UtcNow
                 };
 
-                return (true,JsonSerializer.Serialize(response)); // Return the response as JSON
+                return new ResulteModel()
+                {
+                    Status = true,
+                    Resulte = JsonSerializer.Serialize(response)  // Return the response as JSON
+                };
             }
             catch (Exception ex)
             {
                 await _loggers.LogInfoAsync($"exp|{ex.Message}");
 
-                return (false, ex.Message);
+                return new ResulteModel()
+                {
+                    Status = false,
+                    Resulte = ex.Message
+                };
 
             }
         }
 
 
-        public async Task<(bool, string?)> KannelStatus()
+        public async Task<ResulteModel> KannelStatus()
         {
             try
             {
@@ -158,18 +195,29 @@ namespace GecolPro.SmppClient.Services
                 {
                     string rrr = await response.Content.ReadAsStringAsync();
 
-                    return (true, JsonSerializer.Serialize(parcing(rrr))); // Return the response as JSON
-
+                    return new ResulteModel()
+                    {
+                        Status = true,
+                        Resulte = JsonSerializer.Serialize(parcing(rrr)) // Return the response as JSON
+                    };
                 }
 
-                return (false, null);
+                return new ResulteModel()
+                {
+                    Status = false,
+                    Resulte = null
+                };
 
             }
             catch (Exception ex)
             {
                 await _loggers.LogInfoAsync($"exp|{ex.Message}");
 
-                return (false, ex.Message);
+                return new ResulteModel()
+                {
+                    Status = false,
+                    Resulte = ex.Message
+                };
 
             }
         }

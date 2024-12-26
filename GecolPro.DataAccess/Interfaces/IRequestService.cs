@@ -9,5 +9,7 @@ namespace GecolPro.DataAccess.Interfaces
         Task<ServiceResult> SaveDcblRequest(string? conversationId, string? MSISDN, string meterNumber, string amount, bool status, string transactionId);
 
         Task<List<Request>> GetAll();
+
+        Task<List<Request>> QueryTokenHistoryAll(string Msisdn, int previous = 30);
     }
 }

@@ -23,5 +23,6 @@ namespace GecolPro.BusinessRules.Interfaces
         public Task<MsgContent> BlockedResponseAsync(string FaultCode, string Lang);
         public Task<MsgContent> UnderMaintenance_Gecol(string FaultCode, string Lang);
         public Task<MsgContent> UnderMaintenance_Billing(string FaultCode, string Lang);
+        public Task<MsgContent> HistoryRecordsAsync(List<Models.DbEntity.Request> Args, string Lang);
     }
 }

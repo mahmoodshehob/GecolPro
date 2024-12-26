@@ -5,10 +5,10 @@ namespace GecolPro.SmppClient.Services.IServices
     public interface IServiceLogic
     {
 
-        public Task<(bool, string?)> Post(SmsToKannel message);
+        public Task<ResulteModel> Post(SmsToKannel message);
 
-        public Task<(bool, string?)> DLR(string phone, string msgid, string status, string deliveryDate);
+        public Task<ResulteModel> DLR(string phone, string msgid, string status, string deliveryDate);
         
-        public Task<(bool, string?)> KannelStatus();
+        public Task<ResulteModel> KannelStatus();
     }
 }

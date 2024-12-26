@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GecolPro.WebApi.Controllers
 {
-    partial class DbAPIController : ControllerBase
+    public class DbAPIController : ControllerBase
     {
 
         private readonly IDbUnitOfWork? _unitOfWork;
@@ -71,6 +71,14 @@ namespace GecolPro.WebApi.Controllers
         public async Task<IActionResult> GetAllRequests()
         {
             var result = await _unitOfWork.Request.GetAll();
+            return Ok(result);
+        }
+
+
+        [HttpGet("QueryTokenHistory")]
+        public async Task<IActionResult> QueryTokenHistoryRequests(string Msisdn)
+        {
+            var result = await _unitOfWork.Request.QueryTokenHistoryAll(Msisdn,30);
             return Ok(result);
         }
 

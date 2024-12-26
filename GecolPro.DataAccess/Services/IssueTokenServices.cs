@@ -90,5 +90,9 @@ namespace GecolPro.DataAccess.Services
         {
             return await _context.IssueTkns.ToListAsync();
         }
+
+
+
+      
     }
 }

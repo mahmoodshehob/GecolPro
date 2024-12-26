@@ -1,6 +1,7 @@
 ﻿using GecolPro.Models.Gecol;
 using GecolPro.Models.Models;
 using GecolPro.BusinessRules.Interfaces;
+using NuGet.Common;
 
 
 namespace GecolPro.BusinessRules.BusinessRules
@@ -358,6 +359,56 @@ namespace GecolPro.BusinessRules.BusinessRules
 
             return msgContent;
         }
+
+
+        public async Task<MsgContent> HistoryRecordsAsync(List<Models.DbEntity.Request> Args ,string Lang)
+        {
+            string message;
+            switch (Lang)
+            {
+                case "En":
+
+                    message = "Orders for last 30 days\n\n";
+
+                    foreach (var Arg in Args)
+                    {
+                        message += $"Credit Vend Receipt: {Arg.TransactionId}\n" +
+                        $"Meter Number: {Arg.MeterNumber}\n" +
+                        $"token : {Arg.Token}\n" +
+                        $"amount : {Arg.Amount} LYD\n" +
+                        $"dateOfOrder : {Arg.CreatedDate}\n\n";
+                    }
+
+                    return new MsgContent()
+                    {
+                        UssdCont = "Wait the SMS.",
+
+                        MessageCont = message
+                    };
+
+                default:
+
+                    message = "طلبات اخر 30 يوم.\n\n";
+
+
+                    foreach (var Arg in Args)
+                    {
+                        message += 
+                            $"فاتورة رقم : {Arg.TransactionId}\n" +
+                            $"رقم العداد : {Arg.MeterNumber}\n" +
+                            $"كرت الشحن : {Arg.Token}\n" +
+                            $"المبلغ المدفوع: {Arg.Amount} دينار\n" +
+                            $"تاريخ الطلب : {Arg.CreatedDate}\n\n";
+                    }
+
+                    return new MsgContent()
+                    {
+                        UssdCont = "انتظر الرسالة.",
+                        MessageCont = message
+                    };
+            }
+        }
+
 
         private string Translater(string Message, string Lang)
         {

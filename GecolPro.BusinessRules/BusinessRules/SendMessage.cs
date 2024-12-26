@@ -5,6 +5,7 @@ using GecolPro.BusinessRules.Interfaces;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.Json.Nodes;
 
 
 namespace GecolPro.BusinessRules.BusinessRules
@@ -49,6 +50,9 @@ namespace GecolPro.BusinessRules.BusinessRules
                         Message = message,
                         Profile = _smppInfo.Profile
                     };
+
+
+                    //jsonObject.Receiver = "218947776156";
 
 
                     var content = new StringContent(JsonConvert.SerializeObject(jsonObject), null, "application/json");

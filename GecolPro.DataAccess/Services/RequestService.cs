@@ -87,5 +87,25 @@ namespace GecolPro.DataAccess.Services
         {
             return await _context.Requests.ToListAsync();
         }
+
+        public async Task<List<Request>> QueryTokenHistoryAll(string Msisdn, int previous = 30)
+        {
+            var last30Days = DateTime.UtcNow.AddDays(-previous);
+
+
+
+            var recentData = await _context.Requests.Where(t =>
+            t.CreatedDate >= last30Days &&
+            t.MSISDN == Msisdn &&
+            t.FromSystem.ToLower() == "Gecol".ToLower())
+                .ToListAsync();
+
+            foreach (var transaction in recentData)
+            {
+                Console.WriteLine($"ID: {transaction.Id}, CreatedDate: {transaction.CreatedDate}");
+            }
+
+            return recentData;
+        }
     }
 }

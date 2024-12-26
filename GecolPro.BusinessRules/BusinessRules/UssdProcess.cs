@@ -1044,5 +1044,147 @@ namespace GecolPro.BusinessRules.BusinessRules
                 return response;
             }
         }
+
+
+   
+
+
+        /* Main Class (Service Start here)
+         */
+
+        public async Task<MultiResponseUSSD> QueryTokenHistoryProcessing(MultiRequest multiRequest, string Lang)
+        {
+            MultiResponseUSSD _multiResponseUSSD;
+
+            /* Service start here
+
+             the logic here use two condtions ,
+            
+             - Generate Sesstion ID : for Subscriber Request
+            
+             - Check Meter DBs : Check Meter in database if exist  return with true
+            
+             - Check Meter API : if not in DB check by API if exist add to DB and return with true
+            
+             - if not exist reply with false
+            */
+
+
+
+            /* Generate Sesstion ID :
+
+            */
+
+            string sessionId = DateTime.Now.ToString($"yyyyMMddHHmmssfff");
+
+            if (DateTime.TryParseExact(multiRequest.TransactionTime, "M/d/yyyy h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+            {
+                // Format the DateTime object into the desired format
+                sessionId = parsedDate.ToString("yyyyMMddHHmmss") + DateTime.Now.ToString("fff");
+            }
+
+
+            /* Logger for start Sesstion :
+             */
+
+            await _loggerG.LogInfoAsync($"UssdSystem|==>|Req_{logPrefix}|Start|Session_Id |{sessionId}");
+
+
+            try
+            {
+                var _records = await _dbunitOfWork.Request.QueryTokenHistoryAll(multiRequest.USSDRequestString);
+
+                if (_records != null)
+                {
+                    var recordHistory = await _menus.HistoryRecordsAsync(_records, Lang);
+
+                    await _sendMessage.SendGecolMessage( multiRequest.MSISDN, recordHistory.MessageCont , conversationId);
+
+
+                    return _multiResponseUSSD = new MultiResponseUSSD
+                    {
+                        TransactionId = multiRequest.TransactionId,
+                        TransactionTime = DateTime.Now.ToString("yyyyMMddTHH:mm:ss"),
+                        MSISDN = multiRequest.MSISDN,
+                        USSDServiceCode = "0",
+                        USSDResponseString = recordHistory.UssdCont,
+                        Action = RespActions.end,
+                        ResponseCode = 200
+                    };
+                }
+
+                return _multiResponseUSSD = new MultiResponseUSSD
+                {
+                    TransactionId = multiRequest.TransactionId,
+                    TransactionTime = DateTime.Now.ToString("yyyyMMddTHH:mm:ss"),
+                    MSISDN = multiRequest.MSISDN,
+                    USSDServiceCode = "0",
+                    USSDResponseString = "ليس لديك طلبات في اخر 30 يوم.",
+                    Action = RespActions.end,
+                    ResponseCode = 200
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return _multiResponseUSSD = new MultiResponseUSSD
+                {
+                    TransactionId = multiRequest.TransactionId,
+                    TransactionTime = DateTime.Now.ToString("yyyyMMddTHH:mm:ss"),
+                    MSISDN = multiRequest.MSISDN,
+                    USSDServiceCode = "0",
+                    USSDResponseString = ex.Message,
+                    Action = RespActions.end,
+                    ResponseCode = 200
+                };
+            }
+
+
+        }
+
+
+
+
+        public async Task<ContentResult> GetQueryTokensResponse(string xmlContent, string lang)
+        {
+            ContentResult response = new ContentResult();
+
+            MultiRequestUSSD.MultiRequest multiRequest = await _ussdConverter.ConverterFaster(xmlContent);
+
+
+            MultiResponseUSSD multiResponse = await QueryTokenHistoryProcessing(multiRequest, lang);
+
+            await _loggerG.LogUssdTransAsync($"{xmlContent}");
+
+            if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
+            {
+                string respContetn = _responses.Resp(multiResponse);
+
+                await _loggerG.LogUssdTransAsync($"{respContetn}");
+
+                response = new ContentResult
+                {
+                    ContentType = contentType,
+                    Content = respContetn,
+                    StatusCode = 200
+                };
+                return response;
+
+            }
+            else
+            {
+                string respContetn = _responses.Fault_Response(multiResponse);
+
+                await _loggerG.LogDcbTransAsync($"{respContetn}");
+
+                response = new ContentResult
+                {
+                    ContentType = contentType,
+                    Content = respContetn,
+                    StatusCode = 400
+                };
+                return response;
+            }
+        }
     }
 }
