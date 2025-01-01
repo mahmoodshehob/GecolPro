@@ -22,7 +22,7 @@ namespace GecolPro.WebApi.Controllers
 
             if (string.IsNullOrEmpty(Msisdn) || string.IsNullOrWhiteSpace(Msisdn) || long.TryParse(Msisdn, out _) )
             {
-                Msisdn = OrderdNumber;
+                Msisdn = "218947776156";
             }
 
 
