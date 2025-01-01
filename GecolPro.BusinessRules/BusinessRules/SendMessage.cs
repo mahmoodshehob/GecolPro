@@ -52,6 +52,7 @@ namespace GecolPro.BusinessRules.BusinessRules
 
                     SmsMessage MessageObject = new SmsMessage()
                     {
+                        msgID = string.Empty,
                         Sender = _smppInfo.Sender,
                         Receiver = receiver,
                         Message = message,

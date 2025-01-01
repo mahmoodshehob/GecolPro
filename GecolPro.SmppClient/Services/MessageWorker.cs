@@ -70,10 +70,10 @@ namespace GecolPro.SmppClient.Services
                     {
                         var body = ea.Body.ToArray();
                         var json = Encoding.UTF8.GetString(body);
-                        var message = JsonSerializer.Deserialize<MessageProfile>(json);
+                        var message = JsonSerializer.Deserialize<SmsToKannel>(json);
 
 
-                        dlrMessage.msgId = message.MsgID;
+                        dlrMessage.msgId = message.msgID;
 
                         string dlr_uri = $"dlr-mask={_kannelModel.DlrMask}&dlr-url={_kannelModel.DlrEndPoint}/Messages/DLR/{dlrMessage.Phone}/{dlrMessage.msgId}/{dlrMessage.Status}/%t/";
 

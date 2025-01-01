@@ -14,7 +14,6 @@ namespace GecolPro.SmppClient.Services
 
 
         private IGuidService _msgID;
-        private MessageProfile messageProfile;
 
         private readonly KannelModel _kannelModel;
 
@@ -77,18 +76,16 @@ namespace GecolPro.SmppClient.Services
                 };
             }
 
-            messageProfile = new MessageProfile()
+
+            if (string.IsNullOrEmpty( message.msgID)|| string.IsNullOrWhiteSpace(message.msgID) || message.msgID.ToLower() == "string") 
             {
-                MsgID = _msgID.GetGuid(),
-                Sender = message.Sender,
-                Receiver = message.Receiver,
-                Message = message.Message,
-                Profile = message.Profile
-            };
+                message.msgID = _msgID.GetGuid();
+            }
 
-            var json = JsonSerializer.Serialize(messageProfile);
 
-            await _loggers.LogInfoAsync($"Submit|msgid:{messageProfile.MsgID}|{JsonSerializer.Serialize(message).ToString()}");
+            var json = JsonSerializer.Serialize(message);
+
+            await _loggers.LogInfoAsync($"Submit|msgid:{message.msgID}|{JsonSerializer.Serialize(message).ToString()}");
 
             try
             {

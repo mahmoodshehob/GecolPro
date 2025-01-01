@@ -784,6 +784,21 @@ namespace GecolPro.BusinessRules.BusinessRules
 
 
 
+        // save the invoice in database.
+
+        private async Task SaveMessageToDB()
+        {
+
+        }
+
+        private async Task SaveMessageToDB(object obj)
+        {
+
+        }
+
+
+
+
 
         /* Main Class (Service Start here)
          */
@@ -886,6 +901,12 @@ namespace GecolPro.BusinessRules.BusinessRules
 
                                 if (!string.IsNullOrEmpty(msgContentResult.MessageCont))
                                 {
+                                    // save the invoice in database.
+
+                                    await SaveMessageToDB();
+
+                                    // send invoice by sms to subscriber .
+
                                     _sendMessage.SendGecolMessage(subProService.MSISDN, msgContentResult.MessageCont, subProService.ConversationID);
                                 }
                                 else
@@ -1002,7 +1023,7 @@ namespace GecolPro.BusinessRules.BusinessRules
         /* Main Class (Service Start here)
          */
 
-        public async Task<MultiResponseUSSD> QueryTokenHistoryProcessing(MultiRequest multiRequest, string Lang)
+        private async Task<MultiResponseUSSD> QueryTokenHistoryProcessing(MultiRequest multiRequest, string Lang)
         {
             MultiResponseUSSD _multiResponseUSSD;
 
@@ -1136,6 +1157,36 @@ namespace GecolPro.BusinessRules.BusinessRules
                     StatusCode = 400
                 };
                 return response;
+            }
+        }
+
+        public async Task<(bool,string)> GetQueryTokensResponseSupport(string Msisdn, string OrderdNumber, string lang)
+        {
+
+            ContentResult response = new ContentResult();
+
+            MultiRequestUSSD.MultiRequest multiRequest = new()
+            {
+                TransactionId = "support" + new Random().Next(),
+                TransactionTime = DateTime.Now.ToString("yyyyMMddTHH:mm:ss"),
+                MSISDN = Msisdn,
+                USSDRequestString = OrderdNumber,
+                USSDServiceCode = "apiInt",
+                Response    =   null
+            };
+
+
+            MultiResponseUSSD multiResponse = await QueryTokenHistoryProcessing(multiRequest, lang);
+
+            //await _loggerG.LogUssdTransAsync($"{xmlContent}");
+
+            if (multiResponse.ResponseCode == 0 || multiResponse.ResponseCode == null)
+            {
+                return (true, multiResponse.USSDResponseString);
+            }
+            else
+            {
+                return (false, multiResponse.USSDResponseString);
             }
         }
     }
